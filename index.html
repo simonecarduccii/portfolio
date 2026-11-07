@@ -17,7 +17,8 @@
 <body>
 <header class="site-header on-hero">
   <a class="brand" href="index.html">Simone Carducci</a>
-  <nav class="nav" aria-label="Menu principale"><a href="index.html#cultura">Progetti culturali</a><a href="archivio.html">Archivio</a><a href="index.html#fotografia">Fotografia</a><a href="about.html">About</a></nav>
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav" aria-label="Apri il menu"><span></span><span></span></button>
+  <nav class="nav" id="nav" aria-label="Menu principale"><a href="index.html#cultura">Progetti culturali</a><a href="archivio.html">Archivio</a><a href="index.html#fotografia">Fotografia</a><a href="ai.html">AI</a><a href="about.html">About</a></nav>
 </header>
 
 <main>
@@ -87,6 +88,18 @@
     </a>
     </div>
   </section>
+  <section class="section" id="ai">
+    <div class="section-head">
+      <h2 class="h2">Progetti<br>con l'AI</h2>
+      <p class="lead">Strumenti che progetto e costruisco con l'intelligenza artificiale.</p>
+    </div>
+    <ol class="ai-list compact">
+      <li class="ai-item"><div class="ai-num">01</div><div class="ai-main"><a class="ai-title" href="ai.html">Bohème Vedetta</a><p class="ai-desc">Cerca e verifica ogni settimana i bandi di oltre 75 enti per Bohème Magazine.</p></div><span class="ai-status">Attivo</span></li>
+      <li class="ai-item"><div class="ai-num">02</div><div class="ai-main"><a class="ai-title" href="ai.html">Coach per la corsa</a><p class="ai-desc">Piani di allenamento che si adattano ai dati reali delle corse.</p></div><span class="ai-status">In sviluppo</span></li>
+      <li class="ai-item is-private"><div class="ai-num">03</div><div class="ai-main"><a class="ai-title" href="ai.html">Progetto di lettura</a><p class="ai-desc">Uno strumento su misura per la mia famiglia. Privato.</p></div><span class="ai-status">Privato</span></li>
+    </ol>
+    <p style="margin-top:28px"><a class="link-arrow" href="ai.html">Tutti i progetti con l'AI</a></p>
+  </section>
 </main>
 <footer class="site-footer">
   <div>
@@ -102,6 +115,7 @@
     <li><a href="index.html#cultura">Progetti culturali</a></li>
     <li><a href="archivio.html">Archivio</a></li>
     <li><a href="index.html#fotografia">Fotografia</a></li>
+    <li><a href="ai.html">Progetti con l'AI</a></li>
     <li><a href="about.html">About</a></li>
   </ul>
   <div class="legal">
