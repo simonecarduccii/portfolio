@@ -151,7 +151,7 @@
       img.className = 'hero-cover';
       img.alt = '';
       img.src = src;
-      hero.insertBefore(img, hero.querySelector('.hero-tag'));
+      hero.insertBefore(img, hero.querySelector('.hero-bottom'));
       layers[src] = img;
     };
     probe.src = src;

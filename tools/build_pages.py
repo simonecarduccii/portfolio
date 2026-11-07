@@ -200,11 +200,11 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 def footer():
     return f"""<footer class="site-footer">
   <div class="footer-cta">
-    <p class="p-title">Scrivimi</p>
-    <a class="h3" href="mailto:{EMAIL}">{EMAIL}</a>
+    <p class="footer-big">Scrivimi</p>
+    <a class="mail" href="mailto:{EMAIL}">{EMAIL}</a>
   </div>
   <div class="footer-cols">
-    <div><h2 class="label">Contatti</h2><ul><li><a href="mailto:{EMAIL}">Email</a></li></ul></div>
+    <div><h2 class="label">Contatti</h2><ul><li><a class="plain" href="mailto:{EMAIL}">{EMAIL}</a></li><li><span class="label">Roma / Torino</span></li></ul></div>
     <div><h2 class="label">Altrove</h2><ul><li><a href="{INSTAGRAM}" target="_blank" rel="noopener">Instagram</a></li><li><a href="{LOMO}" target="_blank" rel="noopener">Lomography</a></li></ul></div>
     <div><h2 class="label">Sezioni</h2><ul>{"".join(f'<li><a href="{h}">{l}</a></li>' for l, h, _ in NAV)}</ul></div>
     <div><h2 class="label">CV</h2><ul><li><a class="link-arrow" href="{CV}" target="_blank">Scarica il CV (PDF)</a></li></ul></div>
@@ -216,10 +216,16 @@ def footer():
 </footer>"""
 
 
+_FILM = ["", " f-b", " f-c", " f-d"]
+_film_i = [0]
+
+
 def img(src, alt, label=None, eager=False):
     label = label or f"Foto in arrivo · {src}"
     loading = "" if eager else ' loading="lazy"'
-    return (f'<div class="media"><span class="ph">{html.escape(label)}</span>'
+    film = _FILM[_film_i[0] % 4]
+    _film_i[0] += 1
+    return (f'<div class="media{film}"><span class="ph">{html.escape(label)}</span>'
             f'<img src="{src}" alt="{html.escape(alt)}"{loading} onerror="this.remove()"></div>')
 
 
@@ -271,7 +277,7 @@ def build_culture(i, p):
     {img(f"img/{s}/cover.jpg", p["title"], eager=True)}
     <span class="caption">{html.escape(p["title"])}</span>
   </section>
-  <div class="p-title-row"><h1 class="p-title">{html.escape(p["title"])}</h1>{img(f"img/{s}/01.jpg", "", " ").replace('class="media"', 'class="media thumb" aria-hidden="true"')}</div>
+  <div class="p-title-row"><h1 class="p-title">{html.escape(p["title"])}</h1>{img(f"img/{s}/01.jpg", "", " ").replace('<div class="media', '<div aria-hidden="true" class="media thumb', 1)}</div>
   <div class="p-facts-wrap">{visit}{facts(meta)}</div>
   <section class="p-body offset">
     {draft_note() if "DA VERIFICARE" in str(secs) + str(meta) else ""}
@@ -414,17 +420,18 @@ def build_home():
     </a>""")
     tiles = "".join(
         f'<a class="tile" href="{p["slug"]}.html">{img(f"img/{p["slug"]}/cover.jpg", p["title"])}'
-        f'<span class="fig-cap label"><span>{html.escape(p["title"])}</span><span>{p["year"]}</span></span></a>'
+        f'<span class="fig-cap label"><span>{html.escape(p["title"])}</span><span>{p["year"]} · Pellicola</span></span></a>'
         for p in PHOTO)
     hero_items = "".join(
         f'<li><a class="display-xl" href="{p["slug"]}.html" data-cover="img/{p["slug"]}/cover.jpg">{html.escape(p["title"])}<sup class="yr">{p["year"]}</sup></a></li>'
         for p in CULTURE + PHOTO)
     body = f"""  <section class="hero" aria-label="Progetti">
     <div class="media" data-random-photo><span class="ph">Foto dall'archivio</span></div>
-    <p class="hero-tag label">Creative development — {inline(tagline)}</p>
     <h1 class="sr-only">Simone Carducci, creative development</h1>
-    <ul class="hero-list">{hero_items}</ul>
-    <a class="hero-down" href="#manifesto" aria-label="Scorri giù">↓</a>
+    <div class="hero-bottom">
+      <ul class="hero-list">{hero_items}</ul>
+      <div class="hero-foot label"><span>Creative development — {inline(tagline)}</span><a href="#manifesto" aria-label="Scorri giù">↓</a></div>
+    </div>
   </section>
 
   <section class="manifesto" id="manifesto">
