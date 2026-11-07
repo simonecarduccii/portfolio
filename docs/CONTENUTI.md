@@ -21,7 +21,17 @@ Tono: prima persona, frasi brevi, fatti prima degli aggettivi. Niente "passione"
 - **Tagline:** Editorial, Events & Cultural Projects
 - **Sottotitolo:** Ideo progetti culturali e li porto dall'idea al pubblico: un magazine, un collettivo, serie fotografiche su pellicola e gli strumenti digitali che li fanno funzionare.
 - **Call to action:** Guarda i progetti · Scrivimi
-- **Manifesto (una frase, max 18 parole):** Un progetto culturale va seguito intero: dall'idea alla forma, dalle persone al pubblico.
+
+## Home secondo i mockup Figma
+
+- **Hero:** i titoli dei progetti culturali con l'anno: Colectivo modì 2026 · Bohème Magazine 2024
+- **Banda pellicole (tre voci):** Tutte le mie pellicole (→ Lomography) · Tutto il mio archivio (→ archivio) · Tutta la mia vita (→ indice dell'archivio)
+- **Etichetta griglia foto:** Ricerca visiva
+- **Etichetta sezione AI:** Progetti con l'AI
+- **Banda in fondo:** Archivio
+- **Footer (una riga):** © 2025-2026 Simone Carducci. P.iva 18337621009 · Instagram · Email
+
+Le intro di sezione qui sotto restano per meta description e versioni alternative; i mockup non le mostrano.
 
 ## Intro delle sezioni (home)
 
@@ -115,7 +125,16 @@ Un posto dove il progetto culturale e il progetto di design si parlino, e dove m
 
 - **Link:** Scarica il CV · Scrivimi
 
-## Archivio (pagina)
+## Archivio (pagina, secondo i mockup)
+
+- **Indice "Tutta la mia vita"** (tre colonne, in quest'ordine):
+  - Viaggi · Libri · Exhibitions · Film · Musica · Album · Outfit
+  - Pellicole · Fotografie · Fotocamere · Tatuaggi · Personal media · Podcast · Note
+  - Concerti · Montagne · Mappamondo · Calcio · Pesi · Poster · Ragazzi
+- Voci non ancora pronte: nessun testo, solo il nome in grigio. Tooltip/aria-label: "In arrivo".
+- **aria-label frecce:** "Foto precedente" / "Un'altra foto a caso"
+
+## Archivio (versione precedente)
 
 - **Titolo:** Archivio
 - **Lead:** Tutte le mie pellicole. Clicca la foto per pescarne un'altra a caso.
