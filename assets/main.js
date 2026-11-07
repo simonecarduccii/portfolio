@@ -1,29 +1,12 @@
 // Simone Carducci — portfolio. Small, dependency-free interactions.
 
-// Header: transparent over the home hero, solid after 40px of scroll.
+// Header: transparent over a full-bleed hero, solid after 40px of scroll.
 (function () {
-  var header = document.querySelector('.site-header.on-hero');
+  var header = document.querySelector('.site-header.overlay');
   if (!header) return;
   var onScroll = function () { header.classList.toggle('scrolled', window.scrollY > 40); };
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
-})();
-
-// Mobile menu.
-(function () {
-  var header = document.querySelector('.site-header');
-  var toggle = header && header.querySelector('.nav-toggle');
-  if (!toggle) return;
-  function set(open) {
-    header.classList.toggle('menu-open', open);
-    document.body.classList.toggle('no-scroll', open);
-    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-    toggle.textContent = open ? 'Chiudi' : 'Menu';
-  }
-  toggle.addEventListener('click', function () { set(!header.classList.contains('menu-open')); });
-  header.querySelectorAll('.nav a').forEach(function (a) { a.addEventListener('click', function () { set(false); }); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') set(false); });
-  window.addEventListener('resize', function () { if (window.innerWidth > 760) set(false); });
 })();
 
 // Random photo from the archive. The list is img/archivio/archivio.json, written by
@@ -65,8 +48,9 @@
     return i;
   }
 
-  function show(target, forced) {
+  function show(target, forced, noHistory) {
     var i = pick(forced);
+    if (!noHistory) (target._history = target._history || []).push(i);
     var photo = photos[i];
     var media = target.classList.contains('media') ? target : (target.querySelector('.media') || target);
     var img = media.querySelector('img');
@@ -106,14 +90,33 @@
     });
   });
 
+  // Chevrons on the home band and the archive cover: next = another random photo,
+  // previous = back through the photos already seen there.
+  document.querySelectorAll('[data-band-next], [data-cover-next], [data-cover-prev]').forEach(function (b) {
+    var target = b.closest('section').querySelector('[data-random-photo]');
+    if (!target) return;
+    b.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (!b.hasAttribute('data-cover-prev')) { show(target); return; }
+      var h = target._history || [];
+      if (h.length < 2) return;
+      h.pop();
+      show(target, h[h.length - 1], true);
+    });
+  });
+  var cover = document.querySelector('[data-cover-stage]');
+
   var stage = document.querySelector('.archive-stage');
   var btn = document.querySelector('[data-next-photo]');
   if (btn && stage) btn.addEventListener('click', function () { show(stage); });
 
   document.addEventListener('keydown', function (e) {
-    if (stage && (e.key === ' ' || e.key === 'ArrowRight') && document.activeElement === document.body) {
+    if (document.activeElement !== document.body) return;
+    if (e.key === ' ' || e.key === 'ArrowRight') {
+      var t = stage && stage.getBoundingClientRect().top < window.innerHeight / 2 ? stage : (cover || stage);
+      if (!t) return;
       e.preventDefault();
-      show(stage);
+      show(t);
     }
   });
 
@@ -151,7 +154,7 @@
       img.className = 'hero-cover';
       img.alt = '';
       img.src = src;
-      hero.insertBefore(img, hero.querySelector('.hero-bottom'));
+      hero.insertBefore(img, hero.querySelector('.hero-list'));
       layers[src] = img;
     };
     probe.src = src;
@@ -188,34 +191,6 @@
         if (c) c.textContent = String(filled.indexOf(li) + 1).padStart(2, '0') + '/' + total;
       });
     }
-  });
-})();
-
-// AI index: whole row is clickable; on desktop a thumbnail follows the cursor.
-(function () {
-  var rows = document.querySelectorAll('.index-table tr.row-link');
-  if (!rows.length) return;
-  var thumb = document.createElement('div');
-  thumb.className = 'row-thumb';
-  thumb.setAttribute('aria-hidden', 'true');
-  thumb.innerHTML = '<img alt="">';
-  document.body.appendChild(thumb);
-  var timg = thumb.firstChild;
-  rows.forEach(function (tr) {
-    var link = tr.querySelector('a');
-    tr.addEventListener('click', function (e) { if (link && e.target.tagName !== 'A') link.click(); });
-    var src = tr.getAttribute('data-thumb');
-    if (!src) return;
-    var ok = false;
-    var probe = new Image();
-    probe.onload = function () { ok = true; };
-    probe.src = src;
-    tr.addEventListener('mouseenter', function () { if (ok) { timg.src = src; thumb.classList.add('on'); } });
-    tr.addEventListener('mouseleave', function () { thumb.classList.remove('on'); });
-    tr.addEventListener('mousemove', function (e) {
-      thumb.style.left = (e.clientX + 24) + 'px';
-      thumb.style.top = (e.clientY - 90) + 'px';
-    });
   });
 })();
 
