@@ -1,6 +1,8 @@
 # Design — sistema visivo
 
-**Riferimento principale: i mockup Figma di Simone "Desktop · Primary · 1366"** (home, pagina
+**Fonte delle impostazioni: la pagina Figma "Sito · Design system"** (vedi sotto, "Figma → sito").
+
+**Riferimento per i layout: i mockup Figma di Simone "Desktop · Primary · 1366"** (home, pagina
 Bohème Magazine, pagina Archivio), inviati il 7/11/2026 alle 18:56. Dove questo documento e i
 mockup non coincidono, valgono i mockup.
 
@@ -45,13 +47,14 @@ progetti fotografici sono a colori.
 
 ## Tipografia
 
-Una famiglia: **Inter Tight** (400, 500, 600) da Google Fonts. Nei mockup la voce è un grotesk
-geometrico pulito: Inter Tight è la cosa più vicina tra i font gratuiti.
+Una famiglia: **Hanken Grotesk** (400, 500, 600 e 400 corsivo) da Google Fonts. È un grotesk
+pulito vicino ai mockup, ed è disponibile sia su Google Fonts sia in Figma: così il file Figma e
+il sito usano lo stesso carattere (Inter Tight in Figma non c'è).
 **IBM Plex Mono** resta solo nelle pagine dei progetti fotografici (testata stile H&dM), che i
 mockup non mostrano. Se Simone preferisce, si può togliere anche da lì.
 
 ```html
-<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 ```
 
 Misure prese dai mockup a 1366px:
@@ -244,3 +247,37 @@ luce. Nelle bande con testo sopra si scelgono foto con una zona calma (cielo, mu
 - Classi da avere: `.band` (+ `.band-arrow`), `.hero-titles`, `.band-links`, `.stagger`,
   `.p-title-row`, `.p-facts`, `.p-text`, `.archive-index`, `.site-footer` (una riga).
 - La tavola `docs/design-board.html` è superata dai mockup: va aggiornata o ignorata.
+
+## Figma → sito (come restano allineati)
+
+**File:** https://www.figma.com/design/50dO9NGqQLHjXvDPaL2Xa9/Mokups?node-id=64-44 ,
+pagina **"Sito · Design system"**.
+
+Nel file ci sono:
+- la collezione di variabili **Sito** (modalità "Desktop 1366"), con 28 variabili;
+- 12 stili di testo **Sito/…**, che usano le variabili per dimensione e carattere;
+- una tavola con colori, tipografia e la banda della hero, tutti collegati alle variabili.
+
+Ogni variabile ha come "code syntax" il nome CSS che il sito usa:
+
+| Figma | CSS |
+| --- | --- |
+| `color/paper` · `ink` · `ink-2` · `rule` · `ph` · `on-photo` · `on-photo-dim` | `--paper` · `--ink` · `--ink-2` · `--rule` · `--ph` · `--on-photo` · `--on-photo-dim` |
+| `space/pad` · `space/section` · `space/stagger` | `--pad` · `--space-section` · `--space-stagger` |
+| `layout/text-width` · `header-height` · `band-hero` · `band-film` · `band-archive` | `--text-width` · `--header-h` · `--band-hero` · `--band-film` · `--band-archive` |
+| `type/<stile>` (hero-title, page-title, band-link, section, fact, body, nav, index, year, caption, fact-label) | `--fs-<stile>` |
+| `font/sans` · `font/mono` | `--font-sans` · `--font-mono` |
+
+I valori in Figma sono quelli desktop a 1366px. Nel CSS le dimensioni dei titoli restano in
+`clamp(min, vw, max)`, dove il **max** è il valore di Figma.
+
+**Flusso.**
+1. Simone modifica in Figma: variabili, stili `Sito/…` o i mockup delle pagine.
+2. Simone scrive nel thread Designer "ho cambiato Figma".
+3. Il designer legge il file con `get_variable_defs`, gli stili e `get_design_context` sulle
+   pagine. Poi aggiorna questa tabella e DESIGN.md e manda al front end la lista delle variabili
+   CSS da cambiare.
+4. Il front end aggiorna `:root` in `assets/style.css` e pubblica.
+
+Regola: il sito non introduce colori o misure che non esistano come variabile in Figma. Se
+serve un valore nuovo, prima si crea in Figma.
