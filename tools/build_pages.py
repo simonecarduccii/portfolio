@@ -273,14 +273,14 @@ def build_culture(i, p):
   </section>
   <div class="p-title-row"><h1 class="p-title">{html.escape(p["title"])}</h1>{img(f"img/{s}/01.jpg", "", " ").replace('class="media"', 'class="media thumb" aria-hidden="true"')}</div>
   <div class="p-facts-wrap">{visit}{facts(meta)}</div>
-  <section class="p-body">
+  <section class="p-body offset">
     {draft_note() if "DA VERIFICARE" in str(secs) + str(meta) else ""}
     <div class="prose">
 <p class="lead">{inline(lead)}</p>
 {chr(10).join(body_parts)}
     </div>
+    <div class="gallery col" aria-label="Immagini del progetto">{"".join(img(f"img/{s}/{n:02d}.jpg", f"{p['title']}, immagine {n}") for n in range(1, 7))}</div>
   </section>
-  <section class="gallery" aria-label="Immagini del progetto">{img(f"img/{s}/01.jpg", f"{p['title']}, immagine 1").replace('class="media"', 'class="media wide"')}{img(f"img/{s}/02.jpg", f"{p['title']}, immagine 2")}{img(f"img/{s}/03.jpg", f"{p['title']}, immagine 3")}{img(f"img/{s}/04.jpg", f"{p['title']}, immagine 4").replace('class="media"', 'class="media wide"')}</section>
   <a class="next-project" href="{nxt["slug"]}.html">
     <span class="eyebrow">Progetto successivo</span>
     <span class="h2">{html.escape(nxt["title"])} →</span>
@@ -371,20 +371,23 @@ def build_ai_detail(p):
     lead = first_text(section(secs, "In breve"))
     parts = [f"<h2>{inline(t)}</h2>\n{render_blocks(b)}" for t, b in secs if not t.startswith("In breve")]
     s = p["slug"]
+    year = meta.get("Anno", "")
     body = f"""  <section class="p-hero short">
     {img(f"img/{s}/cover.jpg", p["title"], eager=True)}
-    <span class="caption">Progetti con l'AI</span>
   </section>
-  <div class="p-title-row"><h1 class="p-title">{html.escape(p["title"])}</h1></div>
+  <header class="article-head offset">
+    <p class="eyebrow">Progetti con l'AI · {inline(year)}</p>
+    <h1 class="display-title">{html.escape(p["title"])}</h1>
+  </header>
   <div class="p-facts-wrap">{facts(meta)}</div>
-  <section class="p-body">
+  <section class="p-body offset">
     {draft_note() if "DA VERIFICARE" in str(secs) + str(meta) + str(notes) else ""}
     <div class="prose">
 <p class="lead">{inline(lead)}</p>
 {chr(10).join(parts)}
     </div>
+    <div class="gallery col shots" aria-label="Schermate">{"".join(img(f"img/{s}/{n:02d}.jpg", f"{p['title']}, schermata {n}", "Schermata in arrivo") for n in range(1, 4))}</div>
   </section>
-  <section class="gallery" aria-label="Schermate">{img(f"img/{s}/01.jpg", f"{p['title']}, schermata 1", "Schermata in arrivo").replace('class="media"', 'class="media wide"')}{img(f"img/{s}/02.jpg", f"{p['title']}, schermata 2", "Schermata in arrivo")}{img(f"img/{s}/03.jpg", f"{p['title']}, schermata 3", "Schermata in arrivo")}</section>
   <a class="next-project" href="ai.html">
     <span class="eyebrow">Progetti con l'AI</span>
     <span class="h2">Tutti gli strumenti →</span>
@@ -425,7 +428,8 @@ def build_home():
   </section>
 
   <section class="manifesto" id="manifesto">
-    <p class="h2">{inline(manifesto)}</p>
+    <p class="h2">Simone Carducci</p>
+    <p class="label manifesto-text">{inline(manifesto)}</p>
   </section>
 
   <section class="section" id="cultura">
@@ -438,12 +442,13 @@ def build_home():
     </div>
   </section>
 
-  <section class="band-night" id="archivio">
-    <p class="eyebrow">{inline(field(arch, "Eyebrow"))}</p>
-    <h2 class="h2">{inline(field(arch, "Titolo"))}</h2>
-    <div class="stage" data-random-photo data-click-next title="Clicca per un'altra foto"><div class="media"><span class="ph">Le foto dell'archivio arrivano a breve</span></div></div>
-    <p class="label" style="margin-top:16px; color:#9b978f">{inline(field(arch, "Lead"))}</p>
-    <p class="links"><a class="link-arrow" href="archivio.html">Apri l'archivio</a><a class="link-arrow" href="{LOMO}" target="_blank" rel="noopener">Tutto su Lomography</a></p>
+  <section class="band-archive" id="archivio" aria-label="{html.escape(plain(field(arch, "Eyebrow")))}">
+    <div class="media" data-random-photo data-click-next title="Clicca per un'altra foto"><span class="ph">Le foto dell'archivio arrivano a breve</span></div>
+    <div class="band-text">
+      <p class="eyebrow">{inline(field(arch, "Eyebrow"))}</p>
+      <h2 class="h2">{inline(field(arch, "Titolo"))}.</h2>
+      <p class="links"><a class="link-arrow" href="archivio.html">Apri l'archivio</a><a class="link-arrow" href="{LOMO}" target="_blank" rel="noopener">Tutto su Lomography</a></p>
+    </div>
   </section>
 
   <section class="section" id="fotografia">

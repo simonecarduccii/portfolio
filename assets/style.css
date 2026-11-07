@@ -151,9 +151,10 @@ body.no-scroll { overflow: hidden; }
 .section + .section { border-top: 1px solid var(--rule); }
 .section-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px 48px; margin-bottom: clamp(32px, 5vw, 64px); flex-wrap: wrap; }
 .section-head .lead { color: var(--ink-2); }
-.manifesto { padding: var(--section) var(--pad); }
-.manifesto .h2 { max-width: 18ch; }
-@media (min-width: 1024px) { .manifesto .h2 { max-width: 66%; } }
+.manifesto { display: grid; grid-template-columns: repeat(12, 1fr); column-gap: var(--gutter); row-gap: 24px; padding: var(--section) var(--pad); align-items: start; }
+.manifesto .h2 { grid-column: 1 / span 5; }
+.manifesto-text { grid-column: 7 / span 6; font-size: clamp(12px, 1.1vw, 15px); line-height: 1.6; max-width: 44ch; }
+@media (max-width: 760px) { .manifesto .h2, .manifesto-text { grid-column: 1 / -1; } }
 
 /* Cultural projects: two halves, 4:5 */
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gutter); }
@@ -377,3 +378,26 @@ mark.verify { background: none; color: var(--signal); font-family: var(--mono); 
   .footer-cols ul { gap: 0; }
 }
 .archive-stage .media.has-photo .ph, .band-night .media.has-photo .ph, .hero .media.has-photo .ph { display: none; }
+
+/* Home archive band: full-width random photo, title over it (MUBI). */
+.band-archive { position: relative; height: 80svh; min-height: 480px; color: #fff; background: var(--night); overflow: hidden; }
+.band-archive > .media { position: absolute; inset: 0; background: var(--night); cursor: pointer; }
+.band-archive > .media .ph { color: #5e5b55; justify-content: center; align-items: center; }
+.band-archive::after { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,.55)); }
+.band-archive .band-text { position: absolute; z-index: 3; left: var(--pad); right: var(--pad); bottom: var(--pad); pointer-events: none; }
+.band-archive .band-text a { pointer-events: auto; }
+.band-archive .eyebrow { color: rgba(255,255,255,.75); }
+.band-archive .h2 { text-transform: uppercase; margin-top: 10px; }
+.band-archive .links { margin-top: 18px; }
+.band-archive .media.has-photo .ph { display: none; }
+
+/* Text column starting at grid column 5 (A24 Backrooms / Notes). */
+@media (min-width: 1024px) {
+  .offset .prose, .offset > .draft-note, .offset .gallery.col, .article-head.offset > * { margin-left: calc((100% + var(--gutter)) / 3); margin-right: 0; }
+  .offset .stat-row { margin-left: calc((100% + var(--gutter)) / 3); }
+}
+.gallery.col { padding: 0; max-width: 640px; margin: clamp(48px, 7vw, 96px) auto 0; }
+.gallery.col .media { aspect-ratio: 4 / 5; }
+.gallery.col.shots .media:first-child { grid-column: 1 / -1; aspect-ratio: 16 / 10; }
+.article-head { padding: clamp(40px, 6vw, 80px) var(--pad) 24px; }
+.article-head .display-title { text-transform: none; margin-top: 14px; max-width: 12ch; }
