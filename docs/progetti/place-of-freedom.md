@@ -1,22 +1,24 @@
 # Place of Freedom
 
-[DA VERIFICARE: testi scritti senza informazioni sul progetto. Sono bozze di tono e lunghezza: sostituire con i fatti veri (dove, quando, chi, perché).]
+Testi segnaposto (lorem ipsum): servono a fissare struttura e lunghezze. Simone scriverà i testi veri più avanti.
 
 - **Anno:** 2025
 - **Fotografia:** Simone Carducci
 - **Supporto:** Pellicola
-- **Fotocamera:** [DA VERIFICARE]
-- **Pellicola:** [DA VERIFICARE]
-- **Luogo:** [DA VERIFICARE]
+- **Fotocamera:** Lorem ipsum
+- **Pellicola:** Lorem ipsum
+- **Luogo:** Lorem ipsum
 - **Immagine di copertina:** img/place-of-freedom/cover.jpg
 
 ## Intro in testata (max 40 parole)
 
-Una domanda sola, fatta a persone diverse: dove ti senti libero? Ogni fotografia è una risposta.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
 
 ## Testo in fondo, dopo le foto (80–150 parole)
 
-Place of Freedom parte da una domanda semplice: dove ti senti libero? L'ho fatta a persone diverse e mi sono fatto portare nei posti che indicavano: un campo dietro casa, un tetto, una pista, una stanza con la finestra aperta. Ho fotografato il luogo e quello che succedeva lì, con chi mi ci aveva portato o senza. La serie è un elenco di risposte diverse alla stessa domanda. A tenerle insieme è la grana della pellicola, e l'idea che la libertà sia quasi sempre un posto preciso, piccolo, che si può indicare con un dito.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+
+Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus, nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris.
 
 ## Crediti
 

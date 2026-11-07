@@ -1,22 +1,24 @@
 # Papà che fanno i papà
 
-[DA VERIFICARE: testi scritti senza informazioni sul progetto. Sono bozze di tono e lunghezza: sostituire con i fatti veri (dove, quando, chi, perché).]
+Testi segnaposto (lorem ipsum): servono a fissare struttura e lunghezze. Simone scriverà i testi veri più avanti.
 
 - **Anno:** 2025 – in corso
 - **Fotografia:** Simone Carducci
 - **Supporto:** Pellicola
-- **Fotocamera:** [DA VERIFICARE]
-- **Pellicola:** [DA VERIFICARE]
-- **Luogo:** [DA VERIFICARE]
+- **Fotocamera:** Lorem ipsum
+- **Pellicola:** Lorem ipsum
+- **Luogo:** Lorem ipsum
 - **Immagine di copertina:** img/papa-che-fanno-i-papa/cover.jpg
 
 ## Intro in testata (max 40 parole)
 
-Ritratti di padri nei gesti di tutti i giorni: la colazione, una scarpa da allacciare, l'attesa fuori da scuola. La normalità della cura, su pellicola.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
 
 ## Testo in fondo, dopo le foto (80–150 parole)
 
-Papà che fanno i papà è una serie di ritratti ancora aperta. Fotografo padri mentre fanno le cose che di solito nessuno fotografa: preparare la colazione, allacciare una scarpa, aspettare fuori da scuola, addormentarsi sul divano con un figlio addosso. Non cerco momenti speciali. Cerco la normalità della cura, quella che resta fuori dagli album di famiglia perché sembra troppo ordinaria per essere ricordata. Ogni ritratto è scattato su pellicola, senza pose e senza chiedere di rifare il gesto. La serie cresce con ogni padre che mi apre la porta di casa.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+
+Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus, nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris.
 
 ## Crediti
 

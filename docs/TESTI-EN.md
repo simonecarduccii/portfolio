@@ -29,7 +29,7 @@ Suggested use: an /en/ version of home, About and the two cultural projects, or 
 - **Eyebrow:** Projects built with AI
 - **Lead:** Tools I design with artificial intelligence to solve real problems, mine and those of the people I work with. I decide what they do, how they're used and when they stop; AI writes most of the code.
 - **Bohème Vedetta** · 2026 — The engine that finds, reads and checks open calls for artists from 75+ institutions, and feeds the magazine.
-- **Running coach** · 2026 – in development — A digital coach that reads my training and builds the week's plan. [DA VERIFICARE]
+- **Running Coach** · 2026 – in development — My running coach, towards a sub-4 marathon. It reads my data, adjusts the plan and sends it to my watch once I approve.
 - **Reading project** · in development, private — A reading tool designed for a member of my family. It is private: happy to talk about it in person.
 
 ## About
@@ -40,7 +40,7 @@ In 2024 I founded **Bohème Magazine**, an independent magazine on emerging art 
 
 With **Colectivo modì** I organise and film nights and DJ sets, edit them and release them as series, and produce a podcast.
 
-I study cultural heritage [DA VERIFICARE]. I've been shooting film for years: the archive is how I look at things before I tell them.
+I'm in my third year of Cultural Heritage studies. I've been shooting film for years: the archive is how I look at things before I tell them.
 
 I'm looking for a place where cultural projects and design talk to each other. [DA VERIFICARE]
 

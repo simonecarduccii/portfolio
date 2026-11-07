@@ -42,6 +42,7 @@ Card:
 ### Progetti fotografici
 - **Titolo:** Progetti fotografici
 - **Lead:** Serie su pellicola, tra ritratto e reportage. Pochi scatti, scelti con cura.
+- Testi delle singole pagine foto: lorem ipsum per ora (vedi schede).
 
 Card (titolo · anno):
 - Siculo · 2025
@@ -57,12 +58,12 @@ Card (titolo · anno):
 | Progetto | Cosa fa (max 10 parole) | Stato | Ruolo | Per |
 | --- | --- | --- | --- | --- |
 | Bohème Vedetta | Trova, legge e verifica i bandi per artisti. | Attivo dal 9 ottobre 2026 | Ideazione, progettazione, regole editoriali | Bohème Magazine |
-| Coach per la corsa | Legge i miei allenamenti e scrive il piano settimanale. [DA VERIFICARE] | In sviluppo | Ideazione, progettazione, test | Uso personale |
+| Running Coach | Prepara e corregge il mio piano di corsa, io approvo. | In sviluppo | Ideazione, progettazione, test | Uso personale |
 | Progetto di lettura | Uno strumento di lettura per una persona di famiglia. | In sviluppo, privato | — | Uso familiare |
 
 Descrizioni lunghe (per la lista in ai.html):
 - **Bohème Vedetta:** Il motore che tiene aggiornato Bohème Magazine. Ogni settimana cerca nuove fonti, ogni tre ore legge i bandi di oltre 75 enti, fondazioni e festival e li prepara per la mia revisione prima che escano. La ricerca che prima richiedeva giorni diventa una lista pronta da controllare.
-- **Coach per la corsa:** Un allenatore personale che parte dai dati veri degli allenamenti. Legge le corse registrate, il carico e il recupero, e costruisce settimana per settimana un piano che si adatta a come sta andando. [DA VERIFICARE]
+- **Running Coach:** Il mio coach di corsa, verso una maratona sotto le quattro ore. Ogni mattina legge sonno, recupero, carico, meteo e impegni, propone come correggere il piano e, se approvo con un tocco, lo manda all'orologio. Per ogni uscita suggerisce un percorso in piano per Torino.
 - **Progetto di lettura:** Uno strumento di lettura pensato per una persona della mia famiglia. Il progetto è privato: ne parlo volentieri a voce.
 
 ## About
@@ -82,7 +83,7 @@ Nel 2024 ho fondato **Bohème Magazine**, un magazine indipendente sull'arte eme
 
 Con il **Colectivo modì** organizzo e filmo serate e DJ set, li monto e li pubblico come serie, e produco un podcast.
 
-Studio beni culturali [DA VERIFICARE: università e anno]. Fotografo su pellicola da anni: l'archivio è il modo in cui guardo le cose prima di raccontarle.
+Sono al terzo anno di Beni culturali. Fotografo su pellicola da anni: l'archivio è il modo in cui guardo le cose prima di raccontarle.
 
 Cerco un posto dove il progetto culturale e il progetto di design si parlino. [DA VERIFICARE: frase pensata per la candidatura al Circolo del Design; si può togliere dopo]
 
@@ -123,4 +124,14 @@ Cerco un posto dove il progetto culturale e il progetto di design si parlino. [D
 
 Schede complete in [`progetti/`](progetti/).
 
-| Proget
+| Progetto | Sezione | Anno | Scheda |
+| --- | --- | --- | --- |
+| Bohème Magazine | Cultura | 2024 – in corso | [boheme-magazine.md](progetti/boheme-magazine.md) |
+| Colectivo modì | Cultura | 2026 | [colectivo-modi.md](progetti/colectivo-modi.md) |
+| Siculo | Fotografia | 2025 | [siculo.md](progetti/siculo.md) |
+| Papà che fanno i papà | Fotografia | 2025 – in corso | [papa-che-fanno-i-papa.md](progetti/papa-che-fanno-i-papa.md) |
+| Place of Freedom | Fotografia | 2025 | [place-of-freedom.md](progetti/place-of-freedom.md) |
+| Faccioni | Fotografia | 2025 – in corso | [faccioni.md](progetti/faccioni.md) |
+| Bohème Vedetta | AI | 2026 | [ai-boheme-vedetta.md](progetti/ai-boheme-vedetta.md) |
+| Running Coach | AI | 2026 – in sviluppo | [ai-coaching-corsa.md](progetti/ai-coaching-corsa.md) |
+| Progetto di lettura | AI | privato | nessuna scheda pubblica |

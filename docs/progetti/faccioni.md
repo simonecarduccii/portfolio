@@ -1,22 +1,24 @@
 # Faccioni
 
-[DA VERIFICARE: testi scritti senza informazioni sul progetto. Sono bozze di tono e lunghezza: sostituire con i fatti veri (dove, quando, chi, perché).]
+Testi segnaposto (lorem ipsum): servono a fissare struttura e lunghezze. Simone scriverà i testi veri più avanti.
 
 - **Anno:** 2025 – in corso
 - **Fotografia:** Simone Carducci
 - **Supporto:** Pellicola
-- **Fotocamera:** [DA VERIFICARE]
-- **Pellicola:** [DA VERIFICARE]
-- **Luogo:** [DA VERIFICARE]
+- **Fotocamera:** Lorem ipsum
+- **Pellicola:** Lorem ipsum
+- **Luogo:** Lorem ipsum
 - **Immagine di copertina:** img/faccioni/cover.jpg
 
 ## Intro in testata (max 40 parole)
 
-Ritratti presi da molto vicino. Il volto riempie l'inquadratura e non lascia spazio ad altro: solo la faccia di chi ho davanti.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
 
 ## Testo in fondo, dopo le foto (80–150 parole)
 
-Faccioni è una serie di ritratti stretti. Mi avvicino finché il volto non riempie tutta l'inquadratura: niente sfondo, niente contesto, niente vestiti a raccontare chi è la persona. Resta la faccia, e il modo in cui ognuno regge lo sguardo della macchina a pochi centimetri. Alcuni ridono, altri si irrigidiscono, altri ancora si dimenticano di me dopo il primo scatto. A distanza così corta la pellicola non perdona: ogni dettaglio della pelle resta. È un progetto aperto, che cresce un rullino alla volta.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+
+Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus, nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris.
 
 ## Crediti
 

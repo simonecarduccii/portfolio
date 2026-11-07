@@ -1,6 +1,6 @@
 # Bohème Magazine
 
-- **Anno:** 2024 – in corso [DA VERIFICARE: mese di nascita, estate 2024?]
+- **Anno:** 2024 – in corso (nato nell'estate 2024)
 - **Ruolo:** Fondatore e direttore
 - **Ambito:** Editoria, comunicazione culturale
 - **Formato:** Magazine su Instagram; sito dei bandi e app in progettazione

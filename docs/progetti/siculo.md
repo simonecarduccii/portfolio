@@ -1,22 +1,24 @@
 # Siculo
 
-[DA VERIFICARE: testi scritti senza informazioni sul progetto. Sono bozze di tono e lunghezza: sostituire con i fatti veri (dove, quando, chi, perché).]
+Testi segnaposto (lorem ipsum): servono a fissare struttura e lunghezze. Simone scriverà i testi veri più avanti.
 
 - **Anno:** 2025
 - **Fotografia:** Simone Carducci
 - **Supporto:** Pellicola
-- **Fotocamera:** [DA VERIFICARE]
-- **Pellicola:** [DA VERIFICARE]
-- **Luogo:** [DA VERIFICARE]
+- **Fotocamera:** Lorem ipsum
+- **Pellicola:** Lorem ipsum
+- **Luogo:** Lorem ipsum
 - **Immagine di copertina:** img/siculo/cover.jpg
 
 ## Intro in testata (max 40 parole)
 
-Una serie sulla Sicilia, guardata da vicino e senza cartoline. Strade, facce, case e il tempo lento dei pomeriggi, scattati su pellicola un rullino alla volta.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
 
 ## Testo in fondo, dopo le foto (80–150 parole)
 
-Siculo nasce da un ritorno. Volevo fotografare la Sicilia senza cercare l'immagine che tutti si aspettano: niente mare da cartolina, niente barocco in controluce. Ho scelto le cose che si vedono quando si resta abbastanza a lungo da smettere di guardarsi intorno: le persone sedute fuori casa, le insegne scolorite, le strade a metà pomeriggio. Ho scattato solo su pellicola, lasciando che fosse la luce a decidere quando premere. Il risultato è più un diario che un reportage: una terra raccontata da chi la conosce abbastanza da non doverla spiegare.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+
+Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus, nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris.
 
 ## Crediti
 
