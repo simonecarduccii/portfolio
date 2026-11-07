@@ -401,3 +401,5 @@ mark.verify { background: none; color: var(--signal); font-family: var(--mono); 
 .gallery.col.shots .media:first-child { grid-column: 1 / -1; aspect-ratio: 16 / 10; }
 .article-head { padding: clamp(40px, 6vw, 80px) var(--pad) 24px; }
 .article-head .display-title { text-transform: none; margin-top: 14px; max-width: 12ch; }
+.stat b { white-space: nowrap; }
+.offset .stat b { font-size: clamp(34px, 4.8vw, 76px); }
