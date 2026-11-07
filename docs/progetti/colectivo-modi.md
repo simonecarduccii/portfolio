@@ -1,9 +1,10 @@
 # Colectivo modì
 
-- **Anno:** 2026 [DA VERIFICARE: anno di nascita del collettivo]
-- **Ruolo:** Co-fondatore, regia e montaggio [DA VERIFICARE: co-fondatore o fondatore? con chi?]
+- **Anno:** 2026 (gennaio – agosto, dal CV)
+- **Ruolo:** Direzione creativa; riprese e montaggio
 - **Ambito:** Eventi, produzione audiovideo
 - **Formati:** DJ set filmati, podcast, video promo
+- **Dove:** [@colectivomodi](https://instagram.com/colectivomodi)
 - **Strumenti:** Final Cut Pro, GoPro, riprese multicamera
 - **Uscite:** serie DJS Open (5 set in 4K), serie DJS DnB, podcast (12 episodi)
 - **Immagine di copertina:** img/modi/cover.jpg
@@ -22,7 +23,8 @@ modì unisce musica, serate e video. Organizziamo e filmiamo DJ set, li montiamo
 
 ## Il mio ruolo
 
-- Ideazione del collettivo e del format delle serie.
+- Strategia creativa, identità visiva e tono della comunicazione.
+- Ideazione e art direction dei contenuti e del format delle serie.
 - Organizzazione delle serate e rapporti con i DJ.
 - Riprese, sincronizzazione multicamera e montaggio in Final Cut Pro.
 - Archivio e gestione del materiale: sette progetti video, circa 750 GB di girato.

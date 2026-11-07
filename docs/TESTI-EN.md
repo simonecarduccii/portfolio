@@ -12,7 +12,7 @@ Suggested use: an /en/ version of home, About and the two cultural projects, or 
 - **Manifesto:** A cultural project should be followed whole: from idea to form, from people to audience.
 
 ### Cultural projects
-- **Lead:** Two projects I founded and run every day: a magazine and a collective.
+- **Lead:** A magazine I founded and a collective I was creative director of.
 - **Bohème Magazine** · 2024 – ongoing — An independent magazine on emerging art and opportunities for artists. 5,022 followers in 26 months, from zero.
 - **Colectivo modì** · 2026 — An audiovisual collective: nights out, DJ sets filmed in 4K, and a podcast. From the decks to the edit to release.
 
@@ -34,26 +34,29 @@ Suggested use: an /en/ version of home, About and the two cultural projects, or 
 
 ## About
 
-I work in creative development. That means I follow a cultural project from start to finish: the idea, the shape it needs, the people it takes, how it reaches its audience, and the tools that keep it standing.
+**Statement:** I take cultural projects from idea to audience: a magazine, a collective, an archive on film.
 
-In 2024 I founded **Bohème Magazine**, an independent magazine on emerging art and opportunities for artists. In 26 months it grew from zero to more than 5,000 followers and 1.47 million views. To keep it up to date I designed **Vedetta**, a system that reads and verifies open calls from more than 75 cultural institutions.
+**Where I come from.** I grew up in Rome and went to an art high school, studying architecture and environment. At eighteen I was already working in PR, leading a small team that organised nights for bars, clubs and beach venues, alongside artists like Achille Lauro, Ludwig, Il Tre and Carl Brave. That's where I learned that an event works when the right people feel invited.
 
-With **Colectivo modì** I organise and film nights and DJ sets, edit them and release them as series, and produce a podcast.
+**The years on the road.** Then I spent years behind a bar: Bologna, Club Med resorts in Switzerland, Portugal and Italy, and restaurants in Turin, where I became a sommelier (WSET Level 2, with distinction). A different kind of apprenticeship: listening to the person in front of you, telling a producer's work in a few seconds, caring for every detail of the presentation. I learned English and French along the way, and I now speak Spanish too.
 
-I'm in my third year of Cultural Heritage studies. I've been shooting film for years: the archive is how I look at things before I tell them.
+**What I do now.** In July 2024 I founded **Bohème Magazine**, where I lead art and editorial direction: an independent magazine on emerging art and opportunities for artists that grew from zero to more than 5,000 followers and 1.47 million views in 26 months. To keep it up to date I designed **Vedetta**, a system that reads and verifies open calls from more than 75 cultural institutions. In 2026 I was creative director of **Colectivo modì**: visual identity, communication, filmed nights and DJ sets, a podcast.
 
-I'm looking for a place where cultural projects and design talk to each other. [DA VERIFICARE]
+**What I study.** I'm in my third year of Cultural Heritage (art history track) at the University of Turin, with an Erasmus at the Universidad de Granada. In 2024 I earned the Google UX Design Certificate. I'm drawn above all to 20th-century and contemporary art. I've been shooting film for years: the archive is how I look at things before I tell them.
+
+**What I'm looking for.** A place where cultural projects and design talk to each other, where I can bring together what I do: care for an idea, give it a form, find it an audience.
 
 | | |
 | --- | --- |
 | Fields | Publishing, events, cultural projects, film photography |
-| Skills | Editorial direction, cultural project design, communication and audience growth, video direction and editing, designing digital tools with AI |
-| Tools | Figma, Final Cut Pro, Meta Business Suite, Claude Code, Supabase, GitHub |
-| Languages | Italian, English [DA VERIFICARE] |
+| Skills | Art and editorial direction, art direction, event organisation, communication and social media, writing and editing, UX design, designing digital tools with AI |
+| Tools | Figma, Adobe Photoshop, Lightroom and InDesign, Final Cut Pro, Meta Business Suite, Claude Code, Office |
+| Languages | Italian (native), English and French (advanced), Spanish (intermediate) |
+| Education | Cultural Heritage, University of Turin (ongoing) · Erasmus, Universidad de Granada · Google UX Design Certificate (2024) · WSET Level 2 (2023) |
 
 ## Bohème Magazine
 
-- **Role:** Founder and editor-in-chief · **Year:** 2024 – ongoing · **Field:** Publishing, cultural communication · **Format:** Instagram magazine; open-call website and app in design
+- **Role:** Founder; art and editorial direction · **Year:** 2024 – ongoing · **Field:** Publishing, cultural communication · **Format:** Instagram magazine; open-call website and app in design
 
 **A magazine for people who make art, and for those looking for it.** Bohème started on Instagram in 2024. It covers emerging art and gathers the opportunities that matter to artists: open calls, residencies, prizes, exhibitions. In Italy those opportunities exist, but they are scattered across dozens of institutional websites and often arrive late or incomplete. Bohème finds them, checks them, and tells them in a carousel you can read in a minute.
 
@@ -67,7 +70,7 @@ I'm looking for a place where cultural projects and design talk to each other. [
 
 ## Colectivo modì
 
-- **Role:** Co-founder, direction and editing [DA VERIFICARE] · **Year:** 2026 · **Field:** Events, audiovisual production · **Formats:** filmed DJ sets, podcast, promo videos
+- **Role:** Creative director; filming and editing · **Year:** 2026 (January – August) · **Field:** Events, audiovisual production · **Formats:** filmed DJ sets, podcast, promo videos
 
 **A night, filmed in full.** modì brings together music, nights and video. We organise and film DJ sets, edit them in 4K and release them as series, so a night doesn't end when the lights go off. Alongside the nights there's a podcast that gives a voice to the people who build the scene.
 
