@@ -83,6 +83,10 @@ python3 tools/optimize_images.py ~/Desktop/siculo siculo
   `papa-che-fanno-i-papa`, `about`): le foto vengono rinominate `cover.jpg`, `01.jpg`,
   `02.jpg`… in ordine di nome. Se un file si chiama `cover…` diventa la copertina.
 
+**Video** (es. hero di modì): `python3 tools/optimize_video.py ~/Desktop/modi.mov modi`
+crea `img/modi/hero.mp4` (H.264, muto, max 1920 px, sotto 4 MB, max 15 s) e `hero-poster.jpg`.
+Serve ffmpeg: `brew install ffmpeg`.
+
 Le foto di Lomography vanno scaricate dal tuo profilo e messe in una cartella: il sito
 di Lomography non si può leggere in automatico.
 
