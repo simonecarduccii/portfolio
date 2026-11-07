@@ -65,7 +65,7 @@ In alternativa puoi usare [GitHub Desktop](https://desktop.github.com/).
 
 ## 4. Aggiungere le foto
 
-Le foto vanno sempre passate dallo script, che le ridimensiona (2000 px sul lato lungo),
+Le foto vanno sempre passate dallo script, che le ridimensiona (2000 px sul lato lungo, 1800 per l'archivio),
 le raddrizza e **toglie i metadati, compresa la posizione GPS**. Gli originali non vengono toccati.
 
 ```bash
@@ -74,9 +74,11 @@ python3 tools/optimize_images.py ~/Desktop/archivio archivio
 python3 tools/optimize_images.py ~/Desktop/siculo siculo
 ```
 
-- **Archivio**: le foto finiscono in `img/archivio/` e lo script aggiorna da solo
-  `assets/archivio.js`, la lista da cui la pagina pesca la foto a caso. Titolo, macchina,
-  pellicola e anno si possono aggiungere a mano in quel file: lo script li conserva.
+- **Archivio**: le foto diventano `img/archivio/0001.jpg`, `0002.jpg`… (numerate dopo
+  l'ultima già presenti, quindi importa ogni gruppo una volta sola), con le miniature a 900 px
+  in `img/archivio/thumbs/`. Lo script aggiorna `img/archivio/archivio.json`, la lista da cui
+  la pagina pesca la foto a caso. `film`, `luogo` e `anno` si scrivono a mano in quel file:
+  lo script li conserva. Formato concordato con il design (vedi `docs/DESIGN.md`).
 - **Progetti** (`boheme`, `modi`, `siculo`, `faccioni`, `place-of-freedom`,
   `papa-che-fanno-i-papa`, `about`): le foto vengono rinominate `cover.jpg`, `01.jpg`,
   `02.jpg`… in ordine di nome. Se un file si chiama `cover…` diventa la copertina.
