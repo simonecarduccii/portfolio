@@ -27,7 +27,7 @@ Tono: prima persona, frasi brevi, fatti prima degli aggettivi. Niente "passione"
 
 ### Progetti culturali
 - **Titolo:** Progetti culturali
-- **Lead:** Due progetti che ho fondato e che porto avanti ogni giorno: un magazine e un collettivo.
+- **Lead:** Un magazine che ho fondato e un collettivo di cui ho curato la direzione creativa.
 
 Card:
 - **Bohème Magazine** · 2024 – in corso — Magazine indipendente sull'arte emergente e sulle opportunità per artisti. 5.022 follower in 26 mesi, partendo da zero.
@@ -73,28 +73,45 @@ Descrizioni lunghe (per la lista in ai.html):
 
 ### Bio breve (2 frasi, per home o footer)
 
-Mi occupo di sviluppo creativo: ideo progetti culturali e li porto dalla prima idea al pubblico. Ho fondato Bohème Magazine e il Colectivo modì, e fotografo su pellicola.
+Mi occupo di sviluppo creativo: ideo progetti culturali e li porto dalla prima idea al pubblico. Ho fondato Bohème Magazine, ho curato la direzione creativa del Colectivo modì e fotografo su pellicola.
 
-### Bio estesa
+### Frase d'apertura About (grande, stile statement, come nei portfolio di riferimento)
 
-Mi occupo di sviluppo creativo. Vuol dire che un progetto culturale lo seguo intero: l'idea, la forma che deve avere, le persone che servono per farlo, il modo in cui arriva al pubblico, e gli strumenti che lo tengono in piedi.
+Curo progetti culturali dall'idea al pubblico: un magazine, un collettivo, un archivio su pellicola.
 
-Nel 2024 ho fondato **Bohème Magazine**, un magazine indipendente sull'arte emergente e sulle opportunità per artisti. In 26 mesi ha raccolto da zero oltre 5.000 persone e 1,47 milioni di visualizzazioni. Per tenerlo aggiornato ho progettato **Vedetta**, un sistema che legge e verifica i bandi di oltre 75 enti culturali.
+### Bio estesa (pagina About, testo narrativo)
 
-Con il **Colectivo modì** organizzo e filmo serate e DJ set, li monto e li pubblico come serie, e produco un podcast.
+**Da dove vengo**
 
-Sono al terzo anno di Beni culturali. Fotografo su pellicola da anni: l'archivio è il modo in cui guardo le cose prima di raccontarle.
+Sono cresciuto a Roma e ho fatto il liceo artistico, indirizzo architettura e ambiente. A diciotto anni lavoravo già nelle pubbliche relazioni: guidavo un piccolo team che organizzava serate per locali, club e stabilimenti, e ho lavorato accanto ad artisti come Achille Lauro, Ludwig, Il Tre e Carl Brave. Lì ho imparato che un evento riesce prima di tutto quando sono le persone giuste a sentirsi invitate.
 
-Cerco un posto dove il progetto culturale e il progetto di design si parlino. [DA VERIFICARE: frase pensata per la candidatura al Circolo del Design; si può togliere dopo]
+**Gli anni in giro**
+
+Poi ho passato anni dietro un bancone, tra Bologna, i resort Club Med in Svizzera, Portogallo e Italia, e i ristoranti di Torino, dove sono diventato sommelier (WSET Level 2, con distinction). È stato un apprendistato diverso: ascoltare chi hai davanti, raccontare in pochi secondi il lavoro di un produttore, curare ogni dettaglio della presentazione. Ho imparato l'inglese e il francese, e oggi parlo anche spagnolo.
+
+**Quello che faccio oggi**
+
+Nel luglio 2024 ho fondato **Bohème Magazine**, di cui curo la direzione artistica ed editoriale: un magazine indipendente sull'arte emergente e sulle opportunità per artisti, che in 26 mesi ha raccolto da zero oltre 5.000 persone e 1,47 milioni di visualizzazioni. Per tenerlo aggiornato ho progettato **Vedetta**, un sistema che legge e verifica i bandi di oltre 75 enti culturali. Nel 2026 ho curato la direzione creativa del **Colectivo modì**: identità visiva, comunicazione, serate e DJ set filmati, un podcast.
+
+**Cosa studio**
+
+Sono al terzo anno di Beni culturali all'Università di Torino, indirizzo storico-artistico, con un Erasmus all'Universidad de Granada. Nel 2024 ho preso il certificato Google in UX Design. Mi interessano soprattutto l'arte del Novecento e quella contemporanea. Fotografo su pellicola da anni: l'archivio è il modo in cui guardo le cose prima di raccontarle.
+
+**Cosa cerco**
+
+Un posto dove il progetto culturale e il progetto di design si parlino, e dove mettere insieme quello che so fare: curare un'idea, darle una forma, trovarle un pubblico.
+
+[DA VERIFICARE: "cresciuto a Roma" è dedotto da liceo e primo lavoro a Roma. Ultimo paragrafo pensato per la candidatura al Circolo del Design.]
 
 ### Ambiti, competenze, strumenti
 
 | Voce | Testo |
 | --- | --- |
 | Ambiti | Editoria, eventi, progetti culturali, fotografia analogica |
-| Competenze | Direzione editoriale, progettazione culturale, comunicazione e crescita di un pubblico, regia e montaggio video, progettazione di strumenti digitali con l'AI |
-| Strumenti | Figma, Final Cut Pro, Meta Business Suite, Claude Code, Supabase, GitHub [DA VERIFICARE: Adobe?] |
-| Lingue | Italiano, inglese [DA VERIFICARE: livello] |
+| Competenze | Direzione artistica ed editoriale, art direction, organizzazione di eventi, comunicazione e social media, scrittura ed editing, UX design, progettazione di strumenti digitali con l'AI |
+| Strumenti | Figma, Adobe Photoshop, Lightroom e InDesign, Final Cut Pro, Meta Business Suite, Claude Code, Pacchetto Office |
+| Lingue | Italiano (madrelingua), inglese e francese (avanzato), spagnolo (intermedio) |
+| Formazione | Beni culturali, Università di Torino (in corso) · Erasmus, Universidad de Granada · Google UX Design Certificate (2024) · WSET Level 2 (2023) |
 
 - **Link:** Scarica il CV · Scrivimi
 
