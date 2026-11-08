@@ -31,14 +31,14 @@ Regole d'oro:
 
 | Token | Valore | Uso |
 | --- | --- | --- |
-| `--paper` | `#F3F3F1` | Sfondo del sito (grigio chiarissimo dei mockup) |
-| `--ink` | `#111111` | Testo e titoli su paper |
-| `--ink-2` | `#6B6A66` | Didascalie, label metadati, footer (AA su paper) |
-| `--rule` | `#D9D8D4` | Filetti 1px (sotto la riga titolo, sotto la scheda metadati) |
+| `--paper` | `#F6F2E9` | Sfondo del sito: bianco caldo, appena ingiallito come carta di un vecchio libro (8/11) |
+| `--ink` | `#1A1814` | Testo e titoli su paper |
+| `--ink-2` | `#6E675C` | Didascalie, label metadati, footer (AA su paper) |
+| `--rule` | `#DDD6C9` | Filetti 1px (sotto la riga titolo, sotto la scheda metadati) |
 | `--on-photo` | `#FFFFFF` | Testo sulle foto |
 | `--on-photo-dim` | `rgba(255,255,255,.55)` | Voci non attive sopra le foto (es. il titolo non selezionato nella hero) |
 | `--scrim` | `linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,.45))` | Velo sotto il testo sulle foto, per la leggibilità |
-| `--ph` | `#E3E2DE` | Segnaposto immagini |
+| `--ph` | `#E8E2D5` | Segnaposto immagini |
 
 Niente accento colorato e niente dark mode. Il colore sta tutto nelle fotografie.
 
