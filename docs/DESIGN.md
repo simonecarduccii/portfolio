@@ -1,6 +1,7 @@
 # Design — sistema visivo
 
-**Fonte delle impostazioni: la pagina Figma "Sito · Design system"** (vedi sotto, "Figma → sito").
+**Fonte di verità: il file Figma "Portfolio · Reference"** (https://www.figma.com/design/1in2vBv6lx4Z1XYs2d27b1).
+Il sito deve essere uguale alle pagine di quel file. Vedi sotto, "Figma → sito".
 
 **Riferimento per i layout: i mockup Figma di Simone "Desktop · Primary · 1366"** (home, pagina
 Bohème Magazine, pagina Archivio), inviati il 7/11/2026 alle 18:56. Dove questo documento e i
@@ -250,34 +251,77 @@ luce. Nelle bande con testo sopra si scelgono foto con una zona calma (cielo, mu
 
 ## Figma → sito (come restano allineati)
 
-**File:** https://www.figma.com/design/50dO9NGqQLHjXvDPaL2Xa9/Mokups?node-id=64-44 ,
-pagina **"Sito · Design system"**.
+**File di riferimento:** "Portfolio · Reference",
+https://www.figma.com/design/1in2vBv6lx4Z1XYs2d27b1 (creato l'8/11/2026, sostituisce la pagina
+"Sito · Design system" del file Mokups, che resta solo come archivio dei mockup).
 
-Nel file ci sono:
-- la collezione di variabili **Sito** (modalità "Desktop 1366"), con 28 variabili;
-- 12 stili di testo **Sito/…**, che usano le variabili per dimensione e carattere;
-- una tavola con colori, tipografia e la banda della hero, tutti collegati alle variabili.
+Il sito deve essere **praticamente uguale** a questo file. Quando Simone lo modifica e lo dice nel
+progetto, il sito si rifà uguale.
 
-Ogni variabile ha come "code syntax" il nome CSS che il sito usa:
+### Com'è fatto il file
+
+| Pagina Figma | Cosa contiene |
+| --- | --- |
+| Leggimi | Istruzioni per Simone (come modificare, cosa fare quando ha finito) |
+| Design system | Campioni di colori, spazi e stili di testo, tutti legati alle variabili |
+| Componenti | I pezzi delle pagine, con proprietà di testo modificabili dal pannello |
+| 01 · Home … 13 · 404 | Una pagina per ogni file HTML, frame da 1366 px chiamato "Nome · file.html" |
+
+**Componenti** (nome Figma → elemento del sito):
+
+| Figma | HTML / classe |
+| --- | --- |
+| Header (Sfondo = Su foto / Su carta) | `.site-header.overlay` / `.site-header` |
+| Footer | `.site-footer` |
+| Foto (Tono = BN / Colore, campo File) | `.media` con `img` (il campo File è il percorso dell'immagine) |
+| Fascia / Hero home | `.hero` con `.hero-list` |
+| Fascia / Pellicole | `.band.band-color` con `.band-list` |
+| Fascia / Archivio | `.band.band-bw` |
+| Progetto / Hero (Altezza = Alta / Bassa) | `.p-hero` / `.p-hero.short` |
+| Progetto / Titolo | `.p-title-row` |
+| Fatto | `.fact` dentro `.p-facts` |
+| Testo / Paragrafo · Lead · Sottotitolo · Statement · Voce elenco | `.prose p` · `.lead` · `.prose h2` · `.about-statement p` · `.prose li` |
+| Nota bozza | `.draft-note` |
+| Didascalia | `.fig-cap` |
+| Card progetto (Formato = Grande / Media / Piccola) | `.tile` in `.stagger` / `.related-row` |
+| Foto sequenza (Orizzontale / Verticale) | `.photo-seq li` (`.portrait`) |
+| Galleria (Griglia / Schermate) | `.gallery.col` / `.gallery.col.shots` |
+| Riga indice (Stato = Attivo / Privato) | `.index-list li` (`.is-private`) |
+| Riga dati | `.about-data dl > div` |
+| Indice archivio | `.archive-index` |
+| Progetto successivo | `.next-project` |
+| Titolo sezione · Link freccia · Bottone | `.small-title` · `.link-arrow` · `.btn` |
+
+### Variabili (collezione "Sito", modalità "Desktop 1366")
+
+Ogni variabile ha come code syntax WEB il nome CSS, per esempio `var(--paper)`.
 
 | Figma | CSS |
 | --- | --- |
 | `color/paper` · `ink` · `ink-2` · `rule` · `ph` · `on-photo` · `on-photo-dim` | `--paper` · `--ink` · `--ink-2` · `--rule` · `--ph` · `--on-photo` · `--on-photo-dim` |
-| `space/pad` · `space/section` · `space/stagger` | `--pad` · `--space-section` · `--space-stagger` |
-| `layout/text-width` · `header-height` · `band-hero` · `band-film` · `band-archive` | `--text-width` · `--header-h` · `--band-hero` · `--band-film` · `--band-archive` |
-| `type/<stile>` (hero-title, page-title, band-link, section, fact, body, nav, index, year, caption, fact-label) | `--fs-<stile>` |
+| `space/pad` · `section` · `stagger` · `gutter` | `--pad` · `--space-section` · `--space-stagger` · `--gutter` |
+| `layout/text-width` · `header-height` · `band-hero` · `band-short` · `band-film` · `band-archive` | `--text-width` · `--header-h` · `--band-hero` · `--band-short` · `--band-film` · `--band-archive` |
+| `type/hero-title` 42 · `page-title` 40 · `statement` 36 · `stat` 32 · `lead` 18 · `fact` 16 · `body` 15 · `section` 13 · `subhead` 13 · `band-link` 13 · `link` 12 · `nav` 11 · `index` 11 · `small` 11 · `caption` 10 · `fact-label` 9 | `--fs-hero-title` · `--fs-page-title` · `--fs-statement` · `--fs-stat` · `--fs-lead` · `--fs-fact` · `--fs-body` · `--fs-section` · `--fs-subhead` · `--fs-band-link` · `--fs-link` · `--fs-nav` · `--fs-index` · `--fs-year` · `--fs-caption` · `--fs-fact-label` |
 | `font/sans` · `font/mono` | `--font-sans` · `--font-mono` |
 
-I valori in Figma sono quelli desktop a 1366px. Nel CSS le dimensioni dei titoli restano in
-`clamp(min, vw, max)`, dove il **max** è il valore di Figma.
+Stili di testo: 19 stili `Sito/…` (Hero title, Page title, Statement, Stat, Lead, Fact, Body,
+Body strong, Section, Subhead, Band link, Link, Nav, Nav brand, Index, Small, Caption, Footer,
+Fact label), con dimensione e carattere legati alle variabili.
 
-**Flusso.**
-1. Simone modifica in Figma: variabili, stili `Sito/…` o i mockup delle pagine.
-2. Simone scrive nel thread Designer "ho cambiato Figma".
-3. Il designer legge il file con `get_variable_defs`, gli stili e `get_design_context` sulle
-   pagine. Poi aggiorna questa tabella e DESIGN.md e manda al front end la lista delle variabili
-   CSS da cambiare.
-4. Il front end aggiorna `:root` in `assets/style.css` e pubblica.
+**I valori di Figma sono quelli a 1366 px.** Il CSS può restare fluido con `clamp()`, ma a 1366 px
+deve dare il valore di Figma. Oggi non è così per alcune misure (es. `--fs-body` dà 13,7 px invece
+di 15, `--fs-fact` 15 invece di 16): vanno corrette alla prossima sincronizzazione.
 
-Regola: il sito non introduce colori o misure che non esistano come variabile in Figma. Se
-serve un valore nuovo, prima si crea in Figma.
+### Flusso
+
+1. Simone modifica il file: sposta, toglie o duplica blocchi, cambia testi, foto, componenti o
+   variabili. Va bene anche uno schizzo ("qui una foto grande").
+2. Simone scrive nel progetto "ho cambiato Figma" (meglio se dice quali pagine).
+3. Il designer legge il file (struttura delle pagine, istanze dei componenti, variabili e stili),
+   aggiorna questo documento e manda al front end la lista precisa delle modifiche
+   (variabili CSS, blocchi spostati o nuovi, testi).
+4. Il front end aggiorna HTML e `assets/style.css` e pubblica. Il designer confronta il sito con
+   il file a 1366 px.
+
+Regola: il sito non introduce colori, misure o blocchi che non esistano in Figma. Se serve
+qualcosa di nuovo, prima si aggiunge in Figma (componente o variabile).
