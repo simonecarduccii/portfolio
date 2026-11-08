@@ -27,18 +27,18 @@
   --fs-page-title: clamp(30px, 4.1vw, 56px);
   --fs-statement: clamp(22px, 2.64vw, 36px);
   --fs-stat: clamp(22px, 2.35vw, 32px);
-  --fs-lead: clamp(15px, 1.32vw, 18px);
-  --fs-band-link: clamp(15px, 1.54vw, 21px);
-  --fs-section: clamp(15px, 1.54vw, 21px);
-  --fs-subhead: 13px;
-  --fs-link: 12px;
-  --fs-fact: clamp(13px, 1.18vw, 16px);
-  --fs-body: clamp(13px, 1.1vw, 15px);
-  --fs-nav: clamp(13px, 1.17vw, 16px);
-  --fs-index: 11px;
-  --fs-year: 11px;
-  --fs-caption: 10px;
-  --fs-fact-label: 9px;
+  --fs-lead: clamp(16px, 1.46vw, 20px);
+  --fs-band-link: clamp(17px, 1.68vw, 23px);
+  --fs-section: clamp(17px, 1.68vw, 23px);
+  --fs-subhead: 15px;
+  --fs-link: 14px;
+  --fs-fact: clamp(15px, 1.32vw, 18px);
+  --fs-body: clamp(15px, 1.24vw, 17px);
+  --fs-nav: clamp(15px, 1.32vw, 18px);
+  --fs-index: 13px;
+  --fs-year: 13px;
+  --fs-caption: 12px;
+  --fs-fact-label: 11px;
 
   --font-sans: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
@@ -54,8 +54,8 @@
   --pad-band: clamp(24px, 7.03vw, 96px);
   --pad-grid: clamp(16px, 9.37vw, 128px);
   --fs-home-year: clamp(13px, 1.54vw, 21px);
-  --fs-tag: 10px;
-  --fs-footer: clamp(12px, 1.02vw, 14px);
+  --fs-tag: 12px;
+  --fs-footer: clamp(13px, 1.1vw, 15px);
   --space-card: clamp(32px, 4.69vw, 64px);
   --space-card-lg: clamp(48px, 9.37vw, 128px);
 }
