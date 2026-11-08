@@ -22,7 +22,7 @@ EMAIL = "simone.carducci01@gmail.com"
 INSTAGRAM = "https://instagram.com/simonecarduccii"
 LOMO = "https://www.lomography.com/homes/simonecarduccii"
 CV = "assets/cv-simone-carducci.pdf"
-FONTS = "https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+FONTS = "https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Overpass:ital,wght@1,200&display=swap"
 
 CULTURE = [
     {"slug": "boheme", "doc": "boheme-magazine", "title": "Bohème Magazine", "year": "2024",
@@ -171,7 +171,7 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 <meta property="og:title" content="{html.escape(full_title)}">
 <meta property="og:description" content="{html.escape(description)}">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#f7f7f5">
+<meta name="theme-color" content="#fbfbfb">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -182,6 +182,7 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 <a class="skip" href="#main">Vai al contenuto</a>
 <header class="{hc}">
   <a class="brand" href="index.html">Simone Carducci</a>
+  <span class="dash" aria-hidden="true">-</span>
   <span class="tag">Creative development</span>
   <span class="tag">Editorial, Events &amp; Cultural Projects</span>
   <nav class="nav" aria-label="Menu principale">{nav}</nav>
@@ -201,17 +202,22 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 
 def footer():
     return f"""<footer class="site-footer">
-  <span>© 2025–2026 Simone Carducci. P.Iva 18337621009 · Testi e fotografie non riproducibili senza autorizzazione.</span>
-  <span class="footer-links"><a href="{INSTAGRAM}" target="_blank" rel="noopener">Instagram</a><a href="mailto:{EMAIL}">Email</a><a href="{CV}" target="_blank">CV</a></span>
+  <span>© 2025-2026 Simone Carducci. P.Iva - 18337621009</span>
+  <span class="footer-links"><a href="{INSTAGRAM}" target="_blank" rel="noopener">Instagram</a><a href="mailto:{EMAIL}">Email</a></span>
 </footer>"""
 
 
 def band_archive():
-    return """  <a class="band band-bw" href="archivio.html">
-    <div class="media" data-random-photo><span class="ph"></span></div>
+    return f"""  <a class="band band-bw" href="archivio.html">
+    <div class="media bw has-photo"><img src="img/home/archivio.jpg" alt="" loading="lazy"></div>
     <span class="band-text">Archivio</span>
-    <span class="chev" aria-hidden="true">›</span>
+    {chev()}
   </a>"""
+
+
+def chev(tag="span", attrs=' aria-hidden="true"'):
+    svg = '<svg viewBox="0 0 9 43" width="9" height="43" aria-hidden="true"><path d="M.5.5l8 21-8 21" fill="none" stroke="currentColor"/></svg>'
+    return f'<{tag} class="chev"{attrs}>{svg}</{tag}>'
 
 
 _FILM = ["", " f-b", " f-c", " f-d"]
@@ -394,40 +400,36 @@ def build_home():
         f'<li><a href="{p["slug"]}.html" data-cover="img/{p["slug"]}/cover.jpg">{html.escape(p["title"])}<sup class="yr">{p["year"]}</sup></a></li>'
         for p in reversed(CULTURE))
     order = ["papa-che-fanno-i-papa", "faccioni", "place-of-freedom", "siculo"]
-    years = {"siculo": "2025", "papa-che-fanno-i-papa": "2025 – in corso", "place-of-freedom": "2025", "faccioni": "2025 – in corso"}
+    years = {"siculo": "2025", "papa-che-fanno-i-papa": "2025-ongoing", "place-of-freedom": "2025", "faccioni": "2025-ongoing"}
     by = {p["slug"]: p for p in PHOTO}
     tiles = "".join(
         f'<a class="tile" href="{sl}.html">{img(f"img/{sl}/cover.jpg", by[sl]["title"])}'
         f'<span class="fig-cap"><span>{html.escape(by[sl]["title"])}</span><span>{years[sl]}</span></span></a>'
         for sl in order)
-    body = f"""  <section class="hero bw" id="cultura" aria-label="Progetti culturali">
-    <div class="media" data-random-photo><span class="ph"></span></div>
+    next_btn = chev("button", ' type="button" data-band-next aria-label="Un\'altra foto a caso"')
+    body = f"""  <section class="hero hero-full bw" id="cultura" aria-label="Progetti culturali">
+    <div class="media bw has-photo"><img src="img/home/hero.jpg" alt="Fotografia in bianco e nero di Simone Carducci"></div>
     <h1 class="sr-only">Simone Carducci, creative development</h1>
     <ul class="hero-list">{hero_items}</ul>
   </section>
 
   <section class="band band-color">
-    <div class="media" data-random-photo><span class="ph"></span></div>
+    <div class="media has-photo" data-random-photo data-keep><img src="img/home/pellicole.jpg" alt="Fotografia a colori su pellicola di Simone Carducci" loading="lazy"></div>
     <ul class="band-list">
       <li><a href="{LOMO}" target="_blank" rel="noopener">Tutte le mie pellicole</a></li>
       <li><a href="archivio.html#fotografie">Tutto il mio archivio</a></li>
       <li><a href="archivio.html">Tutta la mia vita</a></li>
     </ul>
-    <button class="chev" type="button" data-band-next aria-label="Un'altra foto a caso">›</button>
+    {next_btn}
   </section>
 
-  <section class="research" id="ricerca-visiva">
-    <h2 class="small-title">Ricerca visiva</h2>
-    <div class="stagger">{tiles}</div>
-  </section>
-
-  <section class="research" id="ai">
-    <h2 class="small-title">Progetti con l'AI</h2>
-    {ai_rows()}
+  <section class="research zigzag-wrap" id="ricerca-visiva">
+    <h2 class="research-title">Ricerca visiva</h2>
+    <div class="zigzag">{tiles}</div>
   </section>
 
 {band_archive()}"""
-    page(file="index.html", title=SITE, description=plain(desc), body=body, header="overlay", main_class="flush")
+    page(file="index.html", title=SITE, description=plain(desc), body=body, header="overlay", main_class="flush", body_class="home")
 
 
 ARCHIVE_INDEX = [
@@ -457,8 +459,8 @@ def build_archive():
     body = f"""  <section class="archive-cover bw">
     <div class="media" data-random-photo data-cover-stage><span class="ph"></span></div>
     <h1 class="sr-only">Archivio</h1>
-    <button class="chev chev-left" type="button" data-cover-prev aria-label="Foto precedente">‹</button>
-    <button class="chev" type="button" data-cover-next aria-label="Un'altra foto a caso">›</button>
+    {chev("button", ' type="button" data-cover-prev aria-label="Foto precedente"').replace('class="chev"', 'class="chev chev-left"', 1)}
+    {chev("button", ' type="button" data-cover-next aria-label="Un\'altra foto a caso"')}
     <nav class="archive-index" aria-label="Indice dell'archivio">{cols}</nav>
   </section>
   <section class="archive" id="fotografie">
