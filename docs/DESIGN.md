@@ -1,270 +1,246 @@
 # Design — sistema visivo
 
-Fonte: mockup Figma (`Mokups`: wireframe Desktop + PROT 1/2 + Frame 4/5/6), i ritagli inviati da Simone
-il 7/11/2026 (A24, Herzog & de Meuron, Benoit P. "Inside The Subway", footer Canada / A24 / MUBI)
-le pagine A24 Backrooms e Notes, la home MUBI, e i riferimenti a24films.com, francescomerlini.com, camillaferrari.it, kinou.fr, pennybanks.com,
+**Riferimento principale: i mockup Figma di Simone "Desktop · Primary · 1366"** (home, pagina
+Bohème Magazine, pagina Archivio), inviati il 7/11/2026 alle 18:56. Dove questo documento e i
+mockup non coincidono, valgono i mockup.
+
+Riferimenti secondari, usati solo per ciò che i mockup non mostrano: A24 (Backrooms, Notes, PROT 1/2),
+Herzog & de Meuron e Benoit P. "Inside The Subway" (pagine dei progetti fotografici), MUBI, footer
+Canada/A24/MUBI, a24films.com, francescomerlini.com, camillaferrari.it, kinou.fr, pennybanks.com,
 oliviatruong.design.
 
 ## Idea
 
-**Un portfolio che si sfoglia come il catalogo di una casa di produzione.**
-Due registri, sempre nello stesso sistema:
+**Un sito fatto di fotografie a tutta larghezza, con pochissimo testo piccolo sopra.**
+Il testo non compete con le immagini: titoli in maiuscolo di media grandezza, tutto il resto
+piccolo. Le foto culturali e di paesaggio sono in **bianco e nero**; le foto dei progetti
+fotografici restano a colori, come sono state scattate.
 
-1. **Cinema (A24)** per la home e i progetti culturali: immagine a tutto schermo, titoli enormi,
-   scheda metadati tipo locandina, testo in una colonna centrale.
-2. **Archivio (Herzog & de Meuron / Benoit P.)** per fotografia e archivio: carattere monospace
-   piccolo, tanto bianco, foto in sequenza verticale centrata, didascalie minime.
-
-Mood: **cinematografico, asciutto, analogico.**
+Mood: **analogico, sobrio, cinematografico.**
 
 Regole d'oro:
-- L'immagine comanda. Niente box, ombre, bordi arrotondati, gradienti decorativi.
-- Un solo colore d'accento, usato pochissimo.
-- Il testo grande è grande davvero, il testo piccolo è piccolo davvero. Niente vie di mezzo.
-- Ogni dato (anno, ruolo, formato, pellicola) va in monospace: è la "voce d'archivio" del sito.
+- L'immagine comanda: bande fotografiche a tutta larghezza, una dopo l'altra, senza margini.
+- Testo bianco sopra le foto, sempre in basso a sinistra o al centro, mai su un riquadro.
+- Una sola famiglia di caratteri sans. Niente colori d'accento, niente ombre, niente bordi arrotondati.
+- La navigazione tra le immagini avviene con frecce sottili `‹ ›` ai lati delle bande.
 
 ## Palette
 
 | Token | Valore | Uso |
 | --- | --- | --- |
-| `--paper` | `#F2F1EE` | Sfondo di tutto il sito (grigio caldo come A24/MUBI, non bianco puro) |
-| `--ink` | `#111111` | Testo e titoli |
-| `--ink-2` | `#6B6862` | Testo secondario, didascalie, label metadati (AA su paper, ~5:1) |
-| `--rule` | `#D6D3CC` | Filetti 1px |
-| `--night` | `#0D0D0C` | Archivio, footer, hero senza immagine |
-| `--night-ink` | `#EDEBE6` | Testo su night |
-| `--night-rule` | `#3A3936` | Filetti su night |
-| `--signal` | `#E2542B` | Accento "pellicola" (arancio Kodak/Lomo). Solo: voce di menu attiva, pulsante "Un'altra foto" in hover, focus, badge "Privato". Mai su superfici grandi. |
-| `--ph` | `#E3E0D9` | Segnaposto immagini |
+| `--paper` | `#F3F3F1` | Sfondo del sito (grigio chiarissimo dei mockup) |
+| `--ink` | `#111111` | Testo e titoli su paper |
+| `--ink-2` | `#6B6A66` | Didascalie, label metadati, footer (AA su paper) |
+| `--rule` | `#D9D8D4` | Filetti 1px (sotto la riga titolo, sotto la scheda metadati) |
+| `--on-photo` | `#FFFFFF` | Testo sulle foto |
+| `--on-photo-dim` | `rgba(255,255,255,.55)` | Voci non attive sopra le foto (es. il titolo non selezionato nella hero) |
+| `--scrim` | `linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,.45))` | Velo sotto il testo sulle foto, per la leggibilità |
+| `--ph` | `#E3E2DE` | Segnaposto immagini |
 
-Niente dark mode: il sito è chiaro; Archivio e footer sono scuri, come una sala di proiezione.
+Niente accento colorato e niente dark mode. Il colore sta tutto nelle fotografie.
+
+Trattamento foto: le hero dei progetti culturali, la banda Archivio e la pagina Archivio usano le foto in
+**bianco e nero** (esportate già in b/n, non con un filtro CSS). La banda delle pellicole e i
+progetti fotografici sono a colori.
 
 ## Tipografia
 
-Due famiglie, Google Fonts, gratuite:
-
-- **Inter Tight** (500, 600, 700): titoli e testo. Neo-grotesk stretta, la cosa più vicina alla
-  voce A24 senza font a pagamento.
-- **IBM Plex Mono** (400, 500): metadati, didascalie, navigazione, numeri, pagine fotografiche.
+Una famiglia: **Inter Tight** (400, 500, 600) da Google Fonts. Nei mockup la voce è un grotesk
+geometrico pulito: Inter Tight è la cosa più vicina tra i font gratuiti.
+**IBM Plex Mono** resta solo nelle pagine dei progetti fotografici (testata stile H&dM), che i
+mockup non mostrano. Se Simone preferisce, si può togliere anche da lì.
 
 ```html
-<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 ```
 
-| Stile | Famiglia | Peso | Dimensione | Interlinea | Tracking | Uso |
-| --- | --- | --- | --- | --- | --- | --- |
-| `display-xl` | Inter Tight | 600 | `clamp(44px, 8.5vw, 136px)` | .9 | -0.035em | Lista titoli nella hero della home (iniziale maiuscola, come A24) |
-| `display-title` | Inter Tight | 700 | `clamp(40px, 7vw, 104px)` | .9 | -0.03em | Titolo pagina progetto, MAIUSCOLO |
-| `h2` | Inter Tight | 600 | `clamp(32px, 4.6vw, 64px)` | .95 | -0.025em | Titoli di sezione |
-| `h3` | Inter Tight | 600 | `clamp(22px, 2.2vw, 30px)` | 1.1 | -0.015em | Titoli card, sottotitoli nel testo |
-| `lead` | Inter Tight | 500 | `clamp(19px, 1.7vw, 23px)` | 1.35 | -0.01em | Riga "in breve" |
-| `body` | Inter Tight | 500 | `17px` | 1.55 | -0.005em | Testo corrente, max 62ch |
-| `fact` | Inter Tight | 500 | `clamp(18px, 1.7vw, 24px)` | 1.2 | -0.01em | Valori della scheda metadati |
-| `mono` | IBM Plex Mono | 400 | `13px` | 1.55 | 0 | Testo delle pagine fotografiche (stile H&dM) |
-| `label` | IBM Plex Mono | 500 | `11px` | 1.3 | 0.06em | MAIUSCOLO: label, nav, didascalie, anni in apice |
+Misure prese dai mockup a 1366px:
+
+| Stile | Peso | Dimensione | Interlinea | Tracking | Uso |
+| --- | --- | --- | --- | --- | --- |
+| `hero-title` | 500 | `clamp(26px, 3vw, 42px)` | 1.05 | 0 | MAIUSCOLO. Titoli dei progetti nella hero della home |
+| `page-title` | 600 | `clamp(26px, 3vw, 40px)` | 1 | 0 | MAIUSCOLO. Titolo della pagina progetto ("BOHÈME MAGAZINE") |
+| `year` | 400 | `11px` | 1 | .02em | Anno accanto ai titoli, allineato alla base, `--ink-2` o bianco al 70% |
+| `band-link` | 500 | `13px` | 1.35 | .04em | MAIUSCOLO. Voci sopra le bande foto ("TUTTE LE MIE PELLICOLE") |
+| `section` | 500 | `13px` | 1.3 | 0 | Etichette di sezione in paper ("Ricerca visiva"), voce della banda ("Archivio") |
+| `fact-label` | 500 | `9px` | 1.2 | .08em | MAIUSCOLO, `--ink-2`. Etichette della scheda ("IDEATED BY", "YEAR") |
+| `fact` | 600 | `clamp(13px, 1.1vw, 16px)` | 1.25 | 0 | Valori della scheda metadati |
+| `body` | 400 | `clamp(13px, 1vw, 15px)` | 1.55 | 0 | Testo dei progetti, giustificato a sinistra |
+| `nav` | 400 | `11px` | 1.3 | 0 | Header |
+| `caption` | 400 | `9–10px` | 1.3 | 0 | Didascalie delle foto e footer |
+| `index` | 400 | `11px` | 1.6 | 0 | Voci dell'indice nella pagina Archivio |
 
 Dettagli:
-- Anni accanto ai titoli: `label` in apice, come "Backrooms ²⁰²⁶" su A24.
-- `font-variant-numeric: tabular-nums` in liste, schede e numeri.
-- Niente corsivi o grassetti nel testo lungo (solo `strong` a 600 per i nomi).
+- Il maiuscolo lo fa il CSS (`text-transform: uppercase`); i testi si scrivono normali.
+- `font-variant-numeric: tabular-nums` per anni e numeri.
+- Footer in corsivo (`font-style: italic`), come nei mockup.
 
 ## Griglia e spazi
 
-- Margine laterale: `--pad: clamp(16px, 2.2vw, 32px)` (16px su telefono).
-- 12 colonne, gutter `clamp(12px, 1.6vw, 24px)`. Layout a larghezza piena; max-width solo sul testo.
-- Colonna di testo culturale: `max-width: 640px`, centrata (PROT 1). Pagine foto: testo a sinistra
-  su 6 colonne (H&dM) oppure centrato sopra la sequenza (Benoit P.), max 560px.
-- Scala spazi (multipli di 8): 8, 16, 24, 40, 64, 104, 168. Sezioni: `padding-block: clamp(64px, 10vw, 168px)`.
-- Breakpoint: 640px (telefono), 1024px (tablet). Sotto 640 tutto in una colonna.
-- Filetti 1px `--rule`, solo per scheda metadati, liste e footer.
+- Margine laterale `--pad: clamp(16px, 2.4vw, 32px)` per il testo; le bande foto sono a
+  **tutta larghezza, senza margine**.
+- 12 colonne per posizionare testo e immagini nella griglia sfalsata.
+- Testo dei progetti: colonna centrata, `max-width: 600px` (circa il 44% a 1366px, come nei mockup).
+- Le bande si toccano tra loro (gap 0). Tra una banda e una sezione su paper: `clamp(48px, 6vw, 88px)`.
+- Breakpoint: 640px e 1024px. Sotto 640 tutto in una colonna e le bande diventano 4:5.
 
 ## Componenti
 
-**Header.** Fisso, 64px. Sinistra `SIMONE CARDUCCI` in `label`. Destra
-`Cultura · Archivio · Fotografia · AI · About` in `label`; voce attiva con pallino `--signal`.
-Sopra la hero è trasparente con testo bianco; dopo 40px di scroll diventa `--paper` al 92% con blur.
-Mobile: `MENU` a destra, overlay `--night` a tutto schermo con le voci in `h2`.
+**Header.** Sopra la prima foto, trasparente, testo bianco, altezza 56px, stile `nav`.
+A sinistra, in fila con 32px di spazio: `Simone Carducci` (500) · `Creative development` ·
+`Editorial, Events & Cultural Projects`. A destra: `about`. Nient'altro: le sezioni si
+raggiungono dalle bande della home. Allo scroll diventa `--paper` al 92% con testo `--ink`.
+Mobile: solo `Simone Carducci` a sinistra e `about` a destra.
 
-**Didascalia.** `label` in `--ink-2` sotto ogni immagine: titolo a sinistra, anno/formato a destra,
-una riga (card di Frame 6). Sulle immagini a tutto schermo: in basso a sinistra, bianca.
+**Banda foto (band).** Immagine a tutta larghezza con `object-fit: cover`, `--scrim` sotto il
+testo, testo bianco. Una freccia sottile `›` (e `‹` dove si torna indietro) a 32px dal bordo,
+centrata in verticale: cambia la foto della banda (dissolvenza 400ms), oppure porta alla pagina
+collegata. Altezze a 1366px: hero 500px (≈ 37vw, min 60svh su mobile), banda pellicole 330px,
+banda archivio 200px.
 
-**Scheda metadati.** Griglia 3 colonne (2 su mobile), gap 32/24. Ogni voce: `label` sopra, `fact`
-sotto. In alto a destra `↗ VISITA` in `label`. Filetto sotto. È il blocco "Directed by / Year /
-Get tickets" di PROT 1.
+**Didascalia.** Sotto la foto, stile `caption`, `--ink-2`: titolo a sinistra, anno a destra
+("Papà che fanno i papà ··· 2025-ongoing").
 
-**Link.** `label` con `↗` davanti. Hover: sottolineato 1px, offset 4px. Focus: outline 2px `--signal`.
+**Scheda metadati.** Griglia a 3 colonne, `fact-label` sopra e `fact` sotto, 20px tra le righe.
+Voci: IDEATED BY · YEAR · ARTISTIC DIRECTION · (altre secondo il progetto). Filetto `--rule` sotto,
+poi 64px di spazio prima del testo.
 
-**Pulsante.** Uno solo: "Un'altra foto" nell'Archivio. `label`, bordo 1px, padding 12×18, nessun
-raggio. Hover: sfondo `--signal`.
+**Footer.** Una sola riga sotto l'ultima banda, `caption` in corsivo, `--ink-2`, 16px di padding:
+a sinistra `© 2025-2026 Simone Carducci. P.iva 18337621009`, a destra `Instagram · Email`.
+Prima del footer, su tutte le pagine tranne l'Archivio, c'è la **banda Archivio** (foto di
+paesaggio in b/n, voce `Archivio` a sinistra e `›` a destra), che porta alla pagina Archivio.
 
-**Badge "Privato".** `label` in `--signal` con pallino 6px. Per i progetti AI non pubblici.
-
-**Immagini.** Mai arrotondate, mai ombre. Hover sulle card: zoom 1.03 in 600ms e didascalia da
-`--ink-2` a `--ink`. Caricamento: dissolvenza 400ms. `prefers-reduced-motion` spegne tutto.
-
-**Footer (scelta: A24 nero, con le colonne etichettate di Canada).** Sfondo `--night`.
-- Riga 1: `Scrivimi` in `display-title` + email grande in `h3` (link). È la call to action del
-  portfolio, quindi grande.
-- Riga 2: quattro colonne con filetto `--night-rule` sopra ciascuna e `label` di testa
-  (come A24): **CONTATTI** (email, Torino/Roma), **ALTROVE** (Instagram, Lomography; LinkedIn solo se Simone lo conferma),
-  **SEZIONI** (Cultura, Archivio, Fotografia, AI, About), **CV** (`↗ Scarica il CV (PDF)`).
-  Link in `label` maiuscolo, come A24.
-- Riga 3: `© 2025–2026 Simone Carducci. Tutti i diritti riservati.` · `P.Iva 18337621009`
-  in `label` `--ink-2`.
-Niente newsletter né icone social: solo testo.
+**Immagini.** Mai arrotondate, mai ombre. Hover sulle foto della griglia: zoom 1.02 in 600ms.
+`prefers-reduced-motion` spegne zoom e dissolvenze.
 
 ## Layout delle pagine
 
-### Home (`index.html`)
+### Home (`index.html`) — mockup "Desktop · Primary", prima tavola
 
-Struttura dal wireframe Figma "Desktop" (hero / due metà / banda piena / due metà / footer),
-reinterpretata con il ritaglio A24 (Frame 6).
+1. **Hero** (banda, ≈ 500px a 1366): foto b/n di Bohème/modì a tutta larghezza.
+   In basso a sinistra, uno sotto l'altro, i **progetti culturali** in `hero-title` MAIUSCOLO con
+   l'anno in `year` accanto: `COLECTIVO MODÌ 2026` e `BOHÈME MAGAZINE 2024`. Il titolo attivo è
+   bianco pieno, l'altro `--on-photo-dim`. Passando sopra un titolo, la foto della hero diventa la
+   sua e il titolo si accende; click = pagina del progetto.
+2. **Banda pellicole** (≈ 330px): foto a colori dall'archivio. A sinistra, centrate in verticale,
+   tre voci `band-link` MAIUSCOLE una sotto l'altra:
+   `TUTTE LE MIE PELLICOLE` (→ Lomography), `TUTTO IL MIO ARCHIVIO` (→ archivio.html),
+   `TUTTA LA MIA VITA` (→ archivio.html, indice). A destra `›`: cambia la foto a caso.
+3. **Ricerca visiva** (su paper): etichetta `section` "Ricerca visiva" in alto a sinistra, poi la
+   **griglia sfalsata** dei quattro progetti fotografici, una foto per riga, alternate:
+   - Papà che fanno i papà: colonne 2–6
+   - Faccioni: colonne 7–11
+   - Place of Freedom: colonne 2–6
+   - Siculo: colonne 8–11 (più piccola)
+   Foto in 4:3, spazio verticale tra l'una e l'altra ≈ 100px, didascalia sotto ciascuna.
+4. **Progetti AI** (non nei mockup, aggiunta richiesta da Simone): stessa logica delle bande,
+   oppure una piccola sezione su paper con l'etichetta `section` "Progetti con l'AI" e un elenco
+   di 3 righe (titolo · cosa fa · anno), "Lettura" segnata come privato e non cliccabile. Va
+   **prima** della banda Archivio.
+5. **Banda Archivio** + footer.
 
-1. **Hero 100svh**, foto a tutto schermo (una dall'archivio, casuale a ogni visita). In basso a
-   sinistra la **lista dei progetti in `display-xl`**, uno per riga, anno in apice:
-   Bohème Magazine · Colectivo modì · Siculo · Papà che fanno i papà · Place of Freedom · Faccioni.
-   Hover su un titolo: lo sfondo diventa la sua copertina, gli altri titoli scendono al 40%.
-   In basso a destra `↓`. In alto, sotto l'header, `Creative development — Editorial, Events &
-   Cultural Projects` in `label`.
-2. **Manifesto** (blocco logo + manifesto di MUBI): a sinistra, colonne 1–5, il nome
-   `Simone Carducci` in `h2`; a destra, colonne 7–12, il manifesto in `label` maiuscolo su 4–5
-   righe brevi, una idea per riga. Molto bianco sopra e sotto.
-3. **Progetti culturali**: le due metà del wireframe. Bohème e modì affiancati, foto 4:5,
-   didascalia sotto, `lead` di una riga.
-4. **Archivio fotografico**: banda a tutta larghezza (come le sezioni di MUBI), 80svh, foto
-   casuale a pieno schermo con il testo sopra in basso a sinistra, bianco, in `h2` MAIUSCOLO:
-   `Tutte le mie pellicole.` Sotto il titolo: `↗ APRI L'ARCHIVIO` e `↗ TUTTO SU LOMOGRAPHY`.
-   Click sulla foto = un'altra.
-5. **Progetti fotografici**: **griglia sfalsata** come Frame 6. Le foto si alternano tra colonne
-   7–12 e 1–6 con larghezze diverse (6, 5, 8, 4 colonne) e spazi verticali ampi (104–168px),
-   ognuna con didascalia.
-6. **Progetti AI**: anteprima dell'indice (vedi sotto), max 3 righe, `↗ TUTTI I PROGETTI AI`.
-7. Footer.
+### Progetto culturale (`boheme.html`, `modi.html`) — mockup, seconda tavola
 
-### Progetto culturale (`boheme.html`, `modi.html`) — modello A24 (PROT 1/2)
+1. **Hero** foto b/n a tutta larghezza (≈ 500px a 1366), senza testo sopra. Per modì può essere un
+   video muto in loop (`img/modi/hero.mp4` + `hero-poster.jpg`).
+2. **Riga titolo** su paper: `page-title` MAIUSCOLO + `year` accanto, filetto sotto.
+3. **Scheda metadati** a 3 colonne (vedi Componenti).
+4. **Testo** in colonna centrata da 600px, stile `body`, 3–4 paragrafi.
+5. **Galleria** (non nei mockup): sotto il testo, nella stessa colonna, griglia a 2 colonne di
+   immagini verticali 4:5 (caroselli Bohème, frame dei DJ set), gap 4px.
+6. **Banda Archivio** + footer.
 
-1. Hero 82svh, foto a tutto schermo, didascalia bianca in basso a sinistra. Per modì la hero
-   può essere un **video muto in loop** (10–15 s di un DJ set, MP4 H.264 sotto i 4 MB, con
-   `poster` = un fotogramma), come la hero video del riferimento studio/agenzia.
-2. Riga titolo: `display-title` MAIUSCOLO a sinistra; a destra una miniatura 16:9 alta come il
-   titolo (la foto piccola accanto a "CLARYN CHONG"). Filetto sotto.
-3. Scheda metadati: RUOLO · ANNO · AMBITO · FORMATO (+ TEAM/LUOGO se servono) + `↗ VISITA`.
-4. Testo in colonna di 640px **allineata a partire dalla colonna 5** della griglia (come
-   Backrooms su A24: non centrata, il vuoto a sinistra è voluto). Riga "in breve" in `lead`,
-   poi 2–4 blocchi con `h3`. Mobile: tutta larghezza.
-5. **Numeri** (Bohème): tre cifre in `display-title` su una riga con `label` sotto
-   (5.022 follower · 563 caroselli · 1,47M visualizzazioni). Filetti sopra e sotto.
-6. Galleria (come Backrooms): **dentro la stessa colonna del testo**, griglia a 2 colonne di
-   immagini verticali 4:5 o 9:16, gap 4px. Perfetta per i caroselli e le storie di Bohème e i
-   frame dei DJ set di modì. Se c'è un'immagine orizzontale forte, va prima a tutta larghezza.
-7. Variante PROT 2: dove ci sono due temi paralleli (es. modì: serate / podcast), due colonne di
-   testo con `h3` in testa.
-8. "Progetto successivo": titolo del prossimo in `h2` con `→`.
+### Archivio (`archivio.html`) — mockup, terza tavola
 
-### Progetto fotografico (`siculo.html` ecc.) — H&dM + Benoit P.
+Una sola schermata (100svh), foto b/n a tutta pagina, header bianco sopra.
+- Al centro, l'**indice "Tutta la mia vita"** in tre colonne, stile `index`, bianco:
+  - Viaggi · Libri · Exhibitions · Film · Musica · Album · Outfit
+  - Pellicole · Fotografie · Fotocamere · Tatuaggi · Personal media · Podcast · Note
+  - Concerti · Montagne · Mappamondo · Calcio · Pesi · Poster · Ragazzi
+- A sinistra la freccia `‹` (e `›` a destra): cambia la foto di sfondo pescandone una a caso
+  dall'archivio (click sulla foto o barra spaziatrice fanno lo stesso).
+- Ogni voce dell'indice apre la sua raccolta (per la consegna basta che **Pellicole** porti a
+  Lomography e **Fotografie** mostri le foto dell'archivio a una a una). Le voci non ancora
+  pronte restano visibili ma non cliccabili, al 55%.
+- Footer in basso, sopra la foto, in bianco. Niente banda Archivio su questa pagina.
 
-1. Niente hero. Header su `--paper`.
-2. **Testata in mono** in alto a sinistra, 6 colonne: titolo in mono 500 18px, sotto luogo,
-   `Progetto: 2025 — in corso`, poi intro breve (max 40 parole) in `mono`, e un trattino `—`.
-3. Prima immagine **a tutta larghezza** (dentro i margini), formato originale.
-4. **Sequenza verticale centrata** (Benoit P.): foto larghe 5 colonne su desktop (~42%), gap 16px,
-   nessuna didascalia, solo `01/24` in `label` a lato. Mobile: 100%.
-5. **Testo lungo in fondo**, centrato sulla stessa larghezza delle foto, in `body`
-   (il racconto arriva dopo aver visto le foto). Sotto, i crediti in `label`.
-6. Riga © del progetto: `© Simone Carducci 2025. Fotografie su pellicola, non riproducibili
-   senza autorizzazione.`
-7. **"Altri progetti"**: striscia di 3–4 miniature 4:3 affiancate con didascalia (come "You may
-   also like" di Benoit P. e "Related" di H&dM).
+### Progetto fotografico (`siculo.html` ecc.) — non nei mockup
 
-### Archivio (`archivio.html`) — sala di proiezione
+Si tiene la logica dei mockup (paper, testo piccolo, foto protagoniste) con lo schema
+H&dM / Benoit P.:
+1. Riga titolo come nelle pagine culturali (`page-title` + `year`, filetto), poi una breve
+   intro (max 40 parole) in colonna centrata.
+2. **Sequenza verticale centrata**: foto a colori larghe 5 colonne (≈ 42%), gap 16px, nessuna didascalia.
+3. Testo lungo in fondo, nella stessa colonna, poi
+   `© Simone Carducci 2025. Fotografie su pellicola, non riproducibili senza autorizzazione.` in `caption`.
+4. "Altri progetti": le altre tre serie in fila, 4:3, con didascalia.
+5. Banda Archivio + footer.
 
-- Sfondo `--night`, testo `--night-ink`, header scuro.
-- Al centro una sola foto, `object-fit: contain`, alta max 78svh, che galleggia sul nero.
-- Sotto, una riga in `label`: a sinistra `N. 0347 — Kodak Portra 400 — Roma, 2024` (o solo il
-  numero se mancano i dati); a destra **Un'altra foto** e `↗ Lomography`.
-- Click sulla foto o barra spaziatrice = nuova foto casuale, dissolvenza 400ms.
-- Sotto la piega (facoltativo): provino a contatto, miniature 3:2 con gap 2px, 6 colonne desktop / 3
-  mobile (la griglia di miniature di H&dM).
+### Progetti AI (`ai.html`) — non nei mockup
 
-### Progetti AI (`ai.html`) — indice
+Su paper. Riga titolo `PROGETTI CON L'AI`, filetto, poi un elenco a righe (filetto tra le
+righe): titolo in `fact` · cosa fa in `body` · anno in `year`. Bohème Vedetta e Running Coach
+cliccabili; **Lettura** in `--ink-2`, etichetta "privato", nessun link né immagine.
+Le schede dei singoli progetti usano lo schema della pagina culturale (hero, titolo, scheda,
+testo). Banda Archivio + footer.
 
-Registro "laboratorio": niente hero, una tabella-indice come un elenco crediti.
+### About (`about`) — nei mockup è solo il link nell'header
 
-- Titolo `h2` + `lead` di due righe.
-- Righe a tutta larghezza, filetto tra le righe, colonne:
-  `N.` (mono) · **Progetto** (`h3`) · Cosa fa (body, 1 riga) · Strumenti (`label`) · Anno · Stato.
-- Righe: **Bohème Vedetta** (motore bandi per Bohème), **Coaching per la corsa**,
-  **Lettura** (progetto per una persona della mia famiglia: nel sito non si nomina il padre, vedi copy) con badge `● PRIVATO`: riga in `--ink-2`, non cliccabile, nessuna
-  immagine. Si dichiara che esiste, non si mostra.
-- Hover su riga pubblica (desktop): miniatura 4:3 che segue il cursore.
-- Ogni progetto pubblico apre una scheda nel **modello articolo A24** (Notes): hero 60svh in
-  bianco e nero o screenshot su `--night`, poi data in `label`, titolo in `display-title` a
-  iniziale maiuscola (non tutto maiuscolo) su due righe, scheda metadati breve
-  (Ruolo · Anno · Strumenti · Stato), testo nella colonna da 640px dalla colonna 5,
-  2–3 screenshot in griglia a 2 colonne.
-
-### About (`about.html`) — non un CV (camillaferrari, francescomerlini)
-
-1. **Statement a tutta larghezza** in `display-xl` (600, iniziale maiuscola, non tutto maiuscolo),
-   su 11 colonne, in alto sotto l'header: "Curo progetti culturali dall'idea al pubblico…".
-   Una parola chiave può andare in `--ink-2` per dare ritmo, nient'altro.
-2. **Ritratto su pellicola + blocchi.** Ritratto 4:5 a sinistra su 5 colonne, `position: sticky`
-   (resta fermo mentre scorrono i blocchi), con didascalia mono sotto (pellicola, anno).
-   A destra, colonne 7–12: i cinque blocchi (Da dove vengo, Gli anni in giro, Quello che faccio
-   oggi, Cosa studio, Cosa cerco), ognuno con titoletto in `label` sopra e testo in `body`,
-   separati da 64px. "Cosa cerco" chiude con il testo in `lead` (è il messaggio per chi assume).
-   Mobile: ritratto sopra, non sticky.
-3. **Tabella dati in mono** a tutta larghezza, filetto tra le righe, due colonne:
-   label (3 col) · valore (9 col, `mono` 13px): Ambiti, Competenze, Strumenti, Lingue, Formazione.
-4. In fondo, due link grandi in `h2` affiancati: `↗ CV (PDF)` e `↗ Scrivimi`.
+Su paper, stesso tono delle pagine progetto:
+1. Hero: ritratto su pellicola in b/n a tutta larghezza (o 4:5 a sinistra su mobile).
+2. Riga titolo `SIMONE CARDUCCI`, filetto, scheda metadati
+   (BASE · AMBITI · LINGUE · CONTATTI).
+3. Statement in `hero-title` (in `--ink`, non maiuscolo) in colonna centrata, poi i cinque blocchi
+   del copy (Da dove vengo, Gli anni in giro, Quello che faccio oggi, Cosa studio, Cosa cerco), ognuno
+   con l'etichetta in `fact-label` sopra e il testo in `body`.
+4. Tabella finale label/valore (Ambiti, Competenze, Strumenti, Lingue, Formazione), filetto tra le
+   righe, poi `CV (PDF)` · `Scrivimi`.
+5. Banda Archivio + footer.
 
 ## Lunghezze dei testi (accordo con il copy)
 
-- Titoli progetto: brevi, resi in maiuscolo dal CSS (scriverli normali).
-- "In breve": max 20 parole, una riga di `lead`.
-- Culturali: 2–4 blocchi da 60–90 parole, ognuno con un titoletto di 2–4 parole.
-- Foto: intro max 40 parole in testata + testo lungo in fondo 80–150 parole + crediti.
-- AI: "Cosa fa" max 10 parole (sta in una riga di tabella).
-- Manifesto home: una frase, max 18 parole.
-
-## Note per il front end
-
-- Sostituire in `style.css` le variabili con i token qui sopra.
-- Archivo/Inter → Inter Tight + IBM Plex Mono (un solo `<link>`).
-- Le classi esistenti (`.hero`, `.p-hero`, `.p-facts`, `.gallery`, `.tile`) restano: cambiano i
-  valori. Nuove: `.hero-list` (titoli in hero), `.stagger` (griglia sfalsata), `.photo-head`
-  (testata mono), `.photo-seq` (sequenza centrata), `.related` (altri progetti),
-  `.index-table` (AI), footer scuro `.site-footer--night`.
-- Tavola di stile visiva: `docs/design-board.html` (aprila nel browser per vedere token e componenti).
+- Titoli progetto: brevi, scritti normali (il maiuscolo lo fa il CSS).
+- Pagine culturali: 3–4 paragrafi da 60–90 parole. Niente titoletti, come nel mockup.
+- Pagine foto: intro max 40 parole + testo in fondo 80–150 parole + crediti.
+- AI: "cosa fa" max 10 parole.
+- About: statement sotto le 20 parole.
 
 ## Photo editing (selezione e sequenza)
 
 Il designer fa anche da photo editor: sceglie, ordina ed esporta le foto quando Simone le carica.
 
-**Dove caricarle.** Gli originali (scansioni, anche pesanti) vanno nella cartella del progetto
-in `img/<progetto>/originali/` o in una cartella del Mac da collegare. Il photo editor sceglie,
-ordina ed esporta le versioni web nella cartella `img/<progetto>/`.
+**Dove caricarle.** Gli originali vanno in `img/<progetto>/originali/` o in una cartella del Mac da
+collegare. Il photo editor sceglie, ordina ed esporta le versioni web in `img/<progetto>/`.
 
 **Quante.**
-- Progetti fotografici: 12–20 foto in sequenza + 1 apertura larga + 1 copertina (`cover.jpg`).
-- Bohème e modì: 1 hero orizzontale, 1 miniatura 16:9, 4–6 foto per la galleria.
-- Archivio: 60–150 foto, quelle che reggono da sole. Più sono, più il "random" funziona.
-- Hero della home: 6–10 foto orizzontali forti (una per progetto e alcune dall'archivio).
+- Home: 2 hero b/n (una per Bohème, una per modì), 6–10 foto a colori per la banda pellicole,
+  1 paesaggio b/n per la banda Archivio.
+- Progetti fotografici: 12–20 foto in sequenza + `cover.jpg` (4:3, per la griglia della home).
+- Bohème e modì: 1 hero b/n orizzontale, 4–6 immagini verticali per la galleria.
+- Archivio: 60–150 foto, di cui almeno 10 paesaggi b/n che reggono l'indice sopra.
 
-**Come si sceglie.** Una foto entra solo se aggiunge qualcosa alla serie. Niente doppioni
-dello stesso momento: si tiene lo scatto migliore. Si apre con l'immagine che dice di cosa parla
-il progetto e si chiude con quella che lascia una domanda. Si alternano piani larghi e stretti,
-pieni e vuoti, e si evitano due foto di fila con la stessa luce o lo stesso colore dominante.
-Orizzontali e verticali non si mescolano a caso: nella sequenza centrata si tiene un formato
-prevalente, e le foto dell'altro formato vengono raggruppate.
+**Come si sceglie.** Una foto entra solo se aggiunge qualcosa alla serie. Niente doppioni dello
+stesso momento. Si apre con l'immagine che dice di cosa parla il progetto e si chiude con quella che
+lascia una domanda. Si alternano piani larghi e stretti, e si evitano due foto di fila con la stessa
+luce. Nelle bande con testo sopra si scelgono foto con una zona calma (cielo, muro, acqua) dove va il testo.
 
-**Esportazione.**
-- JPEG sRGB, qualità 80, metadati GPS rimossi.
-- Lato lungo: 2000px per tutte le foto dei progetti (cover, apertura, sequenza, galleria),
-  1800px per l'archivio, 900px per le miniature dell'archivio (`thumbs/`). L'export lo fa
-  `tools/optimize_images.py` del back end.
+**Esportazione.** Con `tools/optimize_images.py` del back end:
+- JPEG sRGB, qualità 80, EXIF/GPS rimossi.
+- 2000px di lato lungo per i progetti, 1800px per l'archivio, 900px per le miniature (`thumbs/`).
+- Il bianco e nero si fa in esportazione (non con `filter: grayscale` nel CSS).
 - Grana e bordi della pellicola si lasciano. Nessun ritocco oltre polvere e livelli.
-- Nomi: `01.jpg`, `02.jpg`, … nell'ordine della sequenza; `cover.jpg` per la copertina.
-- Archivio: `img/archivio/0001.jpg`, … più un `archivio.json` con numero, pellicola, luogo e anno
-  (anche vuoti), che alimenta la didascalia dell'archivio.
-- Testo alternativo: breve e descrittivo, scritto dal photo editor in `docs/progetti/<progetto>.md`.
+- Nomi: `cover.jpg`, `hero.jpg`, `01.jpg`, `02.jpg`… nell'ordine della sequenza.
+- Archivio: `img/archivio/0001.jpg`… + `archivio.json`
+  (`[{"n":"0001","file":"0001.jpg","film":"","luogo":"","anno":null}]`).
+- Video hero modì: `tools/optimize_video.py <file> modi` → `img/modi/hero.mp4` + `hero-poster.jpg`.
+- Testo alternativo: breve e descrittivo, in `docs/progetti/<progetto>.md`.
+
+## Note per il front end
+
+- Token: sostituire `--signal`, `--night` e `--night-*` con quelli della palette sopra
+  (`--on-photo`, `--on-photo-dim`, `--scrim`).
+- Il menu a cinque voci, la lista enorme di titoli nella hero, il footer nero e il manifesto
+  vanno tolti: i mockup non li prevedono.
+- Classi da avere: `.band` (+ `.band-arrow`), `.hero-titles`, `.band-links`, `.stagger`,
+  `.p-title-row`, `.p-facts`, `.p-text`, `.archive-index`, `.site-footer` (una riga).
+- La tavola `docs/design-board.html` è superata dai mockup: va aggiornata o ignorata.

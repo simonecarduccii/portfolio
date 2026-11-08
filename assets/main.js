@@ -1,20 +1,36 @@
-// Header: becomes solid after scrolling past the hero.
+// Simone Carducci — portfolio. Small, dependency-free interactions.
+
+// Header: transparent over a full-bleed hero, solid after 40px of scroll.
 (function () {
-  var header = document.querySelector('.site-header.on-hero');
+  var header = document.querySelector('.site-header.overlay');
   if (!header) return;
-  var onScroll = function () {
-    header.classList.toggle('scrolled', window.scrollY > window.innerHeight * 0.6);
-  };
+  var onScroll = function () { header.classList.toggle('scrolled', window.scrollY > 40); };
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 })();
 
-// Random photo from the archive (list in assets/archivio.js).
+// Random photo from the archive. The list is img/archivio/archivio.json, written by
+// tools/optimize_images.py: [{"n":"0001","file":"0001.jpg","film":"...","luogo":"...","anno":2024}].
 // Each click shows a different photo; the next one is preloaded so it appears at once.
+// (fetch needs a web server: preview locally with `python3 -m http.server`.)
 (function () {
-  var photos = (window.ARCHIVIO || []).filter(function (p) { return p && p.src; });
   var targets = document.querySelectorAll('[data-random-photo]');
-  if (!photos.length || !targets.length) return;
+  if (!targets.length || !window.fetch) return;
+  fetch('img/archivio/archivio.json')
+    .then(function (r) { return r.ok ? r.json() : []; })
+    .then(function (list) {
+      start((Array.isArray(list) ? list : []).filter(function (p) { return p && p.file; }).map(function (p) {
+        return {
+          n: p.n, src: 'img/archivio/' + p.file, thumb: 'img/archivio/thumbs/' + p.file,
+          film: p.film, place: p.luogo, year: p.anno,
+          alt: 'Fotografia analogica di Simone Carducci' + (p.luogo ? ', ' + p.luogo : '') + (p.anno ? ', ' + p.anno : '')
+        };
+      }));
+    })
+    .catch(function () {});
+
+  function start(photos) {
+  if (!photos.length) return;
 
   var last = -1;
   var queued = null;
@@ -24,17 +40,19 @@
     do { i = Math.floor(Math.random() * photos.length); } while (i === last);
     return i;
   }
-  function pick() {
-    var i = queued !== null ? queued : randomIndex();
+  function pick(forced) {
+    var i = forced !== undefined ? forced : (queued !== null ? queued : randomIndex());
     last = i;
     queued = randomIndex();
     new Image().src = photos[queued].src;
-    return photos[i];
+    return i;
   }
 
-  function show(target) {
-    var photo = pick();
-    var media = target.querySelector('.media') || target;
+  function show(target, forced, noHistory) {
+    var i = pick(forced);
+    if (!noHistory) (target._history = target._history || []).push(i);
+    var photo = photos[i];
+    var media = target.classList.contains('media') ? target : (target.querySelector('.media') || target);
     var img = media.querySelector('img');
     if (!img) {
       img = document.createElement('img');
@@ -42,12 +60,15 @@
     }
     img.classList.remove('fade');
     void img.offsetWidth;
-    img.src = (target.getAttribute('data-base') || '') + photo.src;
+    img.src = photo.src;
     img.alt = photo.alt || 'Fotografia analogica di Simone Carducci';
     img.classList.add('fade');
+    media.classList.add('has-photo');
     var info = document.querySelector('[data-photo-info]');
     if (info) {
-      info.textContent = [photo.title, photo.camera, photo.film, photo.year].filter(Boolean).join(' · ') || '';
+      var n = 'N. ' + (photo.n || String(i + 1).padStart(4, '0'));
+      info.textContent = [n, photo.film, [photo.place, photo.year].filter(Boolean).join(', ')]
+        .filter(Boolean).join(' — ');
     }
   }
 
@@ -69,32 +90,108 @@
     });
   });
 
+  // Chevrons on the home band and the archive cover: next = another random photo,
+  // previous = back through the photos already seen there.
+  document.querySelectorAll('[data-band-next], [data-cover-next], [data-cover-prev]').forEach(function (b) {
+    var target = b.closest('section').querySelector('[data-random-photo]');
+    if (!target) return;
+    b.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (!b.hasAttribute('data-cover-prev')) { show(target); return; }
+      var h = target._history || [];
+      if (h.length < 2) return;
+      h.pop();
+      show(target, h[h.length - 1], true);
+    });
+  });
+  var cover = document.querySelector('[data-cover-stage]');
+
+  var stage = document.querySelector('.archive-stage');
   var btn = document.querySelector('[data-next-photo]');
-  if (btn) btn.addEventListener('click', function () { targets.forEach(show); });
+  if (btn && stage) btn.addEventListener('click', function () { show(stage); });
 
   document.addEventListener('keydown', function (e) {
-    if (btn && (e.key === ' ' || e.key === 'ArrowRight') && document.activeElement === document.body) {
+    if (document.activeElement !== document.body) return;
+    if (e.key === ' ' || e.key === 'ArrowRight') {
+      var t = stage && stage.getBoundingClientRect().top < window.innerHeight / 2 ? stage : (cover || stage);
+      if (!t) return;
       e.preventDefault();
-      targets.forEach(show);
+      show(t);
     }
+  });
+
+  // Contact sheet under the archive: every photo as a thumbnail, click to project it.
+  var sheet = document.querySelector('[data-contact-sheet]');
+  if (sheet && stage) {
+    photos.forEach(function (p, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('aria-label', 'Mostra la foto ' + (i + 1));
+      b.innerHTML = '<img loading="lazy" alt="">';
+      b.firstChild.src = p.thumb;
+      b.firstChild.onerror = function () { this.onerror = null; this.src = p.src; };
+      b.addEventListener('click', function () {
+        show(stage, i);
+        stage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+      sheet.appendChild(b);
+    });
+  }
+  }
+})();
+
+// Home hero: hovering a project title shows its cover behind the list.
+(function () {
+  var hero = document.querySelector('.hero');
+  if (!hero) return;
+  var links = hero.querySelectorAll('.hero-list a[data-cover]');
+  var layers = {};
+  links.forEach(function (a) {
+    var src = a.getAttribute('data-cover');
+    var probe = new Image();
+    probe.onload = function () {
+      var img = document.createElement('img');
+      img.className = 'hero-cover';
+      img.alt = '';
+      img.src = src;
+      hero.insertBefore(img, hero.querySelector('.hero-list'));
+      layers[src] = img;
+    };
+    probe.src = src;
+    var on = function () { if (layers[src]) layers[src].classList.add('on'); };
+    var off = function () { if (layers[src]) layers[src].classList.remove('on'); };
+    a.addEventListener('mouseenter', on);
+    a.addEventListener('focus', on);
+    a.addEventListener('mouseleave', off);
+    a.addEventListener('blur', off);
   });
 })();
 
-// Mobile menu.
+// Photo sequences: once some photos exist, hide the empty slots and renumber.
 (function () {
-  var header = document.querySelector('.site-header');
-  var toggle = header && header.querySelector('.nav-toggle');
-  if (!toggle) return;
-  function set(open) {
-    header.classList.toggle('menu-open', open);
-    document.body.classList.toggle('no-scroll', open);
-    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-    toggle.setAttribute('aria-label', open ? 'Chiudi il menu' : 'Apri il menu');
-  }
-  toggle.addEventListener('click', function () { set(!header.classList.contains('menu-open')); });
-  header.querySelectorAll('.nav a').forEach(function (a) { a.addEventListener('click', function () { set(false); }); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') set(false); });
-  window.addEventListener('resize', function () { if (window.innerWidth > 760) set(false); });
+  document.querySelectorAll('.photo-seq').forEach(function (seq) {
+    var items = Array.prototype.slice.call(seq.querySelectorAll('li[data-src]'));
+    var pending = items.length;
+    var sizes = [];
+    items.forEach(function (li, i) {
+      var probe = new Image();
+      probe.onload = function () { sizes[i] = [probe.naturalWidth, probe.naturalHeight]; settle(); };
+      probe.onerror = settle;
+      probe.src = li.getAttribute('data-src');
+    });
+    function settle() {
+      if (--pending) return;
+      var filled = items.filter(function (li, i) { return sizes[i]; });
+      if (!filled.length) return; // nothing uploaded yet: keep the placeholders
+      var total = String(filled.length).padStart(2, '0');
+      items.forEach(function (li, i) {
+        if (!sizes[i]) { li.remove(); return; }
+        if (sizes[i][1] > sizes[i][0]) li.classList.add('portrait');
+        var c = li.querySelector('.count');
+        if (c) c.textContent = String(filled.indexOf(li) + 1).padStart(2, '0') + '/' + total;
+      });
+    }
+  });
 })();
 
 // Gallery lightbox: click a project photo to see it full screen.
@@ -107,7 +204,7 @@
   box.setAttribute('aria-label', 'Foto a schermo intero');
   box.innerHTML = '<img alt=""><button class="lb-prev" type="button" aria-label="Foto precedente">←</button>' +
     '<button class="lb-next" type="button" aria-label="Foto successiva">→</button>' +
-    '<button class="lb-close" type="button">Chiudi ✕</button><span class="lb-count"></span>';
+    '<button class="lb-close" type="button">Chiudi ✕</button><span class="lb-count label"></span>';
   document.body.appendChild(box);
   var big = box.querySelector('img');
   var count = box.querySelector('.lb-count');
@@ -126,7 +223,6 @@
     g.addEventListener('click', function (e) {
       var img = e.target.closest('img');
       if (!img) return;
-      // Only photos that actually loaded (missing ones remove themselves).
       list = Array.prototype.slice.call(g.querySelectorAll('img'));
       show(list.indexOf(img));
       box.showModal();
