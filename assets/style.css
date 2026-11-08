@@ -329,6 +329,8 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 
 /* ---------- Footer: one italic line ---------- */
 .site-footer { display: flex; justify-content: space-between; gap: 8px 24px; flex-wrap: wrap; padding: 16px var(--pad); background: var(--paper-footer); font-family: var(--font-accent); font-weight: 200; font-style: italic; font-size: var(--fs-footer); letter-spacing: .05em; line-height: 1.45; color: var(--ink); }
+.footer-note > span { white-space: nowrap; }
+.footer-note > span + span { margin-left: .3em; }
 .footer-links { display: flex; gap: 14px; }
 .footer-links a:hover { text-decoration: underline; text-underline-offset: 3px; }
 

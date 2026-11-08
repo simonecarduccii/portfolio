@@ -202,7 +202,7 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 
 def footer():
     return f"""<footer class="site-footer">
-  <span>© 2025-2026 Simone Carducci. P.Iva - 18337621009</span>
+  <span class="footer-note"><span>© 2025-2026 Simone Carducci. P.Iva - 18337621009 ·</span> <span>Sito progettato e sviluppato da Simone Carducci</span></span>
   <span class="footer-links"><a href="{INSTAGRAM}" target="_blank" rel="noopener">Instagram</a><a href="mailto:{EMAIL}">Email</a></span>
 </footer>"""
 
