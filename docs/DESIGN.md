@@ -31,14 +31,14 @@ Regole d'oro:
 
 | Token | Valore | Uso |
 | --- | --- | --- |
-| `--paper` | `#F6F2E9` | Sfondo del sito: bianco caldo, appena ingiallito come carta di un vecchio libro (8/11) |
-| `--ink` | `#1A1814` | Testo e titoli su paper |
-| `--ink-2` | `#6E675C` | Didascalie, label metadati, footer (AA su paper) |
-| `--rule` | `#DDD6C9` | Filetti 1px (sotto la riga titolo, sotto la scheda metadati) |
+| `--paper` | `#FBFBFB` | Sfondo del sito: bianco neutro della nuova home (8/11 sera; prima era carta calda `#F6F2E9`). Fascia Ricerca visiva `#F8F8F8`, footer `#FFFFFF` |
+| `--ink` | `#151515` | Testo e titoli su paper |
+| `--ink-2` | `#585858` | Didascalie, label metadati, footer (AA su paper) |
+| `--rule` | `#E4E4E4` | Filetti 1px (sotto la riga titolo, sotto la scheda metadati) |
 | `--on-photo` | `#FFFFFF` | Testo sulle foto |
 | `--on-photo-dim` | `rgba(255,255,255,.55)` | Voci non attive sopra le foto (es. il titolo non selezionato nella hero) |
 | `--scrim` | `linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,.45))` | Velo sotto il testo sulle foto, per la leggibilità |
-| `--ph` | `#E8E2D5` | Segnaposto immagini |
+| `--ph` | `#EFEFEF` | Segnaposto immagini |
 
 Niente accento colorato e niente dark mode. Il colore sta tutto nelle fotografie.
 
@@ -301,7 +301,7 @@ Ogni variabile ha come code syntax WEB il nome CSS, per esempio `var(--paper)`.
 | `color/paper` · `ink` · `ink-2` · `rule` · `ph` · `on-photo` · `on-photo-dim` | `--paper` · `--ink` · `--ink-2` · `--rule` · `--ph` · `--on-photo` · `--on-photo-dim` |
 | `space/pad` · `section` · `stagger` · `gutter` | `--pad` · `--space-section` · `--space-stagger` · `--gutter` |
 | `layout/text-width` · `header-height` · `band-hero` · `band-short` · `band-film` · `band-archive` | `--text-width` · `--header-h` · `--band-hero` · `--band-short` · `--band-film` · `--band-archive` |
-| `type/hero-title` 42 · `page-title` 40 · `statement` 36 · `stat` 32 · `lead` 18 · `fact` 16 · `body` 15 · `section` 13 · `subhead` 13 · `band-link` 13 · `link` 12 · `nav` 11 · `index` 11 · `small` 11 · `caption` 10 · `fact-label` 9 | `--fs-hero-title` · `--fs-page-title` · `--fs-statement` · `--fs-stat` · `--fs-lead` · `--fs-fact` · `--fs-body` · `--fs-section` · `--fs-subhead` · `--fs-band-link` · `--fs-link` · `--fs-nav` · `--fs-index` · `--fs-year` · `--fs-caption` · `--fs-fact-label` |
+| `type/hero-title` 56 · `page-title` 56 · `statement` 36 · `stat` 32 · `lead` 18 · `fact` 16 · `body` 15 · `section` 21 · `subhead` 13 · `band-link` 21 · `link` 12 · `nav` 16 · `index` 11 · `small` 11 · `caption` 10 · `fact-label` 9 | `--fs-hero-title` · `--fs-page-title` · `--fs-statement` · `--fs-stat` · `--fs-lead` · `--fs-fact` · `--fs-body` · `--fs-section` · `--fs-subhead` · `--fs-band-link` · `--fs-link` · `--fs-nav` · `--fs-index` · `--fs-year` · `--fs-caption` · `--fs-fact-label` |
 | `font/sans` · `font/mono` | `--font-sans` · `--font-mono` |
 
 Stili di testo: 19 stili `Sito/…` (Hero title, Page title, Statement, Stat, Lead, Fact, Body,
@@ -325,3 +325,17 @@ di 15, `--fs-fact` 15 invece di 16): vanno corrette alla prossima sincronizzazio
 
 Regola: il sito non introduce colori, misure o blocchi che non esistano in Figma. Se serve
 qualcosa di nuovo, prima si aggiunge in Figma (componente o variabile).
+
+
+## Nuova home (8/11, Figma "01 - New Home")
+
+Simone ha ridisegnato la home: è la nuova base per tutte le pagine. Specifica completa con misure in
+`docs/NEW-HOME.md` (copia in /mnt/project-files/porfolio/docs/). In sintesi:
+- Font: resta Hanken Grotesk (scelta di Simone 8/11, in Figma c'era Circular Std). In più **Overpass
+  ExtraLight Italic** (200 italic) per il trattino dell'header e per tutto il footer.
+- Header 96px, padding 36 + 8, nome 16px, tag 10px, "about" 16px; tracking 5%.
+- Hero della home alta **sempre quanto la finestra** (`100svh`), foto fissa B/N con gradiente nero 25% dal basso.
+- Variabili aggiornate nel Reference: `space/pad` 36, `header-height` 96, `band-hero` 770 (in home = 100svh),
+  `band-film` 479, `band-archive` 296, `hero-title` e `page-title` 56, `section` e `band-link` 21, `nav` 16.
+- Footer bianco, Overpass ExtraLight Italic 14, solo Instagram ed Email.
+- La sezione "Progetti con l'AI" esce dalla home.
