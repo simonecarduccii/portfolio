@@ -4,11 +4,11 @@
 
 :root {
   /* Names match the Figma variables (file Mokups, page "Sito · Design system"); see docs/DESIGN.md. */
-  --paper: #f3f3f1;
-  --ink: #111111;
-  --ink-2: #6b6a66;
-  --rule: #d9d8d4;
-  --ph: #e3e2de;
+  --paper: #f6f2e9;
+  --ink: #1a1814;
+  --ink-2: #6e675c;
+  --rule: #ddd6c9;
+  --ph: #e8e2d5;
   --on-photo: #ffffff;
   --on-photo-dim: rgba(255, 255, 255, .55);
   --scrim: linear-gradient(180deg, rgba(0,0,0,.28), rgba(0,0,0,0) 22%, rgba(0,0,0,0) 45%, rgba(0,0,0,.45));
