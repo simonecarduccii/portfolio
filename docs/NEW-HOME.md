@@ -51,5 +51,8 @@ img/papa-che-fanno-i-papa/cover.jpg, img/faccioni/cover.jpg, img/place-of-freedo
 ## Mobile
 - Hero sempre a tutta altezza; zigzag diventa una colonna, card a tutta larghezza meno 16px di margine.
 
-## Nota colori
-La new home usa #fbfbfb / #f8f8f8 (bianco neutro) invece della carta calda #F6F2E9. Per ora la seguiamo sulla home; le altre pagine si allineano quando le ridisegno nel Reference.
+## Tutte le pagine (variabili aggiornate nel Reference)
+Header e footer nuovi valgono per tutte le pagine. Palette ora neutra su tutto il sito:
+--paper #FBFBFB, --ink #151515, --ink-2 #585858, --rule #E4E4E4, --ph #EFEFEF.
+Misure a 1366: --pad 36, --header-h 96, --band-hero 770, --band-film 479, --band-archive 296,
+--fs-hero-title 56, --fs-page-title 56, --fs-section 21, --fs-band-link 21, --fs-nav 16.
