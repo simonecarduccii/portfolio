@@ -9,7 +9,6 @@ Suggested use: an /en/ version of home, About and the two cultural projects, or 
 - **Description:** Simone Carducci designs cultural projects and brings them to an audience: a magazine on emerging art, an audiovisual collective, film photography.
 - **Hero subtitle:** I create cultural projects and take them from idea to audience: a magazine, a collective, film photography series, and the digital tools that keep them running.
 - **CTA:** See the work · Get in touch
-- **Manifesto:** A cultural project should be followed whole: from idea to form, from people to audience.
 
 ### Cultural projects
 - **Lead:** A magazine I founded and a collective I was creative director of.

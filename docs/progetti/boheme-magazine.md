@@ -12,6 +12,21 @@
 
 Un magazine indipendente che racconta l'arte emergente e mette in fila le opportunità per chi la fa.
 
+## Testo pagina (mockup: 3–4 paragrafi da 60–90 parole, senza titoletti)
+
+Scheda (etichette in inglese come nei mockup):
+IDEATED BY Simone Carducci · YEAR 2024 – ongoing · ARTISTIC DIRECTION Simone Carducci · EDITORIAL DIRECTION Simone Carducci · FORMAT Instagram magazine · WHERE @bohememag
+
+Bohème è un magazine indipendente che ho fondato su Instagram nel luglio 2024. Racconta l'arte emergente e raccoglie le opportunità che contano per chi la fa: bandi, residenze, premi, open call, mostre. In Italia queste occasioni esistono, ma sono sparse tra decine di siti di enti, fondazioni e festival, e spesso arrivano tardi o incomplete. Bohème le cerca, le verifica e le racconta in un carosello che si legge in un minuto.
+
+Ne curo la direzione artistica ed editoriale: la linea curatoriale e il tono, la ricerca e la selezione dei progetti fotografici e artistici, le rubriche e i format, l'editing dei testi, dalle presentazioni alle interviste, e l'immagine complessiva di ogni uscita. In ventisei mesi, partendo da zero, il magazine ha raccolto 5.022 follower, pubblicato 563 caroselli e superato 1,47 milioni di visualizzazioni, con un pubblico soprattutto italiano tra i 25 e i 44 anni.
+
+Con la crescita del pubblico Bohème è diventato anche uno strumento. Per tenerlo aggiornato ho progettato Vedetta, un sistema che ogni settimana cerca nuove fonti e ogni tre ore legge e verifica i bandi di oltre 75 enti, prima che io li riveda e li pubblichi. Il passo successivo è un sito pubblico dei bandi su bohememag.it e un'app, tenuti insieme da un'unica identità visiva.
+
+Costruire un pubblico da zero mi ha insegnato a scegliere ogni giorno cosa non pubblicare. La fiducia di chi legge si guadagna con la precisione, uscita dopo uscita: per questo nessun bando esce senza essere stato controllato.
+
+## Versione precedente (con titoletti, non più usata nei mockup)
+
 ## Un magazine per chi fa arte, e per chi la cerca
 
 Bohème è nato su Instagram nel 2024. Racconta l'arte emergente e raccoglie le opportunità che contano per chi la fa: bandi, residenze, premi, open call, mostre.
