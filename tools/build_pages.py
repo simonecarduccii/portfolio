@@ -184,7 +184,6 @@ def page(*, file, title, description, body, current=None, header="", body_class=
   <a class="brand" href="index.html">Simone Carducci</a>
   <span class="dash" aria-hidden="true">-</span>
   <span class="tag">Creative development</span>
-  <span class="tag">Editorial, Events &amp; Cultural Projects</span>
   <nav class="nav" aria-label="Menu principale">{nav}</nav>
 </header>
 
@@ -202,7 +201,8 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 
 def footer():
     return f"""<footer class="site-footer">
-  <span class="footer-note"><span>© 2025-2026 Simone Carducci. P.Iva - 18337621009 ·</span> <span>Sito progettato e sviluppato da Simone Carducci</span></span>
+  <span class="footer-credit">Developed by me</span>
+  <span class="footer-copy">©SIMONE CARDUCCI - P.Iva 18337621009</span>
   <span class="footer-links"><a href="{INSTAGRAM}" target="_blank" rel="noopener">Instagram</a><a href="mailto:{EMAIL}">Email</a></span>
 </footer>"""
 
@@ -396,16 +396,21 @@ def build_ai_detail(p):
 def build_home():
     c = contenuti()
     desc = field(c, "Description home")
+    hero = [("boheme", "Bohème Magazine", "since 2023"), ("modi", "Colectivo modì", "2025-2026")]
     hero_items = "".join(
-        f'<li><a href="{p["slug"]}.html" data-cover="img/{p["slug"]}/cover.jpg">{html.escape(p["title"])}<sup class="yr">{p["year"]}</sup></a></li>'
-        for p in reversed(CULTURE))
-    order = ["papa-che-fanno-i-papa", "faccioni", "place-of-freedom", "siculo"]
-    years = {"siculo": "2025", "papa-che-fanno-i-papa": "2025-ongoing", "place-of-freedom": "2025", "faccioni": "2025-ongoing"}
-    by = {p["slug"]: p for p in PHOTO}
-    tiles = "".join(
-        f'<a class="tile" href="{sl}.html">{img(f"img/{sl}/cover.jpg", by[sl]["title"])}'
-        f'<span class="fig-cap"><span>{html.escape(by[sl]["title"])}</span><span>{years[sl]}</span></span></a>'
-        for sl in order)
+        f'<li><a href="{sl}.html" data-cover="img/{sl}/cover.jpg">{html.escape(t)}<sup class="yr">{y}</sup></a></li>'
+        for sl, t, y in hero)
+    # Figma "Portfolio · v2": six cards; the ones without a page or photo yet are placeholders.
+    cards = [("Torino 17", "2026", None), ("Maghreb", "2026", None), ("Ghei", "2025", None),
+             ("Papà che fanno i papà", "2025", "papa-che-fanno-i-papa"), ("Faccioni", "2025", "faccioni"),
+             ("Vita mia", "2025", None)]
+    tiles = ""
+    for title, year, sl in cards:
+        cap = f'<span class="fig-cap"><span>{html.escape(title)}</span><span>{year}</span></span>'
+        if sl:
+            tiles += f'<a class="tile" href="{sl}.html">{img(f"img/{sl}/cover.jpg", title)}{cap}</a>'
+        else:
+            tiles += f'<div class="tile is-soon"><div class="media soon"><span class="ph">foto in arrivo</span></div>{cap}</div>'
     next_btn = chev("button", ' type="button" data-band-next aria-label="Un\'altra foto a caso"')
     body = f"""  <section class="hero hero-full bw" id="cultura" aria-label="Progetti culturali">
     <div class="media bw has-photo"><img src="img/home/hero.jpg" alt="Fotografia in bianco e nero di Simone Carducci"></div>
@@ -416,8 +421,8 @@ def build_home():
   <section class="band band-color">
     <div class="media has-photo" data-random-photo data-keep><img src="img/home/pellicole.jpg" alt="Fotografia a colori su pellicola di Simone Carducci" loading="lazy"></div>
     <ul class="band-list">
+      <li><a href="archivio.html">Tutto ciò che mi sta intorno</a></li>
       <li><a href="{LOMO}" target="_blank" rel="noopener">Tutte le mie pellicole</a></li>
-      <li><a href="archivio.html#fotografie">Tutto il mio archivio</a></li>
       <li><a href="archivio.html">Tutta la mia vita</a></li>
     </ul>
     {next_btn}
@@ -506,34 +511,32 @@ def build_about():
         html_blocks.append(f'<div class="about-block"><h2 class="label">{inline(title)}</h2>'
                            + "".join(f"<p{cls}>{inline(x)}</p>" for x in paras) + "</div>")
     rows = re.findall(r"^\| (Ambiti|Competenze|Strumenti|Lingue|Formazione) \| (.+?) \|$", a, re.M)
-    note = draft_note(inline(" ".join(verify))) if verify else ""
-    langs = dict(rows).get("Lingue", "")
-    body = f"""  <section class="p-hero bw">
-    {img("img/about/ritratto.jpg", "Ritratto di Simone Carducci", "Ritratto in arrivo · img/about/ritratto.jpg", eager=True)}
+    rows = [(k, "<br>".join(inline(x) for x in v.split(" · ")) if k == "Formazione" else inline(v)) for k, v in rows]
+    langs = dict(rows).get("Lingue", "").lower()
+    portrait = img("img/about/ritratto.jpg", "Ritratto di Simone Carducci", "Ritratto in arrivo", eager=True)
+    body = f"""  <h1 class="sr-only">Simone Carducci</h1>
+  <section class="about-intro">
+    <div class="about-portrait">{portrait.replace('class="media', 'class="media soon', 1)}</div>
+    <dl class="about-facts">
+      <div><dt>Base</dt><dd>Torino</dd></div>
+      <div><dt>Ambiti</dt><dd>editoria, eventi, progetti culturali, fotografia analogica</dd></div>
+      <div><dt>Contatti</dt><dd><a href="mailto:{EMAIL}">{EMAIL}</a></dd></div>
+      <div><dt>Lingue</dt><dd>{langs}</dd></div>
+    </dl>
   </section>
-  <div class="p-title-row"><h1 class="p-title">Simone Carducci</h1></div>
-  <div class="p-facts-wrap"><dl class="p-facts">
-    <div class="fact"><dt>Base</dt><dd>Torino</dd></div>
-    <div class="fact"><dt>Ambiti</dt><dd>Editoria, eventi, progetti culturali, fotografia analogica</dd></div>
-    <div class="fact"><dt>Contatti</dt><dd><a href="mailto:{EMAIL}">{EMAIL}</a></dd></div>
-    <div class="fact"><dt>Lingue</dt><dd>{inline(langs)}</dd></div>
-  </dl></div>
-  <section class="about-statement">
-    {note}
-    <p>{inline(statement)}</p>
-  </section>
-  <section class="about-blocks">
+  <section class="about-text">
+    <p class="about-statement">{inline(statement)}</p>
     {chr(10).join(html_blocks)}
   </section>
   <section class="about-data">
-    <dl>{"".join(f'<div><dt class="label">{k}</dt><dd>{inline(v)}</dd></div>' for k, v in rows)}</dl>
+    <dl>{"".join(f'<div><dt class="label">{k}</dt><dd>{v}</dd></div>' for k, v in rows)}</dl>
   </section>
   <section class="about-links">
     <a href="{CV}" target="_blank">CV (PDF)</a>
     <a href="mailto:{EMAIL}">Scrivimi</a>
   </section>
 {band_archive()}"""
-    page(file="about.html", title="About", description=plain(field(c, "Description About") or bio_short), body=body, current="about", header="overlay", main_class="flush")
+    page(file="about.html", title="About", description=plain(field(c, "Description About") or bio_short), body=body, current="about", main_class="flush", body_class="about-page")
 
 
 def main():
