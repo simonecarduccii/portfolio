@@ -8,7 +8,18 @@ Il sito è statico (HTML, CSS, JS): nessun server, nessun database. È ospitato 
 1. Apri [Settings → Pages](https://github.com/simonecarduccii/portfolio/settings/pages).
 2. In **Build and deployment → Source** scegli **Deploy from a branch**.
 3. Branch: **main**, cartella: **/ (root)**. Salva.
-4. Dopo 1–2 minuti il sito è su `https://simonecarduccii.github.io/portfolio/`.
+4. Dopo 1–2 minuti il sito è online.
+
+**Indirizzo attuale: https://bohememag.it/portfolio/**. Il sito utente
+`simonecarduccii.github.io` ha come dominio personalizzato `bohememag.it`, quindi GitHub
+pubblica ogni repository con Pages sotto `bohememag.it/<nome-repo>/` e
+`simonecarduccii.github.io/portfolio/` rimanda lì. Non serve nessun record DNS in più.
+Se una modifica non si vede, aspetta 1–2 minuti e ricarica senza cache (Cmd+Shift+R).
+
+Per avere HTTPS su tutto: nel repository `simonecarduccii.github.io` →
+Settings → Pages → spunta **Enforce HTTPS** (oggi il rimando da github.io va su `http://`).
+
+La sezione 2 serve solo se in futuro vuoi un dominio tutto suo (es. `simonecarducci.it`).
 
 Ogni push su `main` ripubblica il sito da solo. Il file `.nojekyll` dice a GitHub di
 pubblicare i file così come sono.
