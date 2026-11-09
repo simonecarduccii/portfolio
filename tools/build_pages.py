@@ -22,7 +22,7 @@ EMAIL = "simone.carducci01@gmail.com"
 INSTAGRAM = "https://instagram.com/simonecarduccii"
 LOMO = "https://www.lomography.com/homes/simonecarduccii"
 CV = "assets/cv-simone-carducci.pdf"
-FONTS = "https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Overpass:ital,wght@1,200&display=swap"
+FONTS = "https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Overpass:ital,wght@1,200&display=swap"
 
 CULTURE = [
     {"slug": "boheme", "doc": "boheme-magazine", "title": "Bohème Magazine", "year": "2024",
@@ -201,9 +201,15 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 
 def footer():
     return f"""<footer class="site-footer">
-  <span class="footer-credit">Developed by me</span>
-  <span class="footer-copy">©SIMONE CARDUCCI - P.Iva 18337621009</span>
-  <span class="footer-links"><a href="{INSTAGRAM}" target="_blank" rel="noopener">Instagram</a><a href="mailto:{EMAIL}">Email</a></span>
+  <a class="footer-cta" href="mailto:{EMAIL}">Scrivimi</a>
+  <a class="footer-email" href="mailto:{EMAIL}">{EMAIL}</a>
+  <div class="footer-cols">
+    <div><h2>Contatti</h2><ul><li><a class="lower" href="mailto:{EMAIL}">{EMAIL}</a></li><li>Roma / Torino</li></ul></div>
+    <div><h2>Altrove</h2><ul><li><a class="ig" href="{INSTAGRAM}" target="_blank" rel="noopener">Instagram</a></li><li><a href="{LOMO}" target="_blank" rel="noopener">Lomography</a></li></ul></div>
+    <div><h2>Sezioni</h2><ul><li><a href="index.html#cultura">Cultura</a></li><li><a href="index.html#ricerca-visiva">Ricerca visiva</a></li><li><a href="archivio.html">Archivio</a></li><li><a href="about.html">About</a></li></ul></div>
+    <div><h2>CV</h2><ul><li><a href="{CV}" target="_blank">↗ Scarica il CV (PDF)</a></li></ul></div>
+  </div>
+  <div class="footer-legal"><span>© 2025-2026 Simone Carducci. Tutti i diritti riservati.</span><span>Developed by me</span><span>P.Iva 18337621009</span></div>
 </footer>"""
 
 

@@ -47,7 +47,6 @@
 
   /* Figma Portfolio · Reference, "01 - New Home" (values at 1366px; see docs/NEW-HOME.md) */ */
   --paper-research: #f8f8f8;
-  --paper-footer: #ffffff;
   --scrim-home: linear-gradient(to top, rgba(0,0,0,.25) 26%, rgba(0,0,0,0));
   --shadow-card: 0 0 12.15px rgba(0,0,0,.2);
   --font-accent: "Overpass", "Hanken Grotesk", sans-serif;
@@ -55,7 +54,15 @@
   --pad-grid: clamp(16px, 9.37vw, 128px);
   --fs-home-year: clamp(13px, 1.54vw, 21px);
   --fs-tag: 12px;
-  --fs-footer: clamp(13px, 1.1vw, 15px);
+  --footer-bg: #0e0e0d;
+  --footer-ink: #eeedea;
+  --footer-ink-2: #8e8c88;
+  --footer-rule: #3a3936;
+  --accent-ig: #e0623a;
+  --fs-footer-cta: clamp(64px, 10.98vw, 150px);
+  --fs-footer-email: clamp(22px, 2.93vw, 40px);
+  --fs-footer-mono: clamp(13px, 1.1vw, 15px);
+  --fs-footer-legal: clamp(12px, 1.02vw, 14px);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -349,12 +356,19 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 .about-links a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 /* ---------- Footer: one italic line ---------- */
-.site-footer { display: flex; justify-content: space-between; gap: 8px 24px; flex-wrap: wrap; padding: 16px var(--pad); background: var(--paper-footer); font-family: var(--font-accent); font-weight: 200; font-style: italic; font-size: var(--fs-footer); letter-spacing: .05em; line-height: 1.45; color: var(--ink); }
-.site-footer { align-items: baseline; }
-.footer-credit { color: var(--ink-2); }
-@media (max-width: 640px) { .site-footer { flex-direction: column; align-items: flex-start; gap: 4px; } }
-.footer-links { display: flex; gap: 14px; }
-.footer-links a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.site-footer { display: flex; flex-direction: column; padding: clamp(64px, 8.78vw, 120px) clamp(16px, 3.51vw, 48px) 40px; background: var(--footer-bg); color: var(--footer-ink); }
+.footer-cta { font-weight: 700; font-size: var(--fs-footer-cta); letter-spacing: -.05em; line-height: .9; text-transform: uppercase; }
+.footer-email { margin-top: 40px; font-weight: 500; font-size: var(--fs-footer-email); letter-spacing: -.02em; line-height: 1.2; text-decoration: underline; text-underline-offset: .15em; text-decoration-thickness: 1px; overflow-wrap: anywhere; }
+.footer-cols { margin-top: clamp(64px, 8.78vw, 120px); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; font-family: var(--font-mono); font-size: var(--fs-footer-mono); line-height: 1.4; }
+.footer-cols > div { border-top: 1px solid var(--footer-rule); padding-top: 24px; display: grid; gap: 14px; align-content: start; }
+.footer-cols h2 { font-weight: 400; font-size: inherit; letter-spacing: .06em; text-transform: uppercase; color: var(--footer-ink-2); }
+.footer-cols ul { display: grid; gap: 14px; font-weight: 500; text-transform: uppercase; }
+.footer-cols .lower { text-transform: none; overflow-wrap: anywhere; }
+.footer-cols .ig { color: var(--accent-ig); }
+.footer-cta:hover, .footer-cols a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.footer-legal { margin-top: clamp(56px, 7.32vw, 100px); display: flex; justify-content: space-between; gap: 8px 24px; flex-wrap: wrap; font-family: var(--font-mono); font-size: var(--fs-footer-legal); letter-spacing: .08em; text-transform: uppercase; color: var(--footer-ink-2); }
+@media (max-width: 900px) { .footer-cols { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 480px) { .footer-cols { grid-template-columns: 1fr; } .footer-legal { flex-direction: column; } }
 
 /* ---------- Lightbox ---------- */
 .lightbox { position: fixed; inset: 0; z-index: 50; align-items: center; justify-content: center; background: rgba(10,10,10,.96); padding: 56px var(--pad); border: 0; width: 100%; height: 100%; max-width: none; max-height: none; color: #fff; }
