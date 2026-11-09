@@ -120,8 +120,8 @@ Un posto dove il progetto culturale e il progetto di design si parlino, e dove m
 | Ambiti | Editoria, eventi, progetti culturali, fotografia analogica |
 | Competenze | Direzione artistica ed editoriale, art direction, organizzazione di eventi, comunicazione e social media, scrittura ed editing, UX design, progettazione di strumenti digitali con l'AI |
 | Strumenti | Figma, Adobe Photoshop, Lightroom e InDesign, Final Cut Pro, Meta Business Suite, Claude Code, Pacchetto Office |
-| Lingue | Italiano (madrelingua), inglese e francese (avanzato), spagnolo (intermedio) |
-| Formazione | Beni culturali, Università di Torino (in corso) · Erasmus, Universidad de Granada · Google UX Design Certificate (2024) · WSET Level 2 (2023) |
+| Lingue | Italiano, inglese, francese, spagnolo |
+| Formazione | Beni culturali: Università di Torino - Universidad de Granada - Université Paris Cité · Google UX Design Certificate (2024) - WSET Level 2 (2023) |
 
 - **Link:** Scarica il CV · Scrivimi
 
