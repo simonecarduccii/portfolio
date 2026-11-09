@@ -319,9 +319,11 @@ def build_photo(i, p):
     year = meta.get("Anno", p["year"]).replace(" – ", " — ")
     meta_lines = [x for x in [place, f"Progetto: {year}"] if x]
     tech = [f"{k}: {inline(v)}" for k, v in meta.items() if k in ("Supporto", "Fotocamera", "Pellicola")]
+    # As many slots as numbered photos in img/<slug>/ (01.jpg, 02.jpg ...), or PHOTO_SLOTS placeholders.
+    slots = len([f for f in (ROOT / "img" / s).glob("[0-9][0-9].jpg")]) or PHOTO_SLOTS
     seq = "".join(
-        f'<li data-src="img/{s}/{n:02d}.jpg">{img(f"img/{s}/{n:02d}.jpg", f"{p["title"]}, fotografia {n}")}<span class="count label">{n:02d}/{PHOTO_SLOTS:02d}</span></li>'
-        for n in range(1, PHOTO_SLOTS + 1))
+        f'<li data-src="img/{s}/{n:02d}.jpg">{img(f"img/{s}/{n:02d}.jpg", f"{p["title"]}, fotografia {n}")}<span class="count label">{n:02d}/{slots:02d}</span></li>'
+        for n in range(1, slots + 1))
     others = [q for q in PHOTO if q["slug"] != s]
     related = "".join(
         f'<a class="tile" href="{q["slug"]}.html">{img(f"img/{q["slug"]}/cover.jpg", q["title"], " ")}'
