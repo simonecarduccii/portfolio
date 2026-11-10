@@ -154,7 +154,7 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 .chev svg { display: block; width: 9px; height: 43px; }
 .chev-left { right: auto; left: var(--pad); }
 .chev-left svg { transform: scaleX(-1); }
-.band-bw:hover .band-text { text-decoration: underline; text-underline-offset: 3px; }
+.band-bw:has(a:hover) .band-text, .band-text:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
 
 /* ---------- New home ---------- */
 .hero-full { height: 100vh; height: 100svh; }

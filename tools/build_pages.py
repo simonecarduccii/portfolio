@@ -224,11 +224,12 @@ def footer():
 
 
 def band_archive():
-    return f"""  <a class="band band-bw" href="archivio.html">
+    # Only the label and the chevron are links, not the whole photo band.
+    return f"""  <section class="band band-bw" aria-label="Archivio">
     <div class="media bw has-photo"><img src="img/home/archivio.jpg" alt="" loading="lazy"></div>
-    <span class="band-text">Archivio</span>
-    {chev()}
-  </a>"""
+    <a class="band-text" href="archivio.html">Archivio</a>
+    {chev("a", ' href="archivio.html" aria-label="Vai all\'archivio" tabindex="-1"')}
+  </section>"""
 
 
 def chev(tag="span", attrs=' aria-hidden="true"'):
