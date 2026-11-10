@@ -26,6 +26,7 @@ Clicca un elemento: al centro trovi insieme le sue **foto** e i suoi **testi**, 
 
 - **Copertina**: *Sostituisci*, oppure trascina una foto dal Finder sopra la copertina. Quella di Bohème e di modì è anche lo sfondo dell'hero in home; quella dei progetti fotografici è anche la loro foto nella griglia.
 - **Sequenza**: trascina le foto per cambiare l'ordine (o usa ← →), ★ la rende copertina, × la toglie. Per aggiungerne, *+ Aggiungi foto* o trascinale dal Finder sulla griglia.
+- **Ricerca visiva**: scegli quali progetti compaiono nella griglia della home (spunta *In home*) e in che ordine (trascinali o ↑ ↓). Il titolo che scrivi lì è anche il titolo della pagina del progetto e del suo nome nell'albero. L'elenco è in `content/home.json`.
 - **Archivio**: aggiungi o togli foto e scrivi pellicola, luogo e anno sotto ciascuna.
 - **Testi**: ogni campo è un pezzo della pagina. `**grassetto**`, `_corsivo_`, `[testo del link](https://...)`; un rigo vuoto separa i paragrafi.
   Le frasi con `[DA VERIFICARE]` restano evidenziate sul sito finché non togli la nota.

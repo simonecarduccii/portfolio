@@ -1,0 +1,10 @@
+{
+  "ricerca_visiva": [
+    {"id": "torino-17", "titolo": "Torino 17", "anno": "2026", "pagina": null, "visibile": true},
+    {"id": "maghreb", "titolo": "Maghreb", "anno": "2026", "pagina": null, "visibile": true},
+    {"id": "place-of-freedom", "titolo": "Ghei", "anno": "2025", "pagina": "place-of-freedom", "visibile": true},
+    {"id": "papa-che-fanno-i-papa", "titolo": "Papà che fanno i papà", "anno": "2025", "pagina": "papa-che-fanno-i-papa", "visibile": true},
+    {"id": "faccioni", "titolo": "Faccioni", "anno": "2025", "pagina": "faccioni", "visibile": true},
+    {"id": "siculo", "titolo": "Vita mia", "anno": "2025", "pagina": "siculo", "visibile": true}
+  ]
+}
