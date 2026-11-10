@@ -26,7 +26,9 @@ Clicca un elemento: al centro trovi insieme le sue **foto** e i suoi **testi**, 
 
 - **Copertina**: *Sostituisci*, oppure trascina una foto dal Finder sopra la copertina. Quella di Bohème e di modì è anche lo sfondo dell'hero in home; quella dei progetti fotografici è anche la loro foto nella griglia.
 - **Sequenza**: trascina le foto per cambiare l'ordine (o usa ← →), ★ la rende copertina, × la toglie. Per aggiungerne, *+ Aggiungi foto* o trascinale dal Finder sulla griglia.
-- **Ricerca visiva**: scegli quali progetti compaiono nella griglia della home (spunta *In home*) e in che ordine (trascinali o ↑ ↓). Il titolo che scrivi lì è anche il titolo della pagina del progetto e del suo nome nell'albero. L'elenco è in `content/home.json`.
+- **Interruttori**: ogni scheda della Home (Hero, Bohème, modì, Pellicole, Ricerca visiva, Progetti con l'AI, Archivio) ha un interruttore *Visibile in home*,
+  che trovi anche sotto le schede di *Home → Dentro questa sezione*. Spento = la sezione sparisce dalla home (nel pannello resta, con la scritta *spento*). Le scelte sono in `content/home.json` (`sezioni`).
+- **Ricerca visiva**: scegli quali progetti compaiono nella griglia della home (interruttore *In home*, c'è anche nella scheda di ogni progetto) e in che ordine (trascinali o ↑ ↓). Si aprono tutti, anche quelli ancora senza pagina: in home questi si vedono con il riquadro *foto in arrivo*. Il titolo che scrivi lì è anche il titolo della pagina del progetto e del suo nome nell'albero. L'elenco è in `content/home.json`.
 - **Archivio**: aggiungi o togli foto e scrivi pellicola, luogo e anno sotto ciascuna.
 - **Testi**: ogni campo è un pezzo della pagina. `**grassetto**`, `_corsivo_`, `[testo del link](https://...)`; un rigo vuoto separa i paragrafi.
   Le frasi con `[DA VERIFICARE]` restano evidenziate sul sito finché non togli la nota.

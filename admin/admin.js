@@ -322,7 +322,7 @@
     };
     draw();
     return h("section", { class: "panel" }, h("h2", {}, "Progetti in home"),
-      h("p", { class: "hint" }, "Trascina per cambiare l'ordine della griglia (il primo è in alto a sinistra). Togli la spunta per nasconderlo dalla home. Il titolo è anche quello della pagina del progetto."),
+      h("p", { class: "hint" }, "Trascina per cambiare l'ordine della griglia (il primo è in alto a sinistra). Spegni l'interruttore per toglierlo dalla home. Il titolo è anche quello della pagina del progetto."),
       ul);
   }
 
