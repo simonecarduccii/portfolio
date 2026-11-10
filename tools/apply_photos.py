@@ -3,9 +3,9 @@
 
 Run by the GitHub Action "Update site" after every push to main (see .github/workflows/update-site.yml).
 
-- content/foto/<page>.json  (written by /admin, see admin/config.yml) lists the uploaded photos.
+- content/foto/<page>.json  (older /admin uploads, and the Mac folder in "cartella") lists uploaded photos.
   When that list changes, the photos are optimised into img/<page>/cover.jpg, 01.jpg, 02.jpg ...
-  (or the single file named in content/destinazioni.json, e.g. img/home/hero.jpg).
+  (or the single file named in content/destinazioni.json, e.g. img/home/pellicole.jpg).
 - Archive photos (uploaded in /admin, or sent by the Mac folder sync to content/caricate/archivio-mac/)
   are numbered after the last one, like tools/optimize_images.py does.
 - Finally every JPEG under img/ that is too big or still carries metadata (GPS, camera) is re-saved,

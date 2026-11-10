@@ -1,8 +1,4 @@
 {
-  "home-hero": {
-    "tipo": "singola",
-    "destinazione": "img/home/hero.jpg"
-  },
   "home-pellicole": {
     "tipo": "singola",
     "destinazione": "img/home/pellicole.jpg"
