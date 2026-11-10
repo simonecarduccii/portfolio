@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://bohememag.it/portfolio/sitemap.xml
+Sitemap: https://bohememag.it/simonecarducci/sitemap.xml

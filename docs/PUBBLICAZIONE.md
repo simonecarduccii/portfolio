@@ -1,19 +1,19 @@
 # Pubblicazione
 
 Il sito è statico (HTML, CSS, JS): nessun server, nessun database. È ospitato gratis su
-**GitHub Pages** dal repository `simonecarduccii/portfolio`, branch `main`, cartella principale.
+**GitHub Pages** dal repository `simonecarduccii/simonecarducci`, branch `main`, cartella principale.
 
 ## 1. Attivare GitHub Pages (una volta sola)
 
-1. Apri [Settings → Pages](https://github.com/simonecarduccii/portfolio/settings/pages).
+1. Apri [Settings → Pages](https://github.com/simonecarduccii/simonecarducci/settings/pages).
 2. In **Build and deployment → Source** scegli **Deploy from a branch**.
 3. Branch: **main**, cartella: **/ (root)**. Salva.
 4. Dopo 1–2 minuti il sito è online.
 
-**Indirizzo attuale: https://bohememag.it/portfolio/**. Il sito utente
+**Indirizzo attuale: https://bohememag.it/simonecarducci/**. Il sito utente
 `simonecarduccii.github.io` ha come dominio personalizzato `bohememag.it`, quindi GitHub
 pubblica ogni repository con Pages sotto `bohememag.it/<nome-repo>/` e
-`simonecarduccii.github.io/portfolio/` rimanda lì. Non serve nessun record DNS in più.
+`simonecarduccii.github.io/simonecarducci/` rimanda lì. Non serve nessun record DNS in più.
 Se una modifica non si vede, aspetta 1–2 minuti e ricarica senza cache (Cmd+Shift+R).
 
 Per avere HTTPS su tutto: nel repository `simonecarduccii.github.io` →
@@ -23,6 +23,20 @@ La sezione 2 serve solo se in futuro vuoi un dominio tutto suo (es. `simonecardu
 
 Ogni push su `main` ripubblica il sito da solo. Il file `.nojekyll` dice a GitHub di
 pubblicare i file così come sono.
+
+### Cambio di indirizzo da /portfolio a /simonecarducci (10/11/2026)
+
+L'indirizzo sotto bohememag.it è il nome del repository. Per passare a
+`bohememag.it/simonecarducci/`:
+
+1. [Settings → General](https://github.com/simonecarduccii/portfolio/settings) → **Repository name**:
+   `simonecarducci` → **Rename**. GitHub sposta da solo il sito e reindirizza i vecchi link
+   al repository (git, API), ma **non** le pagine di bohememag.it/portfolio/.
+2. Unisci la PR che aggiorna `/admin`, la sincronizzazione dal Mac, la 404 e la sitemap.
+3. I vecchi link `bohememag.it/portfolio/...` li reindirizza il sito principale
+   (repository `simonecarduccii.github.io`, cartella `portfolio/`), una pagina per ogni pagina.
+4. Sul Mac la sincronizzazione segue il nuovo nome da sola. Per tenere allineata la copia locale:
+   `git remote set-url origin https://github.com/simonecarduccii/simonecarducci.git`.
 
 ## 2. Collegare il dominio (OVHcloud)
 
@@ -47,7 +61,7 @@ Esempio con `simonecarducci.it` (sostituisci con il dominio che compri).
 | AAAA  | _(vuoto)_    | 2606:50c0:8003::153       |
 | CNAME | www          | simonecarduccii.github.io. |
 
-**Su GitHub** → [Settings → Pages](https://github.com/simonecarduccii/portfolio/settings/pages)
+**Su GitHub** → [Settings → Pages](https://github.com/simonecarduccii/simonecarducci/settings/pages)
 → **Custom domain**: scrivi `simonecarducci.it` e salva. GitHub crea il file `CNAME` nel repo.
 Quando il controllo DNS è verde (da pochi minuti a qualche ora), spunta **Enforce HTTPS**.
 
@@ -64,8 +78,8 @@ python3 tools/build_sitemap.py https://simonecarducci.it
 
 ```bash
 cd ~/Documents            # o dove preferisci
-git clone https://github.com/simonecarduccii/portfolio.git
-cd portfolio
+git clone https://github.com/simonecarduccii/simonecarducci.git
+cd simonecarducci
 open index.html           # anteprima nel browser
 # oppure, per provarlo come sarà online:
 python3 -m http.server 8000   # poi apri http://localhost:8000
