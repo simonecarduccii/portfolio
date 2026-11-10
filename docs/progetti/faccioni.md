@@ -6,7 +6,7 @@ Testi segnaposto (lorem ipsum): servono a fissare struttura e lunghezze. Simone 
 - **Fotografia:** Simone Carducci
 - **Supporto:** Pellicole varie
 - **Fotocamera:** Leica CL, Chinon Auto 3001
-- **Pellicola:** Lorem ipsum
+- **Pellicola:** Pellicole Varie
 - **Luogo:** Europa
 - **Immagine di copertina:** img/faccioni/cover.jpg
 
