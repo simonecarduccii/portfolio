@@ -51,6 +51,15 @@ AI = [
 PHOTO_SLOTS = 12  # sequence slots per photo project; missing files are hidden by main.js
 
 
+def slots(slug, default):
+    """Number of numbered photos (01.jpg, 02.jpg ...) to show for a page.
+
+    When photos are on disk (from /admin, the Mac folder sync or optimize_images.py) the page
+    shows exactly those; until then it keeps `default` placeholder slots."""
+    nums = [int(f.stem) for f in (ROOT / "img" / slug).glob("[0-9][0-9]*.jpg") if f.stem.isdigit()]
+    return max(nums) if nums else default
+
+
 # ---------------------------------------------------------------- markdown
 
 def inline(text):
@@ -303,7 +312,7 @@ def build_culture(i, p):
     <div class="prose">
 {chr(10).join(f"<p>{inline(x)}</p>" for x in paras)}
     </div>
-    <div class="gallery col" aria-label="Immagini del progetto">{"".join(img(f"img/{s}/{n:02d}.jpg", f"{p['title']}, immagine {n}") for n in range(1, 7))}</div>
+    <div class="gallery col" aria-label="Immagini del progetto">{"".join(img(f"img/{s}/{n:02d}.jpg", f"{p['title']}, immagine {n}") for n in range(1, slots(s, 6) + 1))}</div>
   </section>
   <a class="next-project" href="{nxt["slug"]}.html"><span>Progetto successivo</span><span>{html.escape(nxt["title"])} ›</span></a>
 {band_archive()}"""
@@ -320,9 +329,10 @@ def build_photo(i, p):
     year = meta.get("Anno", p["year"]).replace(" – ", " — ")
     meta_lines = [x for x in [place, f"Progetto: {year}"] if x]
     tech = [f"{k}: {inline(v)}" for k, v in meta.items() if k in ("Supporto", "Fotocamera", "Pellicola")]
+    total = slots(s, PHOTO_SLOTS)
     seq = "".join(
-        f'<li data-src="img/{s}/{n:02d}.jpg">{img(f"img/{s}/{n:02d}.jpg", f"{p["title"]}, fotografia {n}")}<span class="count label">{n:02d}/{PHOTO_SLOTS:02d}</span></li>'
-        for n in range(1, PHOTO_SLOTS + 1))
+        f'<li data-src="img/{s}/{n:02d}.jpg">{img(f"img/{s}/{n:02d}.jpg", f"{p["title"]}, fotografia {n}")}<span class="count label">{n:02d}/{total:02d}</span></li>'
+        for n in range(1, total + 1))
     others = [q for q in PHOTO if q["slug"] != s]
     related = "".join(
         f'<a class="tile" href="{q["slug"]}.html">{img(f"img/{q["slug"]}/cover.jpg", q["title"], " ")}'
@@ -393,7 +403,7 @@ def build_ai_detail(p):
 <p class="lead">{inline(lead)}</p>
 {chr(10).join(parts)}
     </div>
-    <div class="gallery col shots" aria-label="Schermate">{"".join(img(f"img/{s}/{n:02d}.jpg", f"{p['title']}, schermata {n}", "Schermata in arrivo") for n in range(1, 4))}</div>
+    <div class="gallery col shots" aria-label="Schermate">{"".join(img(f"img/{s}/{n:02d}.jpg", f"{p['title']}, schermata {n}", "Schermata in arrivo") for n in range(1, slots(s, 3) + 1))}</div>
   </section>
   <a class="next-project" href="ai.html"><span>Progetti con l'AI</span><span>Tutti gli strumenti ›</span></a>
 {band_archive()}"""
