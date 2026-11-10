@@ -51,6 +51,11 @@ AI = [
 # Home "Ricerca visiva": order, visibility, title and year of each photo project, edited in /admin.
 HOME = __import__("json").loads((ROOT / "content" / "home.json").read_text(encoding="utf-8"))
 RESEARCH = HOME["ricerca_visiva"]
+ON = HOME.get("sezioni", {})  # home sections switched on/off in /admin; missing = on
+
+
+def on(key):
+    return ON.get(key, True) is not False
 for _p in PHOTO:  # one name everywhere: the home card, the page title, "Altri progetti"
     _h = next((r for r in RESEARCH if r.get("pagina") == _p["slug"]), None)
     if _h:
@@ -424,7 +429,7 @@ def build_ai_detail(p):
 def build_home():
     c = contenuti()
     desc = field(c, "Description home")
-    hero = [("boheme", "Bohème Magazine", "since 2023"), ("modi", "Colectivo modì", "2025-2026")]
+    hero = [h for h in [("boheme", "Bohème Magazine", "since 2023"), ("modi", "Colectivo modì", "2025-2026")] if on(h[0])]
     hero_items = "".join(
         f'<li><a href="{sl}.html" data-cover="img/{sl}/cover.jpg">{html.escape(t)}<sup class="yr">{y}</sup></a></li>'
         for sl, t, y in hero)
@@ -438,13 +443,17 @@ def build_home():
         else:
             tiles += f'<div class="tile is-soon"><div class="media soon"><span class="ph">foto in arrivo</span></div>{cap}</div>'
     next_btn = chev("button", ' type="button" data-band-next aria-label="Un\'altra foto a caso"')
-    body = f"""  <section class="hero hero-full bw" id="cultura" aria-label="Progetti culturali">
-    <div class="media bw has-photo"><img src="img/boheme/cover.jpg" alt=""></div>
+    parts = []
+    if on("hero") and hero:
+        parts.append(f"""  <section class="hero hero-full bw" id="cultura" aria-label="Progetti culturali">
+    <div class="media bw has-photo"><img src="img/{hero[0][0]}/cover.jpg" alt=""></div>
     <h1 class="sr-only">Simone Carducci, creative development</h1>
     <ul class="hero-list">{hero_items}</ul>
-  </section>
-
-  <section class="band band-color">
+  </section>""")
+    else:
+        parts.append('  <h1 class="sr-only">Simone Carducci, creative development</h1>')
+    if on("pellicole"):
+        parts.append(f"""  <section class="band band-color">
     <div class="media has-photo" data-random-photo data-keep><img src="img/home/pellicole.jpg" alt="Fotografia a colori su pellicola di Simone Carducci" loading="lazy"></div>
     <ul class="band-list">
       <li><a href="archivio.html">Tutto ciò che mi sta intorno</a></li>
@@ -452,14 +461,20 @@ def build_home():
       <li><a href="archivio.html">Tutta la mia vita</a></li>
     </ul>
     {next_btn}
-  </section>
-
-  <section class="research zigzag-wrap" id="ricerca-visiva">
+  </section>""")
+    if on("ricerca-visiva") and tiles:
+        parts.append(f"""  <section class="research zigzag-wrap" id="ricerca-visiva">
     <h2 class="research-title">Ricerca visiva</h2>
     <div class="zigzag">{tiles}</div>
-  </section>
-
-{band_archive()}"""
+  </section>""")
+    if on("ia"):
+        parts.append(f"""  <section class="list-wrap" id="ai">
+    <h2 class="small-title"><a href="ai.html">Progetti con l'AI</a></h2>
+    {ai_rows()}
+  </section>""")
+    if on("banda-archivio"):
+        parts.append(band_archive())
+    body = "\n\n".join(parts)
     page(file="index.html", title=SITE, description=plain(desc), body=body, header="overlay", main_class="flush", body_class="home")
 
 
