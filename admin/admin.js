@@ -179,15 +179,30 @@
     nodes.forEach((n) => { n.parent = parent; out.push(n); if (n.children) flatten(n.children, n, out); });
     return out;
   }
-  const ALL = flatten(window.STRUTTURA, null);
+  let ALL = flatten(window.STRUTTURA, null);
+
+  // Ricerca visiva follows content/home.json: same order, titles and visibility as the home grid.
+  async function applyHome() {
+    let data = { ricerca_visiva: [] };
+    try { data = JSON.parse(await readText("content/home.json", true) || "{}"); } catch (e) { /* keep empty */ }
+    const group = ALL.find((n) => n.homeList);
+    group.children = (data.ricerca_visiva || []).map((r) => {
+      const doc = r.pagina && window.PROGETTI_FOTO[r.pagina];
+      const n = doc ? window.photoProject(r.pagina, doc, r.titolo) : { id: r.id, title: r.titolo, soon: true };
+      n.hidden = r.visibile === false;
+      return n;
+    });
+    ALL = flatten(window.STRUTTURA, null);
+    return data;
+  }
 
   function renderNav() {
     const list = (nodes, depth) => h("ul", { class: "tree d" + depth }, nodes.map((n) => h("li", {},
       h("button", {
-        type: "button", class: "node" + (n.soon ? " soon" : "") + (current === n ? " on" : "") + (n.group ? " group" : ""),
+        type: "button", class: "node" + (n.soon ? " soon" : "") + (n.hidden ? " hidden" : "") + (current === n ? " on" : "") + (n.group ? " group" : ""),
         disabled: n.soon || null, title: n.soon ? "Pagina non ancora creata" : null,
         onclick: () => open(n),
-      }, n.title, n.soon ? h("span", { class: "tag" }, "in arrivo") : null),
+      }, n.title, n.hidden ? h("span", { class: "tag" }, "nascosto") : n.soon ? h("span", { class: "tag" }, "in arrivo") : null),
       n.children ? list(n.children, depth + 1) : null)));
     $("#nav").replaceChildren(list(window.STRUTTURA, 0));
   }
@@ -229,7 +244,8 @@
     const body = h("div", { class: "el-body" });
     if (node.photos) body.append(await photoPanel(node));
     if (node.texts) body.append(await textPanel(node));
-    if (node.children) {
+    if (node.homeList) body.append(await homePanel());
+    else if (node.children) {
       body.append(h("section", { class: "panel" }, h("h2", {}, "Dentro questa sezione"),
         h("div", { class: "cards" }, node.children.map((c) => h("button", {
           type: "button", class: "card" + (c.soon ? " soon" : ""), disabled: c.soon || null, onclick: () => open(c),
@@ -238,7 +254,7 @@
     const bar = h("div", { class: "savebar" },
       h("span", { id: "save-state", class: "muted" }, "Nessuna modifica"),
       h("button", { id: "save", type: "button", class: "primary", disabled: true, onclick: save }, "Salva e pubblica"));
-    return h("div", {}, head, body, (node.photos || node.texts) ? bar : null);
+    return h("div", {}, head, body, (node.photos || node.texts || node.homeList) ? bar : null);
   }
 
   function cardImage(c) {
@@ -248,6 +264,48 @@
     }
     const src = c.photos && (c.photos.kind === "serie" ? `${c.photos.dir}/cover.jpg` : c.photos.file);
     return src && tree[src] ? h("img", { src: siteUrl(src), alt: "", loading: "lazy" }) : h("span", { class: "ph" });
+  }
+
+  // ---------------------------------------------------------------- home grid (Ricerca visiva)
+
+  async function homePanel() {
+    const data = await applyHome();
+    const list = (data.ricerca_visiva || []).map((r) => ({ ...r }));
+    draft.home = { data, list };
+    const ul = h("ol", { class: "home-list" });
+    const draw = () => ul.replaceChildren(...list.map((r, i) => {
+      const cover = r.pagina && `img/${r.pagina}/cover.jpg`;
+      const title = h("input", { type: "text", value: r.titolo, "aria-label": "Titolo" });
+      title.addEventListener("input", () => { r.titolo = title.value; markDirty(); });
+      const year = h("input", { type: "text", value: r.anno, class: "year", "aria-label": "Anno" });
+      year.addEventListener("input", () => { r.anno = year.value; markDirty(); });
+      const vis = h("input", { type: "checkbox" });
+      vis.checked = r.visibile !== false;
+      vis.addEventListener("change", () => { r.visibile = vis.checked; li.classList.toggle("off", !vis.checked); markDirty(); });
+      const li = h("li", { draggable: "true", class: r.visibile === false ? "off" : null },
+        h("span", { class: "grip", title: "Trascina per spostare" }, "⋮⋮"),
+        cover && tree[cover] ? h("img", { src: siteUrl(cover), alt: "" }) : h("span", { class: "ph" }, "foto in arrivo"),
+        h("div", { class: "home-fields" }, title, year,
+          h("small", {}, r.pagina ? `pagina ${r.pagina}.html` : "senza pagina (in home come “foto in arrivo”)")),
+        h("div", { class: "ctl" }, h("label", { class: "vis" }, vis, " In home"),
+        h("span", { class: "tools" },
+          h("button", { type: "button", title: "Su", onclick: () => move(i, i - 1) }, "↑"),
+          h("button", { type: "button", title: "Giù", onclick: () => move(i, i + 1) }, "↓"),
+          r.pagina ? h("button", { type: "button", title: "Apri foto e testi", onclick: () => open(ALL.find((n) => n.id === r.pagina)) }, "Apri") : null)));
+      li.addEventListener("dragstart", (e) => { e.dataTransfer.setData("text/x-home", String(i)); li.classList.add("dragging"); });
+      li.addEventListener("dragend", () => li.classList.remove("dragging"));
+      li.addEventListener("dragover", (e) => { if (e.dataTransfer.types.includes("text/x-home")) e.preventDefault(); });
+      li.addEventListener("drop", (e) => { const from = e.dataTransfer.getData("text/x-home"); if (from !== "") { e.preventDefault(); move(+from, i); } });
+      return li;
+    }));
+    const move = (a, b) => {
+      if (b < 0 || b >= list.length) return;
+      const [it] = list.splice(a, 1); list.splice(b, 0, it); draw(); markDirty();
+    };
+    draw();
+    return h("section", { class: "panel" }, h("h2", {}, "Progetti in home"),
+      h("p", { class: "hint" }, "Trascina per cambiare l'ordine della griglia (il primo è in alto a sinistra). Togli la spunta per nasconderlo dalla home. Il titolo è anche quello della pagina del progetto."),
+      ul);
   }
 
   // ---------------------------------------------------------------- texts
@@ -432,6 +490,12 @@
           edits.forEach(([f, v]) => { text = setField(text, f, v); });
           if (text !== before) out[file] = await blobFrom({ text });
         }
+        // home grid
+        if (draft.home) {
+          const fresh = JSON.parse(await readText("content/home.json", true) || "{}");
+          const json = JSON.stringify({ ...fresh, ricerca_visiva: draft.home.list }, null, 2) + "\n";
+          if (json !== texts["content/home.json"]) out["content/home.json"] = await blobFrom({ text: json });
+        }
         // Mac folder
         if (draft.cartella && draft.cartella.value !== (draft.cartella.data.cartella || "")) {
           const data = { ...draft.cartella.data, cartella: draft.cartella.value };
@@ -470,6 +534,7 @@
         return out;
       });
       draft.dirty = false;
+      if (draft.home) { await applyHome(); renderNav(); }
       if (!sha) { st.textContent = "Niente da salvare"; return; }
       st.textContent = "Salvato. Il sito si aggiorna in 1-2 minuti…";
       waitPublished(sha, node);
@@ -504,7 +569,7 @@
     const frame = $("#preview iframe");
     if (!page) return;
     const url = SITE + page.replace(/#.*/, "") + (reload ? "?t=" + Date.now() : "") + (page.includes("#") ? page.slice(page.indexOf("#")) : "");
-    if (reload || !frame.src.includes(page.replace(/#.*/, ""))) frame.src = url;
+    if (reload || frame.dataset.page !== page) { frame.src = url; frame.dataset.page = page; }
     $("#preview a").href = SITE + page;
   }
 
@@ -518,6 +583,7 @@
     } catch (e) {
       return showLogin(e.status === 401 ? "Il token non funziona più: creane uno nuovo." : "Non riesco a collegarmi a GitHub: " + e.message);
     }
+    await applyHome();
     document.body.classList.add("ready");
     renderNav();
     const start = ALL.find((n) => n.id === location.hash.slice(1) && !n.soon) || ALL[0];

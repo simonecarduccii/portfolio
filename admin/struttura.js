@@ -45,6 +45,10 @@ const ai = (slug, doc, title) => ({
   texts: [{ sections: P(doc), meta: true }],
 });
 
+// Photo projects that have a page: page slug -> sheet in docs/progetti/ (see content/home.json for order and titles).
+window.PROGETTI_FOTO = { faccioni: "faccioni", "place-of-freedom": "place-of-freedom", "papa-che-fanno-i-papa": "papa-che-fanno-i-papa", siculo: "siculo" };
+window.photoProject = photoProject;
+
 window.STRUTTURA = [
   {
     id: "home", title: "Home", page: "index.html",
@@ -61,16 +65,9 @@ window.STRUTTURA = [
         photos: { kind: "singola", file: "img/home/pellicole.jpg", cover: "Foto della banda" },
       },
       {
-        id: "ricerca-visiva", title: "Ricerca visiva", page: "index.html#ricerca-visiva", group: true,
-        note: "La griglia di progetti fotografici in home. La copertina di ogni progetto è anche la sua foto nella griglia.",
-        children: [
-          photoProject("faccioni", "faccioni", "Faccini"),
-          photoProject("place-of-freedom", "place-of-freedom", "Ghei"),
-          photoProject("papa-che-fanno-i-papa", "papa-che-fanno-i-papa", "Papà"),
-          photoProject("siculo", "siculo", "Vita mia"),
-          { id: "maghreb", title: "Maghreb", soon: true },
-          { id: "torino-17", title: "Torino 17", soon: true },
-        ],
+        id: "ricerca-visiva", title: "Ricerca visiva", page: "index.html#ricerca-visiva", group: true, homeList: true,
+        note: "La griglia di progetti fotografici in home. Qui scegli quali mostrare e in che ordine; la copertina di ogni progetto è la sua foto nella griglia.",
+        children: [], // filled from content/home.json by admin.js (order, titles, visibility)
       },
       {
         id: "ia", title: "Progetti con l'AI", page: "ai.html",

@@ -48,6 +48,15 @@ AI = [
      "what": "Uno strumento di lettura per una persona della mia famiglia.", "tools": "—",
      "year": "2026", "status": "private"},
 ]
+# Home "Ricerca visiva": order, visibility, title and year of each photo project, edited in /admin.
+HOME = __import__("json").loads((ROOT / "content" / "home.json").read_text(encoding="utf-8"))
+RESEARCH = HOME["ricerca_visiva"]
+for _p in PHOTO:  # one name everywhere: the home card, the page title, "Altri progetti"
+    _h = next((r for r in RESEARCH if r.get("pagina") == _p["slug"]), None)
+    if _h:
+        _p.update(title=_h["titolo"], year=_h["anno"])
+PHOTO.sort(key=lambda q: next((i for i, r in enumerate(RESEARCH) if r.get("pagina") == q["slug"]), 99))
+
 PHOTO_SLOTS = 12  # sequence slots per photo project; missing files are hidden by main.js
 
 
@@ -334,7 +343,8 @@ def build_photo(i, p):
     seq = "".join(
         f'<li data-src="img/{s}/{n:02d}.jpg">{img(f"img/{s}/{n:02d}.jpg", f"{p["title"]}, fotografia {n}")}<span class="count label">{n:02d}/{total:02d}</span></li>'
         for n in range(1, total + 1))
-    others = [q for q in PHOTO if q["slug"] != s]
+    shown = {r["pagina"] for r in RESEARCH if r.get("visibile", True) and r.get("pagina")}
+    others = [q for q in PHOTO if q["slug"] != s and q["slug"] in shown]
     related = "".join(
         f'<a class="tile" href="{q["slug"]}.html">{img(f"img/{q["slug"]}/cover.jpg", q["title"], " ")}'
         f'<span class="fig-cap"><span>{html.escape(q["title"])}</span><span>{q["year"]}</span></span></a>'
@@ -419,9 +429,7 @@ def build_home():
         f'<li><a href="{sl}.html" data-cover="img/{sl}/cover.jpg">{html.escape(t)}<sup class="yr">{y}</sup></a></li>'
         for sl, t, y in hero)
     # Figma "Portfolio · v2": six cards; the ones without a page or photo yet are placeholders.
-    cards = [("Torino 17", "2026", None), ("Maghreb", "2026", None), ("Ghei", "2025", None),
-             ("Papà che fanno i papà", "2025", "papa-che-fanno-i-papa"), ("Faccioni", "2025", "faccioni"),
-             ("Vita mia", "2025", None)]
+    cards = [(r["titolo"], r["anno"], r.get("pagina")) for r in RESEARCH if r.get("visibile", True)]
     tiles = ""
     for title, year, sl in cards:
         cap = f'<span class="fig-cap"><span>{html.escape(title)}</span><span>{year}</span></span>'
