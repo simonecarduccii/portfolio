@@ -21,8 +21,9 @@ SITE = "Simone Carducci"
 EMAIL = "simone.carducci01@gmail.com"
 INSTAGRAM = "https://instagram.com/simonecarduccii"
 LOMO = "https://www.lomography.com/homes/simonecarduccii"
+LINKEDIN = None  # URL still to come from Simone; the footer shows LinkedIn only once this is set
 CV = "assets/cv-simone-carducci.pdf"
-FONTS = "https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Overpass:ital,wght@1,200&display=swap"
+FONTS = "https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
 
 CULTURE = [
     {"slug": "boheme", "doc": "boheme-magazine", "title": "Bohème Magazine", "year": "2024",
@@ -48,6 +49,15 @@ AI = [
      "year": "2026", "status": "private"},
 ]
 PHOTO_SLOTS = 12  # sequence slots per photo project; missing files are hidden by main.js
+
+
+def slots(slug, default):
+    """Number of numbered photos (01.jpg, 02.jpg ...) to show for a page.
+
+    When photos are on disk (from /admin, the Mac folder sync or optimize_images.py) the page
+    shows exactly those; until then it keeps `default` placeholder slots."""
+    nums = [int(f.stem) for f in (ROOT / "img" / slug).glob("[0-9][0-9]*.jpg") if f.stem.isdigit()]
+    return max(nums) if nums else default
 
 
 # ---------------------------------------------------------------- markdown
@@ -182,7 +192,6 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 <a class="skip" href="#main">Vai al contenuto</a>
 <header class="{hc}">
   <a class="brand" href="index.html">Simone Carducci</a>
-  <span class="dash" aria-hidden="true">-</span>
   <span class="tag">Creative development</span>
   <nav class="nav" aria-label="Menu principale">{nav}</nav>
 </header>
@@ -200,14 +209,15 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 
 
 def footer():
+    linkedin = f'<li><a href="{LINKEDIN}" target="_blank" rel="noopener">LinkedIn</a></li>' if LINKEDIN else ""
     return f"""<footer class="site-footer">
   <a class="footer-cta" href="mailto:{EMAIL}">Scrivimi</a>
   <a class="footer-email" href="mailto:{EMAIL}">{EMAIL}</a>
   <div class="footer-cols">
-    <div><h2>Contatti</h2><ul><li><a class="lower" href="mailto:{EMAIL}">{EMAIL}</a></li><li>Roma / Torino</li></ul></div>
-    <div><h2>Altrove</h2><ul><li><a class="ig" href="{INSTAGRAM}" target="_blank" rel="noopener">Instagram</a></li><li><a href="{LOMO}" target="_blank" rel="noopener">Lomography</a></li></ul></div>
+    <div><h2>Contatti</h2><ul><li><a class="lower" href="mailto:{EMAIL}">{EMAIL}</a></li></ul></div>
+    <div><h2>Altrove</h2><ul><li><a class="ig" href="{INSTAGRAM}" target="_blank" rel="noopener">Instagram</a></li><li><a href="{LOMO}" target="_blank" rel="noopener">Lomography</a></li>{linkedin}</ul></div>
     <div><h2>Sezioni</h2><ul><li><a href="index.html#cultura">Cultura</a></li><li><a href="index.html#ricerca-visiva">Ricerca visiva</a></li><li><a href="archivio.html">Archivio</a></li><li><a href="about.html">About</a></li></ul></div>
-    <div><h2>CV</h2><ul><li><a href="{CV}" target="_blank">↗ Scarica il CV (PDF)</a></li></ul></div>
+    <div><h2>CV</h2><ul><li><a href="{CV}" target="_blank">Scarica il CV (PDF)</a></li></ul></div>
   </div>
   <div class="footer-legal"><span>© 2025-2026 Simone Carducci. Tutti i diritti riservati.</span><span>Developed by me</span><span>P.Iva 18337621009</span></div>
 </footer>"""
@@ -302,7 +312,7 @@ def build_culture(i, p):
     <div class="prose">
 {chr(10).join(f"<p>{inline(x)}</p>" for x in paras)}
     </div>
-    <div class="gallery col" aria-label="Immagini del progetto">{"".join(img(f"img/{s}/{n:02d}.jpg", f"{p['title']}, immagine {n}") for n in range(1, 7))}</div>
+    <div class="gallery col" aria-label="Immagini del progetto">{"".join(img(f"img/{s}/{n:02d}.jpg", f"{p['title']}, immagine {n}") for n in range(1, slots(s, 6) + 1))}</div>
   </section>
   <a class="next-project" href="{nxt["slug"]}.html"><span>Progetto successivo</span><span>{html.escape(nxt["title"])} ›</span></a>
 {band_archive()}"""
@@ -319,11 +329,10 @@ def build_photo(i, p):
     year = meta.get("Anno", p["year"]).replace(" – ", " — ")
     meta_lines = [x for x in [place, f"Progetto: {year}"] if x]
     tech = [f"{k}: {inline(v)}" for k, v in meta.items() if k in ("Supporto", "Fotocamera", "Pellicola")]
-    # As many slots as numbered photos in img/<slug>/ (01.jpg, 02.jpg ...), or PHOTO_SLOTS placeholders.
-    slots = len([f for f in (ROOT / "img" / s).glob("[0-9][0-9].jpg")]) or PHOTO_SLOTS
+    total = slots(s, PHOTO_SLOTS)
     seq = "".join(
-        f'<li data-src="img/{s}/{n:02d}.jpg">{img(f"img/{s}/{n:02d}.jpg", f"{p["title"]}, fotografia {n}")}<span class="count label">{n:02d}/{slots:02d}</span></li>'
-        for n in range(1, slots + 1))
+        f'<li data-src="img/{s}/{n:02d}.jpg">{img(f"img/{s}/{n:02d}.jpg", f"{p["title"]}, fotografia {n}")}<span class="count label">{n:02d}/{total:02d}</span></li>'
+        for n in range(1, total + 1))
     others = [q for q in PHOTO if q["slug"] != s]
     related = "".join(
         f'<a class="tile" href="{q["slug"]}.html">{img(f"img/{q["slug"]}/cover.jpg", q["title"], " ")}'
@@ -394,7 +403,7 @@ def build_ai_detail(p):
 <p class="lead">{inline(lead)}</p>
 {chr(10).join(parts)}
     </div>
-    <div class="gallery col shots" aria-label="Schermate">{"".join(img(f"img/{s}/{n:02d}.jpg", f"{p['title']}, schermata {n}", "Schermata in arrivo") for n in range(1, 4))}</div>
+    <div class="gallery col shots" aria-label="Schermate">{"".join(img(f"img/{s}/{n:02d}.jpg", f"{p['title']}, schermata {n}", "Schermata in arrivo") for n in range(1, slots(s, 3) + 1))}</div>
   </section>
   <a class="next-project" href="ai.html"><span>Progetti con l'AI</span><span>Tutti gli strumenti ›</span></a>
 {band_archive()}"""
@@ -406,7 +415,7 @@ def build_home():
     desc = field(c, "Description home")
     hero = [("boheme", "Bohème Magazine", "since 2023"), ("modi", "Colectivo modì", "2025-2026")]
     hero_items = "".join(
-        f'<li><a href="{sl}.html" data-cover="img/{sl}/cover.jpg">{html.escape(t)}<sup class="yr">{y}</sup></a></li>'
+        f'<li><a href="{sl}.html" data-cover="img/home/hero_{sl}.jpg">{html.escape(t)}<sup class="yr">{y}</sup></a></li>'
         for sl, t, y in hero)
     # Figma "Portfolio · v2": six cards; the ones without a page or photo yet are placeholders.
     cards = [("Torino 17", "2026", None), ("Maghreb", "2026", None), ("Ghei", "2025", None),

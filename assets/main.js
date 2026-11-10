@@ -159,12 +159,13 @@
       layers[src] = img;
     };
     probe.src = src;
-    var on = function () { if (layers[src]) layers[src].classList.add('on'); };
-    var off = function () { if (layers[src]) layers[src].classList.remove('on'); };
+    // The last cover shown stays visible after the cursor leaves the title.
+    var on = function () {
+      if (!layers[src]) return;
+      Object.keys(layers).forEach(function (k) { layers[k].classList.toggle('on', k === src); });
+    };
     a.addEventListener('mouseenter', on);
     a.addEventListener('focus', on);
-    a.addEventListener('mouseleave', off);
-    a.addEventListener('blur', off);
   });
 })();
 
