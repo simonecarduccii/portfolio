@@ -229,7 +229,8 @@ def main():
         entries = {slug: read_repo_json(f"content/foto/{slug}.json") for slug in targets}
         uploads, deletes = plan(targets, entries)
         todo = {p: f for p, f in uploads.items() if state.get(p) != sha1(f)}
-        deletes = [p for p in deletes if p not in uploads]
+        # only remove photos this sync sent itself: extra photos added from /admin stay
+        deletes = [p for p in deletes if p not in uploads and p in state]
         if not todo and not deletes:
             return
         names = sorted({p.split("/")[1] if p.startswith("img/") else "archivio" for p in [*todo, *deletes]})

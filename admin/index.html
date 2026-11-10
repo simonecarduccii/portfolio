@@ -6,10 +6,39 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Admin · Simone Carducci</title>
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
 </head>
-<body>
-<!-- Sveltia CMS: edits the texts in docs/ and the photos in content/ straight on GitHub.
-     Configuration: admin/config.yml. Guide: docs/ADMIN.md -->
-<script src="https://unpkg.com/@sveltia/cms@0.253.1/dist/sveltia-cms.js"></script>
+<body class="no-preview-mobile">
+<!-- Admin of the portfolio: texts and photos per page, following the information architecture.
+     Structure: admin/struttura.js · logic: admin/admin.js · guide: docs/ADMIN.md -->
+<form id="login" class="login">
+  <h1>Simone Carducci <span>admin</span></h1>
+  <label for="token">Token GitHub</label>
+  <input id="token" type="password" autocomplete="current-password" placeholder="github_pat_…" required>
+  <button class="primary" type="submit">Entra</button>
+  <p id="login-msg" class="error" aria-live="polite"></p>
+  <p class="muted">Il token resta solo in questo browser. Come crearlo: <a href="https://github.com/simonecarduccii/simonecarducci/blob/main/docs/ADMIN.md" target="_blank" rel="noopener">guida</a>.</p>
+</form>
+
+<div class="app">
+  <aside class="side">
+    <a class="brand" href="../" target="_blank" rel="noopener">Simone Carducci <span>admin</span></a>
+    <nav id="nav" aria-label="Pagine del sito"></nav>
+    <div class="side-foot">
+      <button id="toggle-preview" type="button">Anteprima sì/no</button>
+      <button id="logout" type="button">Esci</button>
+    </div>
+  </aside>
+  <main id="main" class="main"></main>
+  <aside id="preview" class="preview">
+    <div class="preview-bar"><span>Anteprima del sito online</span><a href="../" target="_blank" rel="noopener">apri ↗</a></div>
+    <iframe title="Anteprima della pagina" src="about:blank"></iframe>
+  </aside>
+</div>
+<script src="struttura.js"></script>
+<script src="admin.js"></script>
 </body>
 </html>

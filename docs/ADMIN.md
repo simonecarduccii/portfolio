@@ -14,35 +14,28 @@ Il pannello entra nel repository con un **token GitHub**, una specie di password
 3. **Repository access:** *Only select repositories* → `simonecarduccii/simonecarducci`.
 4. **Permissions → Repository permissions → Contents:** *Read and write*.
 5. **Generate token** e copialo (inizia con `github_pat_`). Tienilo per te: chi lo ha può modificare il sito.
-6. Apri https://bohememag.it/simonecarducci/admin/ → **Accedi con Token di Accesso** → incolla.
+6. Apri https://bohememag.it/simonecarducci/admin/, incolla il token ed **Entra**.
 
-Il browser se lo ricorda. Lo stesso token serve per la sincronizzazione delle cartelle del Mac (punto 4).
+Il browser se lo ricorda (pulsante **Esci** per toglierlo). Lo stesso token serve per la sincronizzazione delle cartelle del Mac (punto 3).
 
-## 2. Testi
+## 2. Come è fatto
 
-**Testi** → scegli la pagina. Il testo è quello delle schede in `docs/`:
+A sinistra c'è l'albero del sito, come in `information_architecture`:
+**Home** (Hero con Bohème e modì, Pellicole, Ricerca visiva con Faccini, Ghei, Papà, Vita mia, Progetti con l'AI, Archivio), **About**, **Archivio**.
+Clicca un elemento: al centro trovi insieme le sue **foto** e i suoi **testi**, a destra l'anteprima della pagina online.
 
-- cambia le parole liberamente;
-- lascia uguali i titoli che iniziano con `##` e le etichette come `**Anno:**`: il sito li usa per sapere dove va ogni pezzo;
-- `**grassetto**`, `_corsivo_`, `[testo del link](https://...)`;
-- le frasi con `[DA VERIFICARE]` restano evidenziate sul sito finché non togli la nota.
+- **Copertina**: *Sostituisci*, oppure trascina una foto dal Finder sopra la copertina. Quella di Bohème e di modì è anche lo sfondo dell'hero in home; quella dei progetti fotografici è anche la loro foto nella griglia.
+- **Sequenza**: trascina le foto per cambiare l'ordine (o usa ← →), ★ la rende copertina, × la toglie. Per aggiungerne, *+ Aggiungi foto* o trascinale dal Finder sulla griglia.
+- **Archivio**: aggiungi o togli foto e scrivi pellicola, luogo e anno sotto ciascuna.
+- **Testi**: ogni campo è un pezzo della pagina. `**grassetto**`, `_corsivo_`, `[testo del link](https://...)`; un rigo vuoto separa i paragrafi.
+  Le frasi con `[DA VERIFICARE]` restano evidenziate sul sito finché non togli la nota.
 
-**Salva**: dopo 2-3 minuti la pagina online è aggiornata.
+**Salva e pubblica** salva foto e testi dell'elemento in un colpo solo. Dopo 1-2 minuti compare *Online ✓* e l'anteprima si aggiorna.
+Le foto vengono rimpicciolite nel browser prima di partire e perdono GPS e dati della fotocamera.
 
-## 3. Foto, caricate dal pannello
+## 3. Foto da una cartella del Mac
 
-**Foto** → scegli la pagina:
-
-- **Copertina** (o **Immagine** per le foto singole della home e il ritratto);
-- **Foto della pagina**: aggiungile e trascinale nell'ordine in cui le vuoi vedere. Se ne togli una, sparisce dalla pagina;
-- **Archivio fotografico**: ogni foto aggiunta entra nell'archivio con il numero successivo.
-
-Vanno bene JPG, PNG, WebP, anche grandi: il pannello le rimpicciolisce prima di caricarle e
-l'Action le trasforma nei file del sito (`cover.jpg`, `01.jpg` ...), togliendo GPS e dati della fotocamera.
-
-## 4. Foto da una cartella del Mac
-
-In **Foto**, ogni pagina ha il campo **Cartella sul Mac**: il percorso dentro
+Ogni elemento con foto ha il campo **Cartella sul Mac**: il percorso dentro
 `~/porfolio/information_architecture`, per esempio `01home/03ricerca_visiva/01faccini`.
 Quando cambi, aggiungi o togli una foto in quella cartella, il Mac la manda al sito da solo.
 
@@ -68,14 +61,17 @@ Quando il Mac invia delle foto compare una notifica "Portfolio".
 
 ## Come funziona (per chi sviluppa)
 
-- `admin/index.html` carica [Sveltia CMS](https://sveltiacms.app) (versione fissata), configurato in `admin/config.yml`.
-- I testi sono i file Markdown di `docs/`, modificati come testo semplice (formato `raw`): nessuna riformattazione.
-- Le foto: un file JSON per pagina in `content/foto/`, destinazioni in `content/destinazioni.json`,
-  file caricati in `content/caricate/`.
+- `admin/index.html` + `admin/admin.js` + `admin/admin.css`: pannello senza dipendenze, che parla con l'API di GitHub
+  usando il token salvato nel browser. L'albero e i campi di ogni elemento sono in `admin/struttura.js`.
+- I testi restano i file Markdown di `docs/`: ogni campo è una riga `- **Etichetta:** valore` o il testo sotto un titolo `##`/`###`;
+  il pannello cambia solo quel pezzo, sulla versione più recente del file.
+- Le foto: il pannello scrive direttamente `img/<pagina>/cover.jpg`, `01.jpg` ... (riordinare riusa i file già su GitHub),
+  l'archivio in `img/archivio/` + `thumbs/` + `archivio.json`. Ogni salvataggio è un solo commit.
+- La cartella del Mac di ogni elemento è in `content/foto/<chiave>.json`, destinazioni in `content/destinazioni.json`.
 - `.github/workflows/update-site.yml` a ogni push su `main` che tocca `docs/`, `content/` o `img/`:
-  `tools/apply_photos.py` (foto caricate → `img/`, ripulisce le JPEG con GPS o troppo grandi),
+  `tools/apply_photos.py` (ripulisce le JPEG con GPS o troppo grandi, importa le foto d'archivio mandate dal Mac),
   `tools/build_pages.py`, `tools/check_site.py`, poi committa le pagine rigenerate e chiede a Pages di ripubblicare.
-  Lo stato delle foto già applicate è in `content/.stato/`.
 - La sincronizzazione del Mac è `tools/mac/sync_cartelle.py` (solo libreria standard + `sips`), avviata da launchd
   (`~/Library/LaunchAgents/it.bohememag.portfolio-sync.plist`); il token è nel Portachiavi, voce `portfolio-sync`.
+  Toglie dal sito solo le foto che ha mandato lei: quelle aggiunte dal pannello restano.
 - Le pagine fotografiche mostrano tante foto quante sono in `img/<pagina>/` (12 segnaposto finché non ce n'è nessuna).
