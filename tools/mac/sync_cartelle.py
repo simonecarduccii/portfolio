@@ -30,7 +30,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-REPO = os.environ.get("PORTFOLIO_REPO", "simonecarduccii/portfolio")
+REPO = os.environ.get("PORTFOLIO_REPO", "simonecarduccii/simonecarducci")
 BRANCH = os.environ.get("PORTFOLIO_BRANCH", "main")
 BASE = Path(os.environ.get("PORTFOLIO_FOTO", "~/porfolio/information_architecture")).expanduser()
 HOME_DIR = Path("~/Library/Application Support/portfolio-sync").expanduser()
@@ -72,6 +72,20 @@ def api(method, path, body=None, raw=False):
     with urllib.request.urlopen(req, timeout=60) as r:
         data = r.read()
     return data if raw else json.loads(data or b"null")
+
+
+def resolve_repo():
+    """Follow a repository rename: GitHub answers the old name with a redirect on GET,
+    but not on the POST/PATCH calls used to commit, so use the current full name."""
+    global REPO
+    try:
+        REPO = api("GET", f"/repos/{REPO}")["full_name"]
+    except urllib.error.HTTPError:
+        if REPO.endswith("/simonecarducci"):  # repo not renamed yet
+            REPO = REPO.rsplit("/", 1)[0] + "/portfolio"
+            REPO = api("GET", f"/repos/{REPO}")["full_name"]
+        else:
+            raise
 
 
 def read_repo_json(path):
@@ -209,6 +223,7 @@ def main():
     LOCK.write_text(str(os.getpid()))
     try:
         TOKEN = token()
+        resolve_repo()
         state = {} if FORCE or not STATE_FILE.exists() else json.loads(STATE_FILE.read_text())
         targets = read_repo_json("content/destinazioni.json")
         entries = {slug: read_repo_json(f"content/foto/{slug}.json") for slug in targets}

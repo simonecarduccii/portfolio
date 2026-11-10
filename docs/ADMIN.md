@@ -1,6 +1,6 @@
 # Pannello /admin
 
-Indirizzo: **https://bohememag.it/portfolio/admin/**
+Indirizzo: **https://bohememag.it/simonecarducci/admin/**
 
 Da qui cambi i testi e le foto del sito senza toccare il codice. Ogni salvataggio va su GitHub
 e dopo 2-3 minuti il sito online è aggiornato (lo fa da sola l'Action "Update site").
@@ -11,10 +11,10 @@ Il pannello entra nel repository con un **token GitHub**, una specie di password
 
 1. Apri [github.com/settings/personal-access-tokens/new](https://github.com/settings/personal-access-tokens/new).
 2. **Token name:** `portfolio admin`. **Expiration:** la durata che preferisci (es. 1 anno).
-3. **Repository access:** *Only select repositories* → `simonecarduccii/portfolio`.
+3. **Repository access:** *Only select repositories* → `simonecarduccii/simonecarducci`.
 4. **Permissions → Repository permissions → Contents:** *Read and write*.
 5. **Generate token** e copialo (inizia con `github_pat_`). Tienilo per te: chi lo ha può modificare il sito.
-6. Apri https://bohememag.it/portfolio/admin/ → **Accedi con Token di Accesso** → incolla.
+6. Apri https://bohememag.it/simonecarducci/admin/ → **Accedi con Token di Accesso** → incolla.
 
 Il browser se lo ricorda. Lo stesso token serve per la sincronizzazione delle cartelle del Mac (punto 4).
 

@@ -5,7 +5,7 @@
 
 backend:
   name: github
-  repo: simonecarduccii/portfolio
+  repo: simonecarduccii/simonecarducci
   branch: main
   commit_messages:
     create: "Add {{slug}} from admin"
@@ -14,8 +14,8 @@ backend:
     uploadMedia: "Upload {{path}} from admin"
     deleteMedia: "Delete {{path}} from admin"
 
-site_url: https://bohememag.it/portfolio/
-display_url: https://bohememag.it/portfolio/
+site_url: https://bohememag.it/simonecarducci/
+display_url: https://bohememag.it/simonecarducci/
 
 media_folder: content/caricate
 public_folder: /content/caricate

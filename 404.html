@@ -5,9 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pagina non trovata — Simone Carducci</title>
 <meta name="robots" content="noindex">
-<!-- Served for any missing URL at any depth: the base points at the site root,
-     which is /portfolio/ on github.io and / on the custom domain. -->
-<script>document.write('<base href="' + (location.hostname.endsWith('github.io') ? '/portfolio/' : '/') + '">');</script>
+<!-- Served for any missing URL at any depth: the base points at the site root.
+     The site lives under /simonecarducci/ (the repository name) on github.io and on
+     bohememag.it, the custom domain of the user site; on its own domain it would be at /. -->
+<script>(function () { var m = location.pathname.match(/^\/(simonecarducci|portfolio)(\/|$)/); document.write('<base href="/' + (m ? m[1] + '/' : '') + '">'); })();</script>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
