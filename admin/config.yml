@@ -1,0 +1,371 @@
+# Sveltia CMS configuration for /admin (guide: docs/ADMIN.md).
+# Texts: the Markdown files in docs/, edited as plain text so nothing gets reformatted.
+# Photos: one JSON file per page in content/foto/. After every save, the GitHub Action
+# "Update site" turns uploads into img/<page>/cover.jpg, 01.jpg ... and rebuilds the HTML.
+
+backend:
+  name: github
+  repo: simonecarduccii/portfolio
+  branch: main
+  commit_messages:
+    create: "Add {{slug}} from admin"
+    update: "Update {{slug}} from admin"
+    delete: "Delete {{slug}} from admin"
+    uploadMedia: "Upload {{path}} from admin"
+    deleteMedia: "Delete {{path}} from admin"
+
+site_url: https://bohememag.it/portfolio/
+display_url: https://bohememag.it/portfolio/
+
+media_folder: content/caricate
+public_folder: /content/caricate
+
+media_libraries:
+  default:
+    config:
+      slugify_filename: true
+      # Big photos are shrunk in the browser before upload; the Action then makes the final JPEG.
+      transformations:
+        raster_image:
+          format: webp
+          quality: 92
+          width: 2600
+          height: 2600
+
+editor:
+  preview: false
+
+collections:
+  - name: testi
+    label: Testi
+    label_singular: Testo
+    icon: edit_note
+    description: >-
+      I testi delle pagine. Cambia solo le parole: lascia uguali i titoli che iniziano con ##
+      e le etichette tra **asterischi**, perché il sito li usa per sapere dove va ogni testo.
+      Dopo il salvataggio il sito si aggiorna da solo in 1-2 minuti.
+    format: raw
+    files:
+      - name: contenuti
+        label: "Testi generali (home, about, archivio, AI)"
+        file: docs/CONTENUTI.md
+        fields:
+          - name: body
+            label: Testo
+            widget: text
+            hint: "**grassetto**, _corsivo_, [testo del link](https://...). Le frasi con [DA VERIFICARE] restano evidenziate sul sito finché non togli la nota."
+      - name: boheme-magazine
+        label: "Bohème Magazine"
+        file: docs/progetti/boheme-magazine.md
+        fields:
+          - name: body
+            label: Testo
+            widget: text
+            hint: "**grassetto**, _corsivo_, [testo del link](https://...). Le frasi con [DA VERIFICARE] restano evidenziate sul sito finché non togli la nota."
+      - name: colectivo-modi
+        label: "Colectivo modì"
+        file: docs/progetti/colectivo-modi.md
+        fields:
+          - name: body
+            label: Testo
+            widget: text
+            hint: "**grassetto**, _corsivo_, [testo del link](https://...). Le frasi con [DA VERIFICARE] restano evidenziate sul sito finché non togli la nota."
+      - name: faccioni
+        label: "Faccioni"
+        file: docs/progetti/faccioni.md
+        fields:
+          - name: body
+            label: Testo
+            widget: text
+            hint: "**grassetto**, _corsivo_, [testo del link](https://...). Le frasi con [DA VERIFICARE] restano evidenziate sul sito finché non togli la nota."
+      - name: place-of-freedom
+        label: "Place of Freedom"
+        file: docs/progetti/place-of-freedom.md
+        fields:
+          - name: body
+            label: Testo
+            widget: text
+            hint: "**grassetto**, _corsivo_, [testo del link](https://...). Le frasi con [DA VERIFICARE] restano evidenziate sul sito finché non togli la nota."
+      - name: papa-che-fanno-i-papa
+        label: "Papà che fanno i papà"
+        file: docs/progetti/papa-che-fanno-i-papa.md
+        fields:
+          - name: body
+            label: Testo
+            widget: text
+            hint: "**grassetto**, _corsivo_, [testo del link](https://...). Le frasi con [DA VERIFICARE] restano evidenziate sul sito finché non togli la nota."
+      - name: siculo
+        label: "Siculo"
+        file: docs/progetti/siculo.md
+        fields:
+          - name: body
+            label: Testo
+            widget: text
+            hint: "**grassetto**, _corsivo_, [testo del link](https://...). Le frasi con [DA VERIFICARE] restano evidenziate sul sito finché non togli la nota."
+      - name: ai-boheme-vedetta
+        label: "Bohème Vedetta"
+        file: docs/progetti/ai-boheme-vedetta.md
+        fields:
+          - name: body
+            label: Testo
+            widget: text
+            hint: "**grassetto**, _corsivo_, [testo del link](https://...). Le frasi con [DA VERIFICARE] restano evidenziate sul sito finché non togli la nota."
+      - name: ai-coaching-corsa
+        label: "Running Coach"
+        file: docs/progetti/ai-coaching-corsa.md
+        fields:
+          - name: body
+            label: Testo
+            widget: text
+            hint: "**grassetto**, _corsivo_, [testo del link](https://...). Le frasi con [DA VERIFICARE] restano evidenziate sul sito finché non togli la nota."
+
+  - name: foto
+    label: Foto
+    label_singular: Foto
+    icon: photo_library
+    description: >-
+      Le immagini di ogni pagina. Due modi: carica le foto qui, oppure indica una cartella del Mac
+      (dentro porfolio/information_architecture) e il Mac le manda al sito ogni volta che cambi un file.
+      Vince l'ultima modifica. Le foto vengono ridimensionate e ripulite dai dati GPS in automatico.
+    format: json
+    files:
+      - name: home-hero
+        label: "Home · foto grande in alto"
+        file: content/foto/home-hero.json
+        fields:
+          - name: cartella
+            label: Cartella sul Mac
+            widget: string
+            required: false
+            hint: "Percorso dentro porfolio/information_architecture sul Mac, es. 01home/03ricerca_visiva/01faccini. Se la imposti, il Mac aggiorna il sito ogni volta che cambi un file nella cartella (serve la sincronizzazione installata, vedi guida). Lascia vuoto per usare solo le foto caricate qui."
+          - name: copertina
+            label: Immagine
+            widget: image
+            required: false
+            hint: "Sostituisce l'immagine sul sito. Nella cartella del Mac: il file che si chiama cover, hero, bg_ o ritratto, altrimenti il primo."
+      - name: home-pellicole
+        label: "Home · banda pellicole"
+        file: content/foto/home-pellicole.json
+        fields:
+          - name: cartella
+            label: Cartella sul Mac
+            widget: string
+            required: false
+            hint: "Percorso dentro porfolio/information_architecture sul Mac, es. 01home/03ricerca_visiva/01faccini. Se la imposti, il Mac aggiorna il sito ogni volta che cambi un file nella cartella (serve la sincronizzazione installata, vedi guida). Lascia vuoto per usare solo le foto caricate qui."
+          - name: copertina
+            label: Immagine
+            widget: image
+            required: false
+            hint: "Sostituisce l'immagine sul sito. Nella cartella del Mac: il file che si chiama cover, hero, bg_ o ritratto, altrimenti il primo."
+      - name: home-archivio
+        label: "Home · banda Archivio"
+        file: content/foto/home-archivio.json
+        fields:
+          - name: cartella
+            label: Cartella sul Mac
+            widget: string
+            required: false
+            hint: "Percorso dentro porfolio/information_architecture sul Mac, es. 01home/03ricerca_visiva/01faccini. Se la imposti, il Mac aggiorna il sito ogni volta che cambi un file nella cartella (serve la sincronizzazione installata, vedi guida). Lascia vuoto per usare solo le foto caricate qui."
+          - name: copertina
+            label: Immagine
+            widget: image
+            required: false
+            hint: "Sostituisce l'immagine sul sito. Nella cartella del Mac: il file che si chiama cover, hero, bg_ o ritratto, altrimenti il primo."
+      - name: boheme
+        label: "Bohème Magazine"
+        file: content/foto/boheme.json
+        fields:
+          - name: cartella
+            label: Cartella sul Mac
+            widget: string
+            required: false
+            hint: "Percorso dentro porfolio/information_architecture sul Mac, es. 01home/03ricerca_visiva/01faccini. Se la imposti, il Mac aggiorna il sito ogni volta che cambi un file nella cartella (serve la sincronizzazione installata, vedi guida). Lascia vuoto per usare solo le foto caricate qui."
+          - name: copertina
+            label: Copertina
+            widget: image
+            required: false
+            hint: "In alto nella pagina e nella home. Nella cartella del Mac: il file che inizia con cover (o hero), altrimenti il primo."
+          - name: foto
+            label: Foto della pagina
+            label_singular: foto
+            widget: list
+            required: false
+            field: {name: immagine, label: Foto, widget: image}
+            hint: "Nell'ordine in cui le vuoi vedere: trascinale per riordinarle. Nella cartella del Mac l'ordine è quello dei nomi (01.jpg, 02.jpg ...)."
+      - name: modi
+        label: "Colectivo modì"
+        file: content/foto/modi.json
+        fields:
+          - name: cartella
+            label: Cartella sul Mac
+            widget: string
+            required: false
+            hint: "Percorso dentro porfolio/information_architecture sul Mac, es. 01home/03ricerca_visiva/01faccini. Se la imposti, il Mac aggiorna il sito ogni volta che cambi un file nella cartella (serve la sincronizzazione installata, vedi guida). Lascia vuoto per usare solo le foto caricate qui."
+          - name: copertina
+            label: Copertina
+            widget: image
+            required: false
+            hint: "In alto nella pagina e nella home. Nella cartella del Mac: il file che inizia con cover (o hero), altrimenti il primo."
+          - name: foto
+            label: Foto della pagina
+            label_singular: foto
+            widget: list
+            required: false
+            field: {name: immagine, label: Foto, widget: image}
+            hint: "Nell'ordine in cui le vuoi vedere: trascinale per riordinarle. Nella cartella del Mac l'ordine è quello dei nomi (01.jpg, 02.jpg ...)."
+      - name: faccioni
+        label: "Faccioni"
+        file: content/foto/faccioni.json
+        fields:
+          - name: cartella
+            label: Cartella sul Mac
+            widget: string
+            required: false
+            hint: "Percorso dentro porfolio/information_architecture sul Mac, es. 01home/03ricerca_visiva/01faccini. Se la imposti, il Mac aggiorna il sito ogni volta che cambi un file nella cartella (serve la sincronizzazione installata, vedi guida). Lascia vuoto per usare solo le foto caricate qui."
+          - name: copertina
+            label: Copertina
+            widget: image
+            required: false
+            hint: "In alto nella pagina e nella home. Nella cartella del Mac: il file che inizia con cover (o hero), altrimenti il primo."
+          - name: foto
+            label: Foto della pagina
+            label_singular: foto
+            widget: list
+            required: false
+            field: {name: immagine, label: Foto, widget: image}
+            hint: "Nell'ordine in cui le vuoi vedere: trascinale per riordinarle. Nella cartella del Mac l'ordine è quello dei nomi (01.jpg, 02.jpg ...)."
+      - name: place-of-freedom
+        label: "Place of Freedom (Ghei)"
+        file: content/foto/place-of-freedom.json
+        fields:
+          - name: cartella
+            label: Cartella sul Mac
+            widget: string
+            required: false
+            hint: "Percorso dentro porfolio/information_architecture sul Mac, es. 01home/03ricerca_visiva/01faccini. Se la imposti, il Mac aggiorna il sito ogni volta che cambi un file nella cartella (serve la sincronizzazione installata, vedi guida). Lascia vuoto per usare solo le foto caricate qui."
+          - name: copertina
+            label: Copertina
+            widget: image
+            required: false
+            hint: "In alto nella pagina e nella home. Nella cartella del Mac: il file che inizia con cover (o hero), altrimenti il primo."
+          - name: foto
+            label: Foto della pagina
+            label_singular: foto
+            widget: list
+            required: false
+            field: {name: immagine, label: Foto, widget: image}
+            hint: "Nell'ordine in cui le vuoi vedere: trascinale per riordinarle. Nella cartella del Mac l'ordine è quello dei nomi (01.jpg, 02.jpg ...)."
+      - name: papa-che-fanno-i-papa
+        label: "Papà che fanno i papà"
+        file: content/foto/papa-che-fanno-i-papa.json
+        fields:
+          - name: cartella
+            label: Cartella sul Mac
+            widget: string
+            required: false
+            hint: "Percorso dentro porfolio/information_architecture sul Mac, es. 01home/03ricerca_visiva/01faccini. Se la imposti, il Mac aggiorna il sito ogni volta che cambi un file nella cartella (serve la sincronizzazione installata, vedi guida). Lascia vuoto per usare solo le foto caricate qui."
+          - name: copertina
+            label: Copertina
+            widget: image
+            required: false
+            hint: "In alto nella pagina e nella home. Nella cartella del Mac: il file che inizia con cover (o hero), altrimenti il primo."
+          - name: foto
+            label: Foto della pagina
+            label_singular: foto
+            widget: list
+            required: false
+            field: {name: immagine, label: Foto, widget: image}
+            hint: "Nell'ordine in cui le vuoi vedere: trascinale per riordinarle. Nella cartella del Mac l'ordine è quello dei nomi (01.jpg, 02.jpg ...)."
+      - name: siculo
+        label: "Siculo (Vita mia)"
+        file: content/foto/siculo.json
+        fields:
+          - name: cartella
+            label: Cartella sul Mac
+            widget: string
+            required: false
+            hint: "Percorso dentro porfolio/information_architecture sul Mac, es. 01home/03ricerca_visiva/01faccini. Se la imposti, il Mac aggiorna il sito ogni volta che cambi un file nella cartella (serve la sincronizzazione installata, vedi guida). Lascia vuoto per usare solo le foto caricate qui."
+          - name: copertina
+            label: Copertina
+            widget: image
+            required: false
+            hint: "In alto nella pagina e nella home. Nella cartella del Mac: il file che inizia con cover (o hero), altrimenti il primo."
+          - name: foto
+            label: Foto della pagina
+            label_singular: foto
+            widget: list
+            required: false
+            field: {name: immagine, label: Foto, widget: image}
+            hint: "Nell'ordine in cui le vuoi vedere: trascinale per riordinarle. Nella cartella del Mac l'ordine è quello dei nomi (01.jpg, 02.jpg ...)."
+      - name: vedetta
+        label: "Bohème Vedetta · schermate"
+        file: content/foto/vedetta.json
+        fields:
+          - name: cartella
+            label: Cartella sul Mac
+            widget: string
+            required: false
+            hint: "Percorso dentro porfolio/information_architecture sul Mac, es. 01home/03ricerca_visiva/01faccini. Se la imposti, il Mac aggiorna il sito ogni volta che cambi un file nella cartella (serve la sincronizzazione installata, vedi guida). Lascia vuoto per usare solo le foto caricate qui."
+          - name: copertina
+            label: Copertina
+            widget: image
+            required: false
+            hint: "In alto nella pagina e nella home. Nella cartella del Mac: il file che inizia con cover (o hero), altrimenti il primo."
+          - name: foto
+            label: Foto della pagina
+            label_singular: foto
+            widget: list
+            required: false
+            field: {name: immagine, label: Foto, widget: image}
+            hint: "Nell'ordine in cui le vuoi vedere: trascinale per riordinarle. Nella cartella del Mac l'ordine è quello dei nomi (01.jpg, 02.jpg ...)."
+      - name: coaching
+        label: "Running Coach · schermate"
+        file: content/foto/coaching.json
+        fields:
+          - name: cartella
+            label: Cartella sul Mac
+            widget: string
+            required: false
+            hint: "Percorso dentro porfolio/information_architecture sul Mac, es. 01home/03ricerca_visiva/01faccini. Se la imposti, il Mac aggiorna il sito ogni volta che cambi un file nella cartella (serve la sincronizzazione installata, vedi guida). Lascia vuoto per usare solo le foto caricate qui."
+          - name: copertina
+            label: Copertina
+            widget: image
+            required: false
+            hint: "In alto nella pagina e nella home. Nella cartella del Mac: il file che inizia con cover (o hero), altrimenti il primo."
+          - name: foto
+            label: Foto della pagina
+            label_singular: foto
+            widget: list
+            required: false
+            field: {name: immagine, label: Foto, widget: image}
+            hint: "Nell'ordine in cui le vuoi vedere: trascinale per riordinarle. Nella cartella del Mac l'ordine è quello dei nomi (01.jpg, 02.jpg ...)."
+      - name: about
+        label: "About · ritratto"
+        file: content/foto/about.json
+        fields:
+          - name: cartella
+            label: Cartella sul Mac
+            widget: string
+            required: false
+            hint: "Percorso dentro porfolio/information_architecture sul Mac, es. 01home/03ricerca_visiva/01faccini. Se la imposti, il Mac aggiorna il sito ogni volta che cambi un file nella cartella (serve la sincronizzazione installata, vedi guida). Lascia vuoto per usare solo le foto caricate qui."
+          - name: copertina
+            label: Immagine
+            widget: image
+            required: false
+            hint: "Sostituisce l'immagine sul sito. Nella cartella del Mac: il file che si chiama cover, hero, bg_ o ritratto, altrimenti il primo."
+      - name: archivio
+        label: "Archivio fotografico"
+        file: content/foto/archivio.json
+        fields:
+          - name: cartella
+            label: Cartella sul Mac
+            widget: string
+            required: false
+            hint: "Percorso dentro porfolio/information_architecture sul Mac, es. 01home/03ricerca_visiva/01faccini. Se la imposti, il Mac aggiorna il sito ogni volta che cambi un file nella cartella (serve la sincronizzazione installata, vedi guida). Lascia vuoto per usare solo le foto caricate qui."
+          - name: foto
+            label: Foto da aggiungere all'archivio
+            label_singular: foto
+            widget: list
+            required: false
+            field: {name: immagine, label: Foto, widget: image}
+            hint: "Ogni foto nuova viene numerata dopo l'ultima (0001.jpg, 0002.jpg ...) e compare a caso nella pagina Archivio. Pellicola, luogo e anno si aggiungono nel file img/archivio/archivio.json."

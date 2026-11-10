@@ -6,6 +6,10 @@ Portfolio personale: progetti editoriali, eventi, progetti culturali e un archiv
 
 Versione attuale: https://simonecarducci.figma.site (Figma Sites).
 
+## Modificare il sito
+
+Testi e foto si cambiano dal pannello **https://bohememag.it/portfolio/admin/**: guida in [docs/ADMIN.md](docs/ADMIN.md).
+
 ## Stato
 
 🚧 In fase di progettazione — vedi [docs/ROADMAP.md](docs/ROADMAP.md).

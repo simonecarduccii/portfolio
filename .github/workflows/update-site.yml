@@ -1,0 +1,64 @@
+name: Update site
+
+# After a change from /admin (texts in docs/, photos in content/) or from the Mac folder sync
+# (photos in img/), optimise the photos, rebuild the HTML pages and publish them.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "content/**"
+      - "img/**"
+      - "tools/build_pages.py"
+      - "tools/apply_photos.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: update-site
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pillow pillow-heif
+      - name: Apply photos
+        run: python3 tools/apply_photos.py
+      - name: Build pages
+        run: python3 tools/build_pages.py
+      - name: Check site
+        run: python3 tools/check_site.py
+      - name: Commit generated files
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A img content *.html
+          if git diff --cached --quiet; then
+            echo "Nothing to update"
+            exit 0
+          fi
+          git commit -m "Update pages and photos from admin"
+          for i in 1 2 3 4; do
+            git push origin HEAD:main && echo "pushed=true" >> "$GITHUB_OUTPUT" && exit 0
+            sleep $((i * 3))
+            git pull --rebase origin main
+          done
+          exit 1
+      - name: Publish on GitHub Pages
+        if: steps.commit.outputs.pushed == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds"
