@@ -14,14 +14,14 @@
       "titolo": "Torino 17",
       "anno": "2026",
       "pagina": null,
-      "visibile": true
+      "visibile": false
     },
     {
       "id": "maghreb",
       "titolo": "Maghreb",
       "anno": "2026",
       "pagina": null,
-      "visibile": true
+      "visibile": false
     },
     {
       "id": "place-of-freedom",
