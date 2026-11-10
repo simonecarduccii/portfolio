@@ -188,10 +188,18 @@
     const group = ALL.find((n) => n.homeList);
     group.children = (data.ricerca_visiva || []).map((r) => {
       const doc = r.pagina && window.PROGETTI_FOTO[r.pagina];
-      const n = doc ? window.photoProject(r.pagina, doc, r.titolo) : { id: r.id, title: r.titolo, soon: true };
+      const n = doc ? window.photoProject(r.pagina, doc, r.titolo)
+        : { id: r.id, title: r.titolo, page: "index.html#ricerca-visiva", noPage: true,
+            note: "Questo progetto non ha ancora una pagina: se lo accendi, in home compare la sua scheda con la scritta “foto in arrivo”." };
+      n.switchKey = "rv:" + r.id;
       n.hidden = r.visibile === false;
       return n;
     });
+    // Home sections and the two hero projects can be switched on and off
+    const home = ALL.find((n) => n.id === "home");
+    const hero = ALL.find((n) => n.id === "hero");
+    const sez = data.sezioni || {};
+    [...home.children, ...hero.children].forEach((n) => { n.switchKey = n.id; n.hidden = sez[n.id] === false; });
     ALL = flatten(window.STRUTTURA, null);
     return data;
   }
@@ -199,10 +207,10 @@
   function renderNav() {
     const list = (nodes, depth) => h("ul", { class: "tree d" + depth }, nodes.map((n) => h("li", {},
       h("button", {
-        type: "button", class: "node" + (n.soon ? " soon" : "") + (n.hidden ? " hidden" : "") + (current === n ? " on" : "") + (n.group ? " group" : ""),
-        disabled: n.soon || null, title: n.soon ? "Pagina non ancora creata" : null,
+        type: "button", class: "node" + (n.hidden ? " hidden" : "") + (current === n ? " on" : "") + (n.group ? " group" : ""),
+        title: n.hidden ? "Spento: non compare in home" : null,
         onclick: () => open(n),
-      }, n.title, n.hidden ? h("span", { class: "tag" }, "nascosto") : n.soon ? h("span", { class: "tag" }, "in arrivo") : null),
+      }, n.title, n.hidden ? h("span", { class: "tag" }, "spento") : null),
       n.children ? list(n.children, depth + 1) : null)));
     $("#nav").replaceChildren(list(window.STRUTTURA, 0));
   }
@@ -217,7 +225,7 @@
     const main = $("#main");
     main.replaceChildren(h("p", { class: "muted" }, "Carico…"));
     try {
-      draft = { dirty: false, texts: {}, photos: null, cartella: null };
+      draft = { dirty: false, texts: {}, photos: null, cartella: null, switches: {} };
       const view = await renderElement(node);
       main.replaceChildren(view);
       setPreview(node.page);
@@ -239,6 +247,7 @@
       h("p", { class: "crumbs" }, path.join(" / ")),
       h("h1", {}, node.title),
       node.page ? h("a", { class: "open-page", href: SITE + node.page, target: "_blank", rel: "noopener" }, "Apri la pagina ↗") : null,
+      node.switchKey ? h("div", { class: "head-switch" }, toggle(!node.hidden, (v) => { draft.switches[node.switchKey] = v; markDirty(); }), h("span", {}, "Visibile in home")) : null,
       node.note ? h("p", { class: "note" }, node.note) : null);
 
     const body = h("div", { class: "el-body" });
@@ -247,14 +256,25 @@
     if (node.homeList) body.append(await homePanel());
     else if (node.children) {
       body.append(h("section", { class: "panel" }, h("h2", {}, "Dentro questa sezione"),
-        h("div", { class: "cards" }, node.children.map((c) => h("button", {
-          type: "button", class: "card" + (c.soon ? " soon" : ""), disabled: c.soon || null, onclick: () => open(c),
-        }, cardImage(c), h("span", {}, c.title), c.soon ? h("small", {}, "in arrivo") : null)))));
+        h("div", { class: "cards" }, node.children.map((c) => h("div", { class: "card-wrap" + (c.hidden ? " off" : "") },
+          h("button", { type: "button", class: "card", onclick: () => open(c) }, cardImage(c), h("span", {}, c.title)),
+          c.switchKey ? h("div", { class: "card-switch" }, toggle(!c.hidden, (v, el) => {
+            draft.switches[c.switchKey] = v; el.closest(".card-wrap").classList.toggle("off", !v); markDirty();
+          }), h("span", {}, "In home")) : null)))));
     }
     const bar = h("div", { class: "savebar" },
       h("span", { id: "save-state", class: "muted" }, "Nessuna modifica"),
       h("button", { id: "save", type: "button", class: "primary", disabled: true, onclick: save }, "Salva e pubblica"));
-    return h("div", {}, head, body, (node.photos || node.texts || node.homeList) ? bar : null);
+    const editable = node.photos || node.texts || node.homeList || node.switchKey || (node.children || []).some((c) => c.switchKey);
+    return h("div", {}, head, body, editable ? bar : null);
+  }
+
+  // An on/off switch: a checkbox with role="switch", styled in admin.css
+  function toggle(checked, onChange) {
+    const input = h("input", { type: "checkbox", role: "switch" });
+    input.checked = checked;
+    input.addEventListener("change", () => onChange(input.checked, input));
+    return h("label", { class: "switch" }, input, h("span", { class: "knob", "aria-hidden": "true" }));
   }
 
   function cardImage(c) {
@@ -279,19 +299,17 @@
       title.addEventListener("input", () => { r.titolo = title.value; markDirty(); });
       const year = h("input", { type: "text", value: r.anno, class: "year", "aria-label": "Anno" });
       year.addEventListener("input", () => { r.anno = year.value; markDirty(); });
-      const vis = h("input", { type: "checkbox" });
-      vis.checked = r.visibile !== false;
-      vis.addEventListener("change", () => { r.visibile = vis.checked; li.classList.toggle("off", !vis.checked); markDirty(); });
+      const vis = toggle(r.visibile !== false, (v) => { r.visibile = v; li.classList.toggle("off", !v); markDirty(); });
       const li = h("li", { draggable: "true", class: r.visibile === false ? "off" : null },
         h("span", { class: "grip", title: "Trascina per spostare" }, "⋮⋮"),
         cover && tree[cover] ? h("img", { src: siteUrl(cover), alt: "" }) : h("span", { class: "ph" }, "foto in arrivo"),
         h("div", { class: "home-fields" }, title, year,
-          h("small", {}, r.pagina ? `pagina ${r.pagina}.html` : "senza pagina (in home come “foto in arrivo”)")),
+          h("small", {}, r.pagina ? `pagina ${r.pagina}.html` : "ancora senza pagina")),
         h("div", { class: "ctl" }, h("label", { class: "vis" }, vis, " In home"),
         h("span", { class: "tools" },
           h("button", { type: "button", title: "Su", onclick: () => move(i, i - 1) }, "↑"),
           h("button", { type: "button", title: "Giù", onclick: () => move(i, i + 1) }, "↓"),
-          r.pagina ? h("button", { type: "button", title: "Apri foto e testi", onclick: () => open(ALL.find((n) => n.id === r.pagina)) }, "Apri") : null)));
+          h("button", { type: "button", title: "Apri", onclick: () => open(ALL.find((n) => n.id === (r.pagina || r.id))) }, "Apri"))));
       li.addEventListener("dragstart", (e) => { e.dataTransfer.setData("text/x-home", String(i)); li.classList.add("dragging"); });
       li.addEventListener("dragend", () => li.classList.remove("dragging"));
       li.addEventListener("dragover", (e) => { if (e.dataTransfer.types.includes("text/x-home")) e.preventDefault(); });
@@ -304,7 +322,7 @@
     };
     draw();
     return h("section", { class: "panel" }, h("h2", {}, "Progetti in home"),
-      h("p", { class: "hint" }, "Trascina per cambiare l'ordine della griglia (il primo è in alto a sinistra). Togli la spunta per nasconderlo dalla home. Il titolo è anche quello della pagina del progetto."),
+      h("p", { class: "hint" }, "Trascina per cambiare l'ordine della griglia (il primo è in alto a sinistra). Spegni l'interruttore per toglierlo dalla home. Il titolo è anche quello della pagina del progetto."),
       ul);
   }
 
@@ -491,9 +509,16 @@
           if (text !== before) out[file] = await blobFrom({ text });
         }
         // home grid
-        if (draft.home) {
+        if (draft.home || Object.keys(draft.switches).length) {
           const fresh = JSON.parse(await readText("content/home.json", true) || "{}");
-          const json = JSON.stringify({ ...fresh, ricerca_visiva: draft.home.list }, null, 2) + "\n";
+          const next = { ...fresh, sezioni: { ...(fresh.sezioni || {}) } };
+          if (draft.home) next.ricerca_visiva = draft.home.list;
+          next.ricerca_visiva = (next.ricerca_visiva || []).map((r) => ({ ...r }));
+          for (const [key, v] of Object.entries(draft.switches)) {
+            if (key.startsWith("rv:")) { const r = next.ricerca_visiva.find((x) => x.id === key.slice(3)); if (r) r.visibile = v; }
+            else next.sezioni[key] = v;
+          }
+          const json = JSON.stringify(next, null, 2) + "\n";
           if (json !== texts["content/home.json"]) out["content/home.json"] = await blobFrom({ text: json });
         }
         // Mac folder
@@ -534,7 +559,7 @@
         return out;
       });
       draft.dirty = false;
-      if (draft.home) { await applyHome(); renderNav(); }
+      if (draft.home || Object.keys(draft.switches).length) { await applyHome(); renderNav(); }
       if (!sha) { st.textContent = "Niente da salvare"; return; }
       st.textContent = "Salvato. Il sito si aggiorna in 1-2 minuti…";
       waitPublished(sha, node);
@@ -586,7 +611,7 @@
     await applyHome();
     document.body.classList.add("ready");
     renderNav();
-    const start = ALL.find((n) => n.id === location.hash.slice(1) && !n.soon) || ALL[0];
+    const start = ALL.find((n) => n.id === location.hash.slice(1)) || ALL[0];
     open(start);
   }
 
@@ -613,7 +638,7 @@
   window.addEventListener("beforeunload", (e) => { if (draft && draft.dirty) { e.preventDefault(); e.returnValue = ""; } });
   window.addEventListener("hashchange", () => {
     const n = ALL.find((x) => x.id === location.hash.slice(1));
-    if (n && n !== current && !n.soon) open(n);
+    if (n && n !== current) open(n);
   });
   start();
 })();
