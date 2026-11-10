@@ -73,7 +73,8 @@
   }
 
   targets.forEach(function (t) {
-    show(t);
+    // data-keep: the band starts on its fixed photo; the chevron swaps in archive photos.
+    if (!t.hasAttribute('data-keep')) show(t);
     if (!t.hasAttribute('data-click-next')) return;
     t.setAttribute('role', 'button');
     t.setAttribute('tabindex', '0');

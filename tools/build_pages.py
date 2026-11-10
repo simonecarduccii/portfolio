@@ -22,7 +22,7 @@ EMAIL = "simone.carducci01@gmail.com"
 INSTAGRAM = "https://instagram.com/simonecarduccii"
 LOMO = "https://www.lomography.com/homes/simonecarduccii"
 CV = "assets/cv-simone-carducci.pdf"
-FONTS = "https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+FONTS = "https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Overpass:ital,wght@1,200&display=swap"
 
 CULTURE = [
     {"slug": "boheme", "doc": "boheme-magazine", "title": "Bohème Magazine", "year": "2024",
@@ -171,7 +171,7 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 <meta property="og:title" content="{html.escape(full_title)}">
 <meta property="og:description" content="{html.escape(description)}">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#f7f7f5">
+<meta name="theme-color" content="#fbfbfb">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -182,8 +182,8 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 <a class="skip" href="#main">Vai al contenuto</a>
 <header class="{hc}">
   <a class="brand" href="index.html">Simone Carducci</a>
+  <span class="dash" aria-hidden="true">-</span>
   <span class="tag">Creative development</span>
-  <span class="tag">Editorial, Events &amp; Cultural Projects</span>
   <nav class="nav" aria-label="Menu principale">{nav}</nav>
 </header>
 
@@ -201,17 +201,29 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 
 def footer():
     return f"""<footer class="site-footer">
-  <span>© 2025–2026 Simone Carducci. P.Iva 18337621009 · Testi e fotografie non riproducibili senza autorizzazione.</span>
-  <span class="footer-links"><a href="{INSTAGRAM}" target="_blank" rel="noopener">Instagram</a><a href="mailto:{EMAIL}">Email</a><a href="{CV}" target="_blank">CV</a></span>
+  <a class="footer-cta" href="mailto:{EMAIL}">Scrivimi</a>
+  <a class="footer-email" href="mailto:{EMAIL}">{EMAIL}</a>
+  <div class="footer-cols">
+    <div><h2>Contatti</h2><ul><li><a class="lower" href="mailto:{EMAIL}">{EMAIL}</a></li><li>Roma / Torino</li></ul></div>
+    <div><h2>Altrove</h2><ul><li><a class="ig" href="{INSTAGRAM}" target="_blank" rel="noopener">Instagram</a></li><li><a href="{LOMO}" target="_blank" rel="noopener">Lomography</a></li></ul></div>
+    <div><h2>Sezioni</h2><ul><li><a href="index.html#cultura">Cultura</a></li><li><a href="index.html#ricerca-visiva">Ricerca visiva</a></li><li><a href="archivio.html">Archivio</a></li><li><a href="about.html">About</a></li></ul></div>
+    <div><h2>CV</h2><ul><li><a href="{CV}" target="_blank">↗ Scarica il CV (PDF)</a></li></ul></div>
+  </div>
+  <div class="footer-legal"><span>© 2025-2026 Simone Carducci. Tutti i diritti riservati.</span><span>Developed by me</span><span>P.Iva 18337621009</span></div>
 </footer>"""
 
 
 def band_archive():
-    return """  <a class="band band-bw" href="archivio.html">
-    <div class="media" data-random-photo><span class="ph"></span></div>
+    return f"""  <a class="band band-bw" href="archivio.html">
+    <div class="media bw has-photo"><img src="img/home/archivio.jpg" alt="" loading="lazy"></div>
     <span class="band-text">Archivio</span>
-    <span class="chev" aria-hidden="true">›</span>
+    {chev()}
   </a>"""
+
+
+def chev(tag="span", attrs=' aria-hidden="true"'):
+    svg = '<svg viewBox="0 0 9 43" width="9" height="43" aria-hidden="true"><path d="M.5.5l8 21-8 21" fill="none" stroke="currentColor"/></svg>'
+    return f'<{tag} class="chev"{attrs}>{svg}</{tag}>'
 
 
 _FILM = ["", " f-b", " f-c", " f-d"]
@@ -390,44 +402,45 @@ def build_ai_detail(p):
 def build_home():
     c = contenuti()
     desc = field(c, "Description home")
+    hero = [("boheme", "Bohème Magazine", "since 2023"), ("modi", "Colectivo modì", "2025-2026")]
     hero_items = "".join(
-        f'<li><a href="{p["slug"]}.html" data-cover="img/{p["slug"]}/cover.jpg">{html.escape(p["title"])}<sup class="yr">{p["year"]}</sup></a></li>'
-        for p in reversed(CULTURE))
-    order = ["papa-che-fanno-i-papa", "faccioni", "place-of-freedom", "siculo"]
-    years = {"siculo": "2025", "papa-che-fanno-i-papa": "2025 – in corso", "place-of-freedom": "2025", "faccioni": "2025 – in corso"}
-    by = {p["slug"]: p for p in PHOTO}
-    tiles = "".join(
-        f'<a class="tile" href="{sl}.html">{img(f"img/{sl}/cover.jpg", by[sl]["title"])}'
-        f'<span class="fig-cap"><span>{html.escape(by[sl]["title"])}</span><span>{years[sl]}</span></span></a>'
-        for sl in order)
-    body = f"""  <section class="hero bw" id="cultura" aria-label="Progetti culturali">
-    <div class="media" data-random-photo><span class="ph"></span></div>
+        f'<li><a href="{sl}.html" data-cover="img/{sl}/cover.jpg">{html.escape(t)}<sup class="yr">{y}</sup></a></li>'
+        for sl, t, y in hero)
+    # Figma "Portfolio · v2": six cards; the ones without a page or photo yet are placeholders.
+    cards = [("Torino 17", "2026", None), ("Maghreb", "2026", None), ("Ghei", "2025", None),
+             ("Papà che fanno i papà", "2025", "papa-che-fanno-i-papa"), ("Faccioni", "2025", "faccioni"),
+             ("Vita mia", "2025", None)]
+    tiles = ""
+    for title, year, sl in cards:
+        cap = f'<span class="fig-cap"><span>{html.escape(title)}</span><span>{year}</span></span>'
+        if sl:
+            tiles += f'<a class="tile" href="{sl}.html">{img(f"img/{sl}/cover.jpg", title)}{cap}</a>'
+        else:
+            tiles += f'<div class="tile is-soon"><div class="media soon"><span class="ph">foto in arrivo</span></div>{cap}</div>'
+    next_btn = chev("button", ' type="button" data-band-next aria-label="Un\'altra foto a caso"')
+    body = f"""  <section class="hero hero-full bw" id="cultura" aria-label="Progetti culturali">
+    <div class="media bw has-photo"><img src="img/home/hero.jpg" alt="Fotografia in bianco e nero di Simone Carducci"></div>
     <h1 class="sr-only">Simone Carducci, creative development</h1>
     <ul class="hero-list">{hero_items}</ul>
   </section>
 
   <section class="band band-color">
-    <div class="media" data-random-photo><span class="ph"></span></div>
+    <div class="media has-photo" data-random-photo data-keep><img src="img/home/pellicole.jpg" alt="Fotografia a colori su pellicola di Simone Carducci" loading="lazy"></div>
     <ul class="band-list">
+      <li><a href="archivio.html">Tutto ciò che mi sta intorno</a></li>
       <li><a href="{LOMO}" target="_blank" rel="noopener">Tutte le mie pellicole</a></li>
-      <li><a href="archivio.html#fotografie">Tutto il mio archivio</a></li>
       <li><a href="archivio.html">Tutta la mia vita</a></li>
     </ul>
-    <button class="chev" type="button" data-band-next aria-label="Un'altra foto a caso">›</button>
+    {next_btn}
   </section>
 
-  <section class="research" id="ricerca-visiva">
-    <h2 class="small-title">Ricerca visiva</h2>
-    <div class="stagger">{tiles}</div>
-  </section>
-
-  <section class="research" id="ai">
-    <h2 class="small-title">Progetti con l'AI</h2>
-    {ai_rows()}
+  <section class="research zigzag-wrap" id="ricerca-visiva">
+    <h2 class="research-title">Ricerca visiva</h2>
+    <div class="zigzag">{tiles}</div>
   </section>
 
 {band_archive()}"""
-    page(file="index.html", title=SITE, description=plain(desc), body=body, header="overlay", main_class="flush")
+    page(file="index.html", title=SITE, description=plain(desc), body=body, header="overlay", main_class="flush", body_class="home")
 
 
 ARCHIVE_INDEX = [
@@ -457,8 +470,8 @@ def build_archive():
     body = f"""  <section class="archive-cover bw">
     <div class="media" data-random-photo data-cover-stage><span class="ph"></span></div>
     <h1 class="sr-only">Archivio</h1>
-    <button class="chev chev-left" type="button" data-cover-prev aria-label="Foto precedente">‹</button>
-    <button class="chev" type="button" data-cover-next aria-label="Un'altra foto a caso">›</button>
+    {chev("button", ' type="button" data-cover-prev aria-label="Foto precedente"').replace('class="chev"', 'class="chev chev-left"', 1)}
+    {chev("button", ' type="button" data-cover-next aria-label="Un\'altra foto a caso"')}
     <nav class="archive-index" aria-label="Indice dell'archivio">{cols}</nav>
   </section>
   <section class="archive" id="fotografie">
@@ -504,34 +517,32 @@ def build_about():
         html_blocks.append(f'<div class="about-block"><h2 class="label">{inline(title)}</h2>'
                            + "".join(f"<p{cls}>{inline(x)}</p>" for x in paras) + "</div>")
     rows = re.findall(r"^\| (Ambiti|Competenze|Strumenti|Lingue|Formazione) \| (.+?) \|$", a, re.M)
-    note = draft_note(inline(" ".join(verify))) if verify else ""
-    langs = dict(rows).get("Lingue", "")
-    body = f"""  <section class="p-hero bw">
-    {img("img/about/ritratto.jpg", "Ritratto di Simone Carducci", "Ritratto in arrivo · img/about/ritratto.jpg", eager=True)}
+    rows = [(k, "<br>".join(inline(x) for x in v.split(" · ")) if k == "Formazione" else inline(v)) for k, v in rows]
+    langs = dict(rows).get("Lingue", "").lower()
+    portrait = img("img/about/ritratto.jpg", "Ritratto di Simone Carducci", "Ritratto in arrivo", eager=True)
+    body = f"""  <h1 class="sr-only">Simone Carducci</h1>
+  <section class="about-intro">
+    <div class="about-portrait">{portrait.replace('class="media', 'class="media soon', 1)}</div>
+    <dl class="about-facts">
+      <div><dt>Base</dt><dd>Torino</dd></div>
+      <div><dt>Ambiti</dt><dd>editoria, eventi, progetti culturali, fotografia analogica</dd></div>
+      <div><dt>Contatti</dt><dd><a href="mailto:{EMAIL}">{EMAIL}</a></dd></div>
+      <div><dt>Lingue</dt><dd>{langs}</dd></div>
+    </dl>
   </section>
-  <div class="p-title-row"><h1 class="p-title">Simone Carducci</h1></div>
-  <div class="p-facts-wrap"><dl class="p-facts">
-    <div class="fact"><dt>Base</dt><dd>Torino</dd></div>
-    <div class="fact"><dt>Ambiti</dt><dd>Editoria, eventi, progetti culturali, fotografia analogica</dd></div>
-    <div class="fact"><dt>Contatti</dt><dd><a href="mailto:{EMAIL}">{EMAIL}</a></dd></div>
-    <div class="fact"><dt>Lingue</dt><dd>{inline(langs)}</dd></div>
-  </dl></div>
-  <section class="about-statement">
-    {note}
-    <p>{inline(statement)}</p>
-  </section>
-  <section class="about-blocks">
+  <section class="about-text">
+    <p class="about-statement">{inline(statement)}</p>
     {chr(10).join(html_blocks)}
   </section>
   <section class="about-data">
-    <dl>{"".join(f'<div><dt class="label">{k}</dt><dd>{inline(v)}</dd></div>' for k, v in rows)}</dl>
+    <dl>{"".join(f'<div><dt class="label">{k}</dt><dd>{v}</dd></div>' for k, v in rows)}</dl>
   </section>
   <section class="about-links">
     <a href="{CV}" target="_blank">CV (PDF)</a>
     <a href="mailto:{EMAIL}">Scrivimi</a>
   </section>
 {band_archive()}"""
-    page(file="about.html", title="About", description=plain(field(c, "Description About") or bio_short), body=body, current="about", header="overlay", main_class="flush")
+    page(file="about.html", title="About", description=plain(field(c, "Description About") or bio_short), body=body, current="about", main_class="flush", body_class="about-page")
 
 
 def main():
