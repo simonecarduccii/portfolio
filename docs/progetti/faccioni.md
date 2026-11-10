@@ -4,10 +4,10 @@ Testi segnaposto (lorem ipsum): servono a fissare struttura e lunghezze. Simone 
 
 - **Anno:** 2025 – in corso
 - **Fotografia:** Simone Carducci
-- **Supporto:** Pellicola
-- **Fotocamera:** Lorem ipsum
+- **Supporto:** Pellicole varie
+- **Fotocamera:** Leica CL, Chinon Auto 3001
 - **Pellicola:** Lorem ipsum
-- **Luogo:** Lorem ipsum
+- **Luogo:** Europa
 - **Immagine di copertina:** img/faccioni/cover.jpg
 
 ## Intro in testata (max 40 parole)
