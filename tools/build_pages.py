@@ -405,7 +405,7 @@ def build_home():
     desc = field(c, "Description home")
     hero = [("boheme", "Bohème Magazine", "since 2023"), ("modi", "Colectivo modì", "2025-2026")]
     hero_items = "".join(
-        f'<li><a href="{sl}.html" data-cover="img/{sl}/cover.jpg">{html.escape(t)}<sup class="yr">{y}</sup></a></li>'
+        f'<li><a href="{sl}.html" data-cover="img/home/hero_{sl}.jpg">{html.escape(t)}<sup class="yr">{y}</sup></a></li>'
         for sl, t, y in hero)
     # Figma "Portfolio · v2": six cards; the ones without a page or photo yet are placeholders.
     cards = [("Torino 17", "2026", None), ("Maghreb", "2026", None), ("Ghei", "2025", None),
