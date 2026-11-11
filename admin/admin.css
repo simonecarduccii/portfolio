@@ -318,3 +318,6 @@ body.no-preview .preview { display: none; }
 .seo-card small { color: var(--ink-2); font-size: 11px; text-transform: uppercase; }
 .seo-card strong { font-size: 14px; }
 @media (max-width: 900px) { .seo-previews { grid-template-columns: 1fr; } }
+.icon-field { display: flex; align-items: center; gap: 16px; }
+.icon-preview { display: flex; align-items: flex-end; gap: 10px; }
+.icon-preview img { border: 1px solid #e4e4e4; border-radius: 4px; background: #fff; }

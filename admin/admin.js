@@ -934,6 +934,8 @@ Fotografie e testo: Simone Carducci · ${year}
   // the page an element has of its own (not the home, not a section of it)
   const pageSlug = (n) => (n && n.page && !n.noPage && !n.page.includes("#") && n.page !== "index.html" ? n.page.replace(/\.html$/, "") : null);
   const SITO_FORM = [
+    { title: "Scheda del browser", hint: "Il titolo che compare nella scheda del browser sulla home (e su Google, se non lo cambi in “Google e condivisione” della Home). Le altre pagine mostrano “Nome pagina — Simone Carducci”. Vuoto = Simone Carducci — Creative Development.", fields: [
+      ["scheda.titolo", "Titolo della home", "Simone Carducci — Creative Development"]] },
     { title: "Contatti e link", hint: "Valgono in tutto il sito: footer, About, link di Lomography. Lascia LinkedIn vuoto per non mostrarlo.", fields: [
       ["contatti.email", "Email"], ["contatti.instagram", "Instagram (indirizzo completo)"],
       ["contatti.lomography", "Lomography (indirizzo completo)"], ["contatti.linkedin", "LinkedIn (indirizzo completo)"]] },
@@ -951,6 +953,49 @@ Fotografie e testo: Simone Carducci · ${year}
     const ks = path.split("."), last = ks.pop();
     ks.reduce((x, k) => (x[k] = x[k] && typeof x[k] === "object" ? x[k] : {}), o)[last] = v;
   };
+
+  // Tab icon: content/icona/icona.png (512 × 512, cropped to a square from the middle). Without it the site uses
+  // the black SC monogram in assets/ (favicon.svg, favicon-32.png, apple-touch-icon.png).
+  const ICON_FILE = "content/icona/icona.png";
+  function squarePng(file, side) {
+    return new Promise((ok, ko) => {
+      const img = new Image();
+      img.onload = () => {
+        const c = document.createElement("canvas"); c.width = c.height = side;
+        const s = Math.min(img.naturalWidth || side, img.naturalHeight || side);
+        const sx = ((img.naturalWidth || s) - s) / 2, sy = ((img.naturalHeight || s) - s) / 2;
+        c.getContext("2d").drawImage(img, sx, sy, s, s, 0, 0, side, side);
+        c.toBlob((b) => (b ? ok(b) : ko(new Error("png"))), "image/png");
+        URL.revokeObjectURL(img.src);
+      };
+      img.onerror = () => ko(new Error("img"));
+      img.src = URL.createObjectURL(file);
+    });
+  }
+  function iconField() {
+    draft.icona = null;
+    const box = h("div", { class: "icon-field" });
+    const render = () => {
+      const custom = draft.icona ? (draft.icona.remove ? null : draft.icona.url) : tree[ICON_FILE] ? siteUrl(ICON_FILE) : null;
+      const src = custom || siteUrl("assets/favicon.svg");
+      const inp = h("input", { type: "file", accept: "image/png,image/jpeg,image/svg+xml,image/webp", hidden: "" });
+      inp.addEventListener("change", async () => {
+        const f = inp.files[0]; if (!f) return;
+        try { const blob = await squarePng(f, 512); draft.icona = { blob, url: URL.createObjectURL(blob) }; render(); markDirty(); }
+        catch (e) { alert(`Non riesco a leggere “${f.name}”: usa un PNG, un JPEG o un SVG.`); }
+      });
+      box.replaceChildren(
+        h("div", { class: "icon-preview" }, h("img", { src, alt: "Icona attuale", width: "64", height: "64" }),
+          h("img", { src, alt: "", width: "16", height: "16" })),
+        h("div", {},
+          h("span", { class: "muted" }, custom ? (draft.icona ? "Icona nuova (si pubblica al salvataggio)" : "Icona caricata da te") : "Logo SC nero (predefinito)"),
+          h("div", { class: "photo-btns" },
+            h("label", { class: "btn small" }, inp, "Carica un'icona"),
+            custom ? h("button", { type: "button", class: "btn small", onclick: () => { draft.icona = tree[ICON_FILE] ? { remove: true } : null; render(); markDirty(); } }, "Torna al logo SC") : null)));
+    };
+    render();
+    return h("div", { class: "field" }, h("span", {}, "Icona della scheda (quadrata, almeno 180 × 180, ritagliata al centro)"), box);
+  }
 
   // ---------------------------------------------------------------- global style
   // content/sito.json "stile": {font, colori: {sfondo, testo, testo_secondario, linee, footer_sfondo}, testo: %, spazi: %}.
@@ -1041,13 +1086,15 @@ Fotografie e testo: Simone Carducci · ${year}
     const wrap = h("div", {});
     SITO_FORM.forEach((g) => {
       const panel = h("section", { class: "panel" }, h("h2", {}, g.title), g.hint ? h("p", { class: "hint" }, g.hint) : null);
-      g.fields.forEach(([path, label]) => {
+      g.fields.forEach(([path, label, placeholder]) => {
         const id = "s" + path.replace(/\W/g, "-");
         const input = h("input", { id, type: path.endsWith("email") ? "email" : path.startsWith("contatti.") && !path.endsWith("email") ? "url" : "text" });
+        if (placeholder) input.placeholder = placeholder;
         input.value = getPath(data, path) || "";
         input.addEventListener("input", () => { draft.sito[path] = input.value.trim(); markDirty(); });
         panel.append(h("label", { class: "field", for: id }, h("span", {}, label), input));
       });
+      if (g.title === "Scheda del browser") panel.append(iconField());
       wrap.append(panel);
     });
     wrap.append(stylePanel(data));
@@ -1510,6 +1557,10 @@ Fotografie e testo: Simone Carducci · ${year}
         if (draft.builder) await builderChanges(out);
         if (draft.foci) await libraryChanges(out);
         if (draft.seo) await seoChanges(out);
+        if (draft.icona) {
+          if (draft.icona.remove) { if (tree[ICON_FILE]) out[ICON_FILE] = null; }
+          else out[ICON_FILE] = draft.icona.sha || (draft.icona.sha = await blobFrom({ blob: draft.icona.blob }));
+        }
         // facts at the top of the page
         if (draft.facts && draft.facts.dirty) {
           const righe = draft.facts.rows.map((r) => ({ etichetta: r.etichetta.trim(), valore: r.valore.trim(), link: r.link.trim() }))
