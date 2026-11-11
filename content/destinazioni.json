@@ -50,5 +50,9 @@
   "albania-coast-to-coast": {
     "tipo": "serie",
     "destinazione": "img/albania-coast-to-coast"
+  },
+  "torino-17": {
+    "tipo": "serie",
+    "destinazione": "img/torino-17"
   }
 }
