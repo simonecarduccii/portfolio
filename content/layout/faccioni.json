@@ -1,37 +1,4 @@
 {
   "copertina": false,
-  "foto": [
-    {"dim":"media","pos":"sinistra"},
-    {"dim":"media","pos":"destra"},
-    {"dim":"media","pos":"sinistra"},
-    {"dim":"media","pos":"destra"},
-    {"dim":"media","pos":"sinistra"},
-    {"dim":"media","pos":"destra"},
-    {"dim":"media","pos":"sinistra"},
-    {"dim":"media","pos":"destra"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"},
-    {"dim":"media","pos":"centro"}
-  ]
+  "layout": "alternato"
 }
