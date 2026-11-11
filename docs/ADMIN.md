@@ -151,3 +151,5 @@ Quando il Mac invia delle foto compare una notifica "Portfolio".
   (`~/Library/LaunchAgents/it.bohememag.portfolio-sync.plist`); il token è nel Portachiavi, voce `portfolio-sync`.
   Toglie dal sito solo le foto che ha mandato lei: quelle aggiunte dal pannello restano.
 - Le pagine fotografiche mostrano tante foto quante sono in `img/<pagina>/` (12 segnaposto finché non ce n'è nessuna).
+
+**Foto sostituite.** Quando cambi una foto che mantiene lo stesso nome (es. il ritratto dell'About), il pannello per 15 minuti la mostra direttamente da GitHub, così la vedi subito anche se il sito non è ancora aggiornato. Le pagine del sito chiamano ogni foto con un codice della sua versione (`ritratto.jpg?v=…`): appena il sito si aggiorna, il browser scarica la foto nuova invece di mostrare quella vecchia salvata in memoria.
