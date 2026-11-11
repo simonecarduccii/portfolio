@@ -19,34 +19,50 @@ ROOT = Path(__file__).resolve().parent.parent
 DOCS = ROOT / "docs"
 
 SITE = "Simone Carducci"
-EMAIL = "simone.carducci01@gmail.com"
-INSTAGRAM = "https://instagram.com/simonecarduccii"
-LOMO = "https://www.lomography.com/homes/simonecarduccii"
-LINKEDIN = None  # URL still to come from Simone; the footer shows LinkedIn only once this is set
+# Site settings edited in /admin ("Impostazioni"): contacts, footer, culture and AI titles and years.
+_f = ROOT / "content" / "sito.json"
+SITO = __import__("json").loads(_f.read_text(encoding="utf-8")) if _f.exists() else {}
+_k = SITO.get("contatti", {})
+EMAIL = _k.get("email") or "simone.carducci01@gmail.com"
+INSTAGRAM = _k.get("instagram") or "https://instagram.com/simonecarduccii"
+LOMO = _k.get("lomography") or "https://www.lomography.com/homes/simonecarduccii"
+LINKEDIN = _k.get("linkedin") or None  # the footer shows LinkedIn only once this is set
+FOOT = {"copyright": "© 2025-2026 Simone Carducci. Tutti i diritti riservati.", "credito": "Developed by me",
+        "piva": "P.Iva 18337621009", **{k: v for k, v in SITO.get("footer", {}).items() if isinstance(v, str)}}
 CV = "assets/cv-simone-carducci.pdf"
 FONTS = "https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
 
 CULTURE = [
-    {"slug": "boheme", "doc": "boheme-magazine", "title": "Bohème Magazine", "year": "2024",
-     "visit": "https://instagram.com/bohememag", "visit_label": "Instagram"},
-    {"slug": "modi", "doc": "colectivo-modi", "title": "Colectivo modì", "year": "2026",
-     "visit": None, "two_col": ["Una serata, ripresa per intero", "Le serie"]},
+    {"slug": "boheme", "doc": "boheme-magazine", "title": "Bohème Magazine", "year": "2024", "home_year": "since 2023"},
+    {"slug": "modi", "doc": "colectivo-modi", "title": "Colectivo modì", "year": "2026", "home_year": "2025-2026"},
 ]
 AI = [
-    {"slug": "vedetta", "doc": "ai-boheme-vedetta", "title": "Bohème Vedetta",
-     "what": "Trova, legge e verifica i bandi per artisti.", "tools": "Python · Supabase · Claude",
-     "year": "2026", "status": "Attivo"},
-    {"slug": "coaching", "doc": "ai-coaching-corsa", "title": "Running Coach",
-     "what": "Prepara e corregge il mio piano di corsa, io approvo.", "tools": "Claude · Intervals.icu",
-     "year": "2026", "status": "In sviluppo"},
-    {"slug": None, "title": "Lettura",
-     "what": "Uno strumento di lettura per una persona della mia famiglia.", "tools": "—",
-     "year": "2026", "status": "private"},
+    {"key": "vedetta", "slug": "vedetta", "doc": "ai-boheme-vedetta", "title": "Bohème Vedetta",
+     "what": "Trova, legge e verifica i bandi per artisti.", "year": "2026", "status": "Attivo"},
+    {"key": "coaching", "slug": "coaching", "doc": "ai-coaching-corsa", "title": "Running Coach",
+     "what": "Prepara e corregge il mio piano di corsa, io approvo.", "year": "2026", "status": "In sviluppo"},
+    {"key": "lettura", "slug": None, "title": "Lettura",
+     "what": "Uno strumento di lettura per una persona della mia famiglia.", "year": "2026", "status": "private"},
 ]
+# same keys in content/sito.json (Italian names, as in /admin)
+for _p in CULTURE:
+    for _a, _b in (("titolo", "title"), ("anno", "year"), ("anno_home", "home_year")):
+        _v = SITO.get("cultura", {}).get(_p["slug"], {}).get(_a)
+        if isinstance(_v, str) and _v.strip():
+            _p[_b] = _v.strip()
+for _p in AI:
+    for _a, _b in (("titolo", "title"), ("cosa", "what"), ("anno", "year"), ("stato", "status")):
+        _v = SITO.get("ai", {}).get(_p["key"], {}).get(_a)
+        if isinstance(_v, str) and _v.strip() and (_p["slug"] or _b != "status"):  # private tools keep their badge
+            _p[_b] = _v.strip()
 # Home "Ricerca visiva": order, visibility, title and year of each photo project, edited in /admin.
 HOME = __import__("json").loads((ROOT / "content" / "home.json").read_text(encoding="utf-8"))
 RESEARCH = HOME["ricerca_visiva"]
 ON = HOME.get("sezioni", {})  # home sections switched on/off in /admin; missing = on
+# Order of the home sections under the hero, edited in /admin; unknown keys are dropped, missing ones go last.
+HOME_SECTIONS = ["pellicole", "ricerca-visiva", "ia", "banda-archivio"]
+ORDER = [k for k in HOME.get("ordine", []) if k in HOME_SECTIONS]
+ORDER += [k for k in HOME_SECTIONS if k not in ORDER]
 
 
 def on(key):
@@ -270,7 +286,7 @@ def footer():
     <div><h2>Sezioni</h2><ul><li><a href="index.html#cultura">Cultura</a></li><li><a href="index.html#ricerca-visiva">Ricerca visiva</a></li><li><a href="archivio.html">Archivio</a></li><li><a href="about.html">About</a></li></ul></div>
     <div><h2>CV</h2><ul><li><a href="{CV}" target="_blank">Scarica il CV (PDF)</a></li></ul></div>
   </div>
-  <div class="footer-legal"><span>© 2025-2026 Simone Carducci. Tutti i diritti riservati.</span><span>Developed by me</span><span>P.Iva 18337621009</span></div>
+  <div class="footer-legal">{"".join(f"<span>{html.escape(FOOT[k])}</span>" for k in ("copyright", "credito", "piva") if FOOT[k].strip())}</div>
 </footer>"""
 
 
@@ -357,7 +373,7 @@ def build_culture(i, p):
     body = f"""  <section class="p-hero bw">
     {img(f"img/{s}/cover.jpg", p["title"], eager=True)}
   </section>
-  <div class="p-title-row"><h1 class="p-title">{html.escape(p["title"])}<sup class="yr">{p["year"]}</sup></h1></div>
+  <div class="p-title-row"><h1 class="p-title">{html.escape(p["title"])}<sup class="yr">{html.escape(p["year"])}</sup></h1></div>
   <div class="p-facts-wrap">{facts_html}</div>
   <section class="p-body">
     {draft_note() if "DA VERIFICARE" in " ".join(paras) else ""}
@@ -429,7 +445,7 @@ def ai_rows():
     for p in AI:
         if p["slug"]:
             out.append(f'<li><a href="{p["slug"]}.html"><span class="t">{html.escape(p["title"])}</span>'
-                       f'<span class="what">{html.escape(p["what"])}</span><span class="s">{html.escape(p["status"])} · {p["year"]}</span></a></li>')
+                       f'<span class="what">{html.escape(p["what"])}</span><span class="s">{html.escape(p["status"])} · {html.escape(p["year"])}</span></a></li>')
         else:
             out.append(f'<li class="is-private"><span class="t">{html.escape(p["title"])}</span>'
                        f'<span class="what">{html.escape(p["what"])}</span><span class="s badge-private">Privato</span></li>')
@@ -483,9 +499,9 @@ def fmt_style(fmt):
 def build_home():
     c = contenuti()
     desc = field(c, "Description home")
-    hero = [h for h in [("boheme", "Bohème Magazine", "since 2023"), ("modi", "Colectivo modì", "2025-2026")] if on(h[0])]
+    hero = [(p["slug"], p["title"], p["home_year"]) for p in CULTURE if on(p["slug"])]
     hero_items = "".join(
-        f'<li><a href="{sl}.html" data-cover="img/{sl}/cover.jpg">{html.escape(t)}<sup class="yr">{y}</sup></a></li>'
+        f'<li><a href="{sl}.html" data-cover="img/{sl}/cover.jpg">{html.escape(t)}<sup class="yr">{html.escape(y)}</sup></a></li>'
         for sl, t, y in hero)
     # Figma "Portfolio · v2": six cards; the ones without a page or photo yet are placeholders.
     cards = [(r["titolo"], r["anno"], r.get("pagina"), fmt_style(r.get("formato"))) for r in RESEARCH if r.get("visibile", True)]
@@ -506,8 +522,9 @@ def build_home():
   </section>""")
     else:
         parts.append('  <h1 class="sr-only">Simone Carducci, creative development</h1>')
+    sec = {}
     if on("pellicole"):
-        parts.append(f"""  <section class="band band-color">
+        sec["pellicole"] = (f"""  <section class="band band-color">
     <div class="media has-photo" data-random-photo data-keep><img src="img/home/pellicole.jpg" alt="Fotografia a colori su pellicola di Simone Carducci" loading="lazy"></div>
     <a class="band-link" href="{LOMO}" target="_blank" rel="noopener" aria-label="Tutte le mie pellicole su Lomography"></a>
     <ul class="band-list">
@@ -518,17 +535,18 @@ def build_home():
     {next_btn}
   </section>""")
     if on("ricerca-visiva") and tiles:
-        parts.append(f"""  <section class="research zigzag-wrap" id="ricerca-visiva">
+        sec["ricerca-visiva"] = (f"""  <section class="research zigzag-wrap" id="ricerca-visiva">
     <h2 class="research-title">Ricerca visiva</h2>
     <div class="zigzag">{tiles}</div>
   </section>""")
     if on("ia"):
-        parts.append(f"""  <section class="list-wrap" id="ai">
+        sec["ia"] = (f"""  <section class="list-wrap" id="ai">
     <h2 class="small-title"><a href="ai.html">Progetti con l'AI</a></h2>
     {ai_rows()}
   </section>""")
     if on("banda-archivio"):
-        parts.append(band_archive())
+        sec["banda-archivio"] = band_archive()
+    parts += [sec[k] for k in ORDER if k in sec]
     body = "\n\n".join(parts)
     page(file="index.html", title=SITE, description=plain(desc), body=body, header="overlay", main_class="flush", body_class="home")
 

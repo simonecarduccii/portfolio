@@ -83,6 +83,10 @@ window.STRUTTURA = [
     ],
   },
   {
+    id: "impostazioni", title: "Impostazioni", page: "index.html", settings: true,
+    note: "Le parti che compaiono in più pagine: contatti e link del footer, titoli e anni dei progetti culturali, le righe dei progetti con l'AI.",
+  },
+  {
     id: "about", title: "About", page: "about.html", cartella: "about",
     photos: { kind: "singola", file: "img/about/ritratto.jpg", cover: "Ritratto" },
     texts: [
