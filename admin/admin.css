@@ -93,10 +93,17 @@ body.no-preview .preview { display: none; }
 .seq.lay { grid-template-columns: 1fr; max-width: 280px; gap: 5px; padding: 12px 10px; background: #fff; border: 1px solid var(--rule); border-radius: 10px; }
 .seq.lay li { aspect-ratio: 3 / 2; width: 42%; justify-self: center; border-radius: 3px; }
 .seq.lay-alternato li { width: 50%; justify-self: start; }
-.seq.lay-alternato li:nth-child(even) { justify-self: end; }
+.seq.lay-alternato li.alt { justify-self: end; }
 .seq.lay-griglia, .seq.lay-ritmo { grid-template-columns: 1fr 1fr; }
 .seq.lay-griglia li, .seq.lay-grande li, .seq.lay-ritmo li { width: 100%; }
-.seq.lay-ritmo li:nth-child(3n + 1) { grid-column: 1 / -1; }
+.seq.lay-ritmo li.wide { grid-column: 1 / -1; }
+.seq.lay li.text { grid-column: 1 / -1; width: 100%; aspect-ratio: auto; justify-self: stretch; background: #f6f6f4; border: 1px dashed #ccc; padding: 4px 6px 6px; cursor: grab; display: grid; gap: 4px; }
+.seq.lay li.text .grip { font-size: 10px; color: var(--ink-2); letter-spacing: .04em; text-transform: uppercase; }
+.seq.lay li.text textarea { width: 100%; font: inherit; font-size: 12px; line-height: 1.4; border: 1px solid var(--rule); border-radius: 4px; padding: 4px 6px; resize: vertical; background: #fff; cursor: text; }
+.seq.lay li.text .text-tools { display: flex; gap: 3px; justify-content: flex-end; }
+.seq.lay li.text .text-tools button { border: 1px solid var(--rule); background: #fff; border-radius: 4px; width: 22px; height: 20px; font-size: 11px; cursor: pointer; }
+.seq.lay li.add { display: flex; justify-content: center; gap: 8px; align-items: center; }
+.seq.lay li.add .add-text { font: inherit; font-size: 13px; color: var(--ink-2); border: 0; background: none; cursor: pointer; padding: 10px; }
 .seq.lay li.add { grid-column: 1 / -1; width: 100%; aspect-ratio: auto; justify-self: stretch; }
 .seq.lay li.add label { padding: 10px; }
 .seq.lay .num { font-size: 10px; left: 4px; top: 4px; }
@@ -212,3 +219,4 @@ body.no-preview .preview { display: none; }
 
 .old-version { position: fixed; z-index: 50; left: 50%; top: 12px; transform: translateX(-50%); background: #fff3c4; border: 1px solid #e0c35a; border-radius: 10px; padding: 10px 14px; font-size: 14px; box-shadow: 0 4px 16px rgba(0,0,0,.12); }
 .old-version button { font: inherit; font-weight: 600; border: 1px solid var(--ink); border-radius: 999px; padding: 3px 12px; background: #fff; cursor: pointer; }
+.field[hidden] { display: none; }

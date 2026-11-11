@@ -152,7 +152,8 @@
     const lines = text.split("\n");
     if (f.meta) {
       const n = metaLine(lines, f.meta, f.in);
-      return n < 0 ? null : lines[n].replace(/^\s*- \*\*[^*]+:\*\*\s?/, "");
+      if (n < 0) return f.optional ? "" : null; // optional line: added on save after the line named in f.after
+      return lines[n].replace(/^\s*- \*\*[^*]+:\*\*\s?/, "");
     }
     const r = sectionRange(lines, f.section);
     return r ? lines.slice(r[0] + 1, r[1]).join("\n").trim() : null;
@@ -161,7 +162,12 @@
   function setField(text, f, value) {
     const lines = text.split("\n");
     if (f.meta) {
-      const n = metaLine(lines, f.meta, f.in);
+      let n = metaLine(lines, f.meta, f.in);
+      if (n < 0 && f.optional && value.trim()) {
+        const after = f.after ? metaLine(lines, f.after, f.in) : -1;
+        n = after >= 0 ? after + 1 : lines.findIndex((l) => /^\s*- \*\*[^*]+:\*\*/.test(l)) + 1;
+        lines.splice(n, 0, `- **${f.meta}:**`);
+      }
       if (n < 0) return text;
       lines[n] = lines[n].match(/^\s*- \*\*[^*]+:\*\*/)[0] + " " + value.replace(/\n+/g, " ").trim();
       return lines.join("\n");
@@ -851,12 +857,21 @@ Fotografie e testo: Simone Carducci · ${year}
           ? h("textarea", { id, rows: f.rows || Math.min(12, Math.ceil(value.length / 70) + 1) })
           : h("input", { id, type: "text" });
         input.value = value;
+        if (f.meta) input.dataset.meta = f.meta;
         input.addEventListener("input", () => { draft.texts[file + "\u0000" + (f.meta || f.section) + "\u0000" + (f.in || "")] = { f, value: input.value }; markDirty(); });
-        panel.append(h("label", { class: "field", for: id }, h("span", {}, f.label), input,
+        panel.append(h("label", { class: "field", for: id, "data-hide-meta": f.hideIf ? f.hideIf[0] : null, "data-hide-re": f.hideIf ? f.hideIf[1].source : null }, h("span", {}, f.label), input,
           /\[DA VERIFICARE/.test(value) ? h("small", { class: "verify" }, "Contiene una nota [DA VERIFICARE], evidenziata sul sito finché non la togli.") : null));
       }
     }
-    panel.append(h("p", { class: "hint" }, "**grassetto**, _corsivo_, [testo del link](https://...). Un rigo vuoto separa i paragrafi."));
+    // a field that does not apply (e.g. Pellicola when Supporto is Digitale) is hidden while that is true
+    panel.querySelectorAll("[data-hide-meta]").forEach((label) => {
+      const src = panel.querySelector(`[data-meta="${label.dataset.hideMeta}"]`);
+      if (!src) return;
+      const re = new RegExp(label.dataset.hideRe, "i");
+      const sync = () => { label.hidden = re.test(src.value); };
+      src.addEventListener("input", sync); sync();
+    });
+    panel.append(h("p", { class: "hint" }, "**grassetto**, _corsivo_, [testo del link](https://...). Un rigo vuoto separa i paragrafi. Un campo vuoto (o “–”) non compare sul sito."));
     return panel;
   }
 
@@ -887,6 +902,14 @@ Fotografie e testo: Simone Carducci · ${year}
       state.schema = Array.isArray(layout.schema) ? layout.schema : null;
       const known = LAYOUTS.some((l) => l.id === layout.layout) || MINE.some((l) => l.id === layout.layout) || (layout.layout === "casuale" && state.schema);
       state.layout = known ? layout.layout : LAYOUTS[0].id;
+      // texts between the photos: {dopo: photos before it, testo}
+      const tx = (Array.isArray(layout.testi) ? layout.testi : []).filter((t) => t && typeof t.testo === "string")
+        .map((t) => ({ dopo: Math.max(0, Math.min(state.seq.length, parseInt(t.dopo, 10) || 0)), testo: t.testo }));
+      for (let k = tx.length - 1; k >= 0; k--) {
+        let at = 0, seen = 0;
+        while (at < state.seq.length && seen < tx[k].dopo) { if (!state.seq[at].text) seen++; at++; }
+        state.seq.splice(at, 0, { text: true, testo: tx[k].testo });
+      }
     }
     draft.photos = { node, state, coverPath, layout };
 
@@ -913,28 +936,52 @@ Fotografie e testo: Simone Carducci · ${year}
       const draw = () => {
         const schema = ph.layout && schemaOf(state);
         grid.className = !ph.layout ? "seq" : schema ? "seq lay lay-custom" : `seq lay lay-${state.layout}`;
-        const places = schema ? placeAll(schema, state.seq.length) : [];
+        // texts split the photos into runs; on the site each run starts the layout again
+        const pos = [];
+        let k = 0, row = 0, maxRow = 0, photoNo = 0;
+        const runPlaces = (from) => { let n = 0; for (let j = from; j < state.seq.length && !state.seq[j].text; j++) n++; return schema ? placeAll(schema, n) : []; };
+        let places = runPlaces(0);
+        state.seq.forEach((it, j) => {
+          if (it.text) { row = maxRow + 1; maxRow = row; pos.push({ row }); k = 0; places = runPlaces(j + 1); return; }
+          const pl = places[k];
+          if (pl) maxRow = Math.max(maxRow, row + pl[2]);
+          pos.push({ k, pl, row, n: ++photoNo }); k++;
+        });
         grid.replaceChildren(...state.seq.map((it, i) => {
-          const li = h("li", { draggable: "true", style: places[i] ? `grid-column: ${places[i][0]} / span ${places[i][1]}; grid-row: ${places[i][2]}` : null },
+          const at = pos[i];
+          const drag = (li) => {
+            li.addEventListener("dragstart", (e) => { e.dataTransfer.setData("text/x-seq", String(i)); li.classList.add("dragging"); });
+            li.addEventListener("dragend", () => li.classList.remove("dragging"));
+            li.addEventListener("dragover", (e) => { if (e.dataTransfer.types.includes("text/x-seq")) e.preventDefault(); });
+            li.addEventListener("drop", (e) => { const from = e.dataTransfer.getData("text/x-seq"); if (from === "") return; e.preventDefault(); e.stopPropagation(); move(+from, i); });
+            return li;
+          };
+          if (it.text) {
+            const ta = h("textarea", { rows: 3, placeholder: "Testo tra le foto…", "aria-label": "Testo tra le foto" });
+            ta.value = it.testo || "";
+            ta.addEventListener("input", () => { it.testo = ta.value; markDirty(); });
+            return drag(h("li", { class: "text", draggable: "true", style: schema ? `grid-row: ${at.row}` : null },
+              h("span", { class: "grip", title: "Trascina per spostare" }, "⋮⋮ testo"), ta,
+              h("span", { class: "text-tools" },
+                h("button", { type: "button", title: "Prima", onclick: () => move(i, i - 1) }, "↑"),
+                h("button", { type: "button", title: "Dopo", onclick: () => move(i, i + 1) }, "↓"),
+                h("button", { type: "button", title: "Togli il testo", onclick: () => { state.seq.splice(i, 1); draw(); markDirty(); } }, "×"))));
+          }
+          const cls = [at.k % 2 ? "alt" : "", at.k % 3 === 0 ? "wide" : ""].filter(Boolean).join(" ");
+          const li = h("li", { draggable: "true", class: cls || null, style: at.pl ? `grid-column: ${at.pl[0]} / span ${at.pl[1]}; grid-row: ${at.row + at.pl[2]}` : null },
             h("img", { src: it.url, alt: "" }),
-            h("span", { class: "num" }, String(i + 1).padStart(2, "0")),
+            h("span", { class: "num" }, String(at.n).padStart(2, "0")),
             h("span", { class: "tools" },
               h("button", { type: "button", title: "Prima", onclick: () => move(i, i - 1) }, "←"),
               h("button", { type: "button", title: "Dopo", onclick: () => move(i, i + 1) }, "→"),
               h("button", { type: "button", title: "Usa come copertina", onclick: () => { state.cover = { ...it }; drawCover(); markDirty(); } }, "★"),
               h("button", { type: "button", title: "Togli", onclick: () => { state.seq.splice(i, 1); draw(); markDirty(); } }, "×")),
           );
-          li.addEventListener("dragstart", (e) => { e.dataTransfer.setData("text/x-seq", String(i)); li.classList.add("dragging"); });
-          li.addEventListener("dragend", () => li.classList.remove("dragging"));
-          li.addEventListener("dragover", (e) => { if (e.dataTransfer.types.includes("text/x-seq")) e.preventDefault(); });
-          li.addEventListener("drop", (e) => {
-            const from = e.dataTransfer.getData("text/x-seq");
-            if (from === "") return;
-            e.preventDefault(); e.stopPropagation(); move(+from, i);
-          });
-          return li;
-        }), h("li", { class: "add" }, h("label", {}, "+ Aggiungi foto",
-          h("input", { type: "file", accept: "image/*", multiple: true, hidden: true, onchange: (e) => addFiles(e.target.files) }))));
+          return drag(li);
+        }), h("li", { class: "add", style: schema ? `grid-row: ${maxRow + 1}` : null }, h("label", {}, "+ Aggiungi foto",
+          h("input", { type: "file", accept: "image/*", multiple: true, hidden: true, onchange: (e) => addFiles(e.target.files) })),
+          ph.layout ? h("button", { type: "button", class: "add-text", onclick: () => { state.seq.push({ text: true, testo: "" }); draw(); markDirty();
+            const tas = grid.querySelectorAll("li.text textarea"); if (tas.length) tas[tas.length - 1].focus(); } }, "+ Aggiungi testo") : null));
       };
       const move = (a, b) => {
         if (b < 0 || b >= state.seq.length) return;
@@ -1217,22 +1264,23 @@ Fotografie e testo: Simone Carducci · ${year}
           const { node: n, state, coverPath } = draft.photos;
           // a photo already online that stays in its place is left alone (the Action may have optimised it meanwhile);
           // a moved one takes the current file of its old place; a new one is uploaded once
-          const fresh = [state.cover, ...state.seq].filter((it) => it && it.blob && !it.sha);
+          const seqPhotos = state.seq.filter((it) => !it.text);
+          const fresh = [state.cover, ...seqPhotos].filter((it) => it && it.blob && !it.sha);
           await uploadAll(fresh);
           const shaOf = (it) => (it.orig && tree[it.orig]) || it.sha;
           if (state.cover && state.cover.orig !== coverPath && shaOf(state.cover)) out[coverPath] = shaOf(state.cover);
           if (n.photos.kind === "serie") {
             const dir = n.photos.dir;
-            for (let i = 0; i < state.seq.length; i++) {
+            for (let i = 0; i < seqPhotos.length; i++) {
               const p = `${dir}/${String(i + 1).padStart(2, "0")}.jpg`;
-              const it = state.seq[i];
+              const it = seqPhotos[i];
               if (it.orig === p) continue;
               const s = shaOf(it);
               if (s && tree[p] !== s) out[p] = s;
             }
             Object.keys(tree).forEach((p) => {
               const m = p.startsWith(dir + "/") && p.slice(dir.length + 1).match(/^(\d{2,})\.jpg$/);
-              if (m && parseInt(m[1], 10) > state.seq.length) out[p] = null;
+              if (m && parseInt(m[1], 10) > seqPhotos.length) out[p] = null;
             });
           }
           if (draft.photos.layout) {
@@ -1241,6 +1289,11 @@ Fotografie e testo: Simone Carducci · ${year}
             delete rest.schema;
             const page = { ...rest, copertina: state.coverBig, layout: state.layout };
             if (state.layout === "casuale") page.schema = state.schema;
+            delete page.testi;
+            let before = 0;
+            const testi = [];
+            state.seq.forEach((it) => { if (!it.text) before++; else if ((it.testo || "").trim()) testi.push({ dopo: before, testo: it.testo.trim() }); });
+            if (testi.length) page.testi = testi;
             const json = layoutJson(page);
             if (json !== (texts[n.photos.layout] || "")) out[n.photos.layout] = await blobFrom({ text: json });
             if (state.mineDirty) {
@@ -1267,7 +1320,7 @@ Fotografie e testo: Simone Carducci · ${year}
       if (draft.photos) { // what was saved is now the online version
         const { state, coverPath, node: n } = draft.photos;
         if (state.cover) state.cover.orig = coverPath;
-        state.seq.forEach((it, i) => { it.orig = `${n.photos.dir}/${String(i + 1).padStart(2, "0")}.jpg`; });
+        state.seq.filter((it) => !it.text).forEach((it, i) => { it.orig = `${n.photos.dir}/${String(i + 1).padStart(2, "0")}.jpg`; });
       }
       if (draft.home || Object.keys(draft.switches).length) { await applyHome(); renderNav(); }
       if (draft.builder) { await applyPages(); renderNav(); }

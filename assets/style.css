@@ -304,6 +304,9 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 .photo-text p + p { margin-top: 1em; }
 .photo-text .credits { margin-top: 24px; display: grid; gap: 2px; font-size: 10px; color: var(--ink-2); }
 .photo-text .copy { margin-top: 16px; font-size: 10px; color: var(--ink-2); }
+/* text between the photos of a sequence (/admin) */
+.seq-text { max-width: var(--text-width); margin: clamp(48px, 6vw, 88px) auto 0; padding: 0 var(--pad); }
+.seq-text p + p { margin-top: 1em; }
 /* blocks of the pages built in /admin ("Pagine"), see docs/COMPONENTI.md */
 .block-text .meta { margin-top: 16px; font-size: 13px; color: var(--ink-2); }
 .quote { max-width: calc(900px + 2 * var(--pad)); margin: 72px auto; padding: 0 var(--pad); text-align: center; }

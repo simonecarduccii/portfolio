@@ -45,6 +45,11 @@ Clicca un elemento: al centro trovi insieme le sue **foto** e i suoi **testi**, 
   `content/layout/_layouts.json`: ogni riga è un elenco di `[colonna di partenza, larghezza]` su 12 colonne, e le righe si ripetono lungo la pagina.
   La *Sequenza della pagina* sotto è un'anteprima in piccolo della pagina: le foto sono già disposte come nel layout scelto, e cambiano subito se cambi layout.
   Le scelte sono in `content/layout/<pagina>.json`; i layout sono le classi `.photo-seq.layout-<nome>` in `assets/style.css`.
+- **Testo tra le foto** (progetti fotografici): sotto la *Sequenza della pagina*, *+ Aggiungi testo* aggiunge un riquadro di testo;
+  spostalo con ↑ ↓ o trascinandolo tra le foto, × lo toglie. Sul sito il testo compare tra le foto, in colonna come i testi della pagina,
+  e il layout riparte dopo ogni testo. È `testi` (`{dopo: foto prima del testo, testo}`) in `content/layout/<pagina>.json`.
+- **Scheda tecnica** (progetti fotografici): un campo vuoto o con “–” non compare sul sito. Se il supporto è *Digitale*, *Pellicola*
+  sparisce (anche dal pannello); *Lente* è facoltativa.
 - **Archivio**: aggiungi o togli foto e scrivi pellicola, luogo e anno sotto ciascuna.
 - **Ordine delle sezioni**: in *Home*, ↑ ↓ spostano Pellicole, Ricerca visiva, Progetti con l'AI e la banda Archivio
   (l'hero resta sempre in alto). L'ordine è `ordine` in `content/home.json`.
