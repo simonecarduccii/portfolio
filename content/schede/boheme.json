@@ -26,13 +26,13 @@
       "link": ""
     },
     {
-      "etichetta": "Osservatorio OFO",
-      "valore": "Francesca Occhi",
+      "etichetta": "Legal",
+      "valore": "Samuele Ganci",
       "link": ""
     },
     {
-      "etichetta": "Legal",
-      "valore": "Samuele Ganci",
+      "etichetta": "Osservatorio OFO",
+      "valore": "Francesca Occhi",
       "link": ""
     },
     {
@@ -43,7 +43,7 @@
     {
       "etichetta": "Where",
       "valore": "@bohememag",
-      "link": "@bohememag"
+      "link": "https://www.instagram.com/bohememag/"
     }
   ]
 }
