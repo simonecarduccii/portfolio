@@ -32,12 +32,6 @@ CULTURE = [
     {"slug": "modi", "doc": "colectivo-modi", "title": "Colectivo modì", "year": "2026",
      "visit": None, "two_col": ["Una serata, ripresa per intero", "Le serie"]},
 ]
-PHOTO = [
-    {"slug": "siculo", "title": "Siculo", "year": "2025"},
-    {"slug": "papa-che-fanno-i-papa", "title": "Papà che fanno i papà", "year": "2025"},
-    {"slug": "place-of-freedom", "title": "Place of Freedom", "year": "2025"},
-    {"slug": "faccioni", "title": "Faccioni", "year": "2025"},
-]
 AI = [
     {"slug": "vedetta", "doc": "ai-boheme-vedetta", "title": "Bohème Vedetta",
      "what": "Trova, legge e verifica i bandi per artisti.", "tools": "Python · Supabase · Claude",
@@ -57,11 +51,11 @@ ON = HOME.get("sezioni", {})  # home sections switched on/off in /admin; missing
 
 def on(key):
     return ON.get(key, True) is not False
-for _p in PHOTO:  # one name everywhere: the home card, the page title, "Altri progetti"
-    _h = next((r for r in RESEARCH if r.get("pagina") == _p["slug"]), None)
-    if _h:
-        _p.update(title=_h["titolo"], year=_h["anno"])
-PHOTO.sort(key=lambda q: next((i for i, r in enumerate(RESEARCH) if r.get("pagina") == q["slug"]), 99))
+# Photo projects ("Ricerca visiva"): every entry of content/home.json with a page and a sheet in docs/progetti/
+# gets its page, in the home order, with one name everywhere (home card, page title, "Altri progetti").
+# New projects are created (and deleted) in /admin.
+PHOTO = [{"slug": r["pagina"], "title": r["titolo"], "year": r["anno"]} for r in RESEARCH
+         if r.get("pagina") and (ROOT / "docs" / "progetti" / f'{r["pagina"]}.md').exists()]
 
 PHOTO_SLOTS = 12  # sequence slots per photo project; missing files are hidden by main.js
 

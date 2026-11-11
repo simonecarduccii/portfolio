@@ -29,6 +29,10 @@ Clicca un elemento: al centro trovi insieme le sue **foto** e i suoi **testi**, 
 - **Interruttori**: ogni scheda della Home (Hero, Bohème, modì, Pellicole, Ricerca visiva, Progetti con l'AI, Archivio) ha un interruttore *Visibile in home*,
   che trovi anche sotto le schede di *Home → Dentro questa sezione*. Spento = la sezione sparisce dalla home (nel pannello resta, con la scritta *spento*). Le scelte sono in `content/home.json` (`sezioni`).
 - **Ricerca visiva**: scegli quali progetti compaiono nella griglia della home (interruttore *In home*, c'è anche nella scheda di ogni progetto) e in che ordine (trascinali o ↑ ↓). Si aprono tutti, anche quelli ancora senza pagina: in home questi si vedono con il riquadro *foto in arrivo*. Il titolo che scrivi lì è anche il titolo della pagina del progetto e del suo nome nell'albero. L'elenco è in `content/home.json`.
+- **Nuovi progetti**: in *Ricerca visiva*, *+ Nuovo progetto* chiede titolo e anno e crea subito il progetto: la sua pagina
+  (`<titolo>.html`), la scheda dei testi (`docs/progetti/<titolo>.md`), la cartella delle foto (`img/<titolo>/`). Nasce **spento** in home:
+  aprilo dall'albero, carica copertina e foto, scegli il layout, scrivi i testi, poi accendilo. Per i progetti ancora senza pagina
+  (es. Torino 17) c'è *Crea pagina*. *Elimina* toglie il progetto con pagina, testi e foto (restano recuperabili nella cronologia di GitHub).
 - **Formato in home**: in *Ricerca visiva*, sotto il titolo di ogni progetto, scegli la forma della sua foto nella griglia della home
   (come da design, 3:2, 4:3, 6:5, 16:9, 1:1, 5:6, 3:4, 2:3). La miniatura mostra subito la forma. Non cambia le foto dentro la pagina del progetto.
   Il valore è `formato` in `content/home.json`.

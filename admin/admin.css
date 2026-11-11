@@ -134,6 +134,8 @@ body.no-preview .preview { display: none; }
 .home-list .ctl { display: grid; gap: 6px; justify-items: end; }
 .home-list .vis { font-size: 13px; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
 .home-list .tools { display: flex; gap: 4px; }
+.home-list .tools button.danger { color: #a33; }
+.add-project { margin-top: 12px; }
 .home-list .tools button { border: 1px solid var(--rule); background: none; border-radius: 6px; padding: 4px 8px; cursor: pointer; }
 .node.hidden { color: #aaa; }
 @media (max-width: 640px) { .home-list li { grid-template-columns: 22px 64px minmax(0, 1fr); } .home-list .ctl { grid-column: 3; justify-items: start; } }
