@@ -292,3 +292,14 @@
     update();
   });
 })();
+
+// Instagram embeds tell their real height with a message; size each frame to it so nothing is cut.
+window.addEventListener('message', function (e) {
+  if (!/^https:\/\/www\.instagram\.com$/.test(e.origin)) return;
+  var data = e.data;
+  try { if (typeof data === 'string') data = JSON.parse(data); } catch (err) { return; }
+  if (!data || data.type !== 'MEASURE' || !data.details || !data.details.height) return;
+  document.querySelectorAll('.ig-embed iframe').forEach(function (f) {
+    if (f.contentWindow === e.source) { f.style.aspectRatio = 'auto'; f.style.height = data.details.height + 'px'; }
+  });
+});
