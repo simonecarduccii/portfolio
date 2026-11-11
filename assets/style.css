@@ -154,7 +154,11 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 .chev svg { display: block; width: 9px; height: 43px; }
 .chev-left { right: auto; left: var(--pad); }
 .chev-left svg { transform: scaleX(-1); }
-.band-bw:has(a:hover) .band-text, .band-text:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
+.band-bw:hover .band-text { text-decoration: underline; text-underline-offset: 3px; }
+/* Film band: the whole photo links to Lomography; the labels and the chevron sit above it. */
+.band-link { position: absolute; inset: 0; z-index: 2; }
+.band-color .band-list { pointer-events: none; }
+.band-color .band-list a { pointer-events: auto; }
 
 /* ---------- New home ---------- */
 .hero-full { height: 100vh; height: 100svh; }
