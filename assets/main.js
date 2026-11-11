@@ -255,3 +255,30 @@
     startX = null;
   });
 })();
+
+// "Altri progetti": one row; the arrows appear only when some projects don't fit and scroll one card at a time.
+(function () {
+  document.querySelectorAll('.related').forEach(function (sec) {
+    var row = sec.querySelector('.related-row');
+    var nav = sec.querySelector('.related-nav');
+    if (!row || !nav) return;
+    var prev = nav.querySelector('[data-rel-step="-1"]');
+    var next = nav.querySelector('[data-rel-step="1"]');
+    function update() {
+      var max = row.scrollWidth - row.clientWidth;
+      nav.hidden = max <= 1;
+      prev.disabled = row.scrollLeft <= 1;
+      next.disabled = row.scrollLeft >= max - 1;
+    }
+    nav.addEventListener('click', function (e) {
+      var b = e.target.closest('button');
+      if (!b) return;
+      var tile = row.querySelector('.tile');
+      var step = tile ? tile.getBoundingClientRect().width + parseFloat(getComputedStyle(row).columnGap || 0) : row.clientWidth;
+      row.scrollBy({ left: step * Number(b.getAttribute('data-rel-step')), behavior: 'smooth' });
+    });
+    row.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  });
+})();
