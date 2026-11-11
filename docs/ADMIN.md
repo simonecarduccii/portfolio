@@ -29,6 +29,10 @@ Clicca un elemento: al centro trovi insieme le sue **foto** e i suoi **testi**, 
 - **Interruttori**: ogni scheda della Home (Hero, Bohème, modì, Pellicole, Ricerca visiva, Progetti con l'AI, Archivio) ha un interruttore *Visibile in home*,
   che trovi anche sotto le schede di *Home → Dentro questa sezione*. Spento = la sezione sparisce dalla home (nel pannello resta, con la scritta *spento*). Le scelte sono in `content/home.json` (`sezioni`).
 - **Ricerca visiva**: scegli quali progetti compaiono nella griglia della home (interruttore *In home*, c'è anche nella scheda di ogni progetto) e in che ordine (trascinali o ↑ ↓). Si aprono tutti, anche quelli ancora senza pagina: in home questi si vedono con il riquadro *foto in arrivo*. Il titolo che scrivi lì è anche il titolo della pagina del progetto e del suo nome nell'albero. L'elenco è in `content/home.json`.
+- **Layout dei progetti fotografici** (Faccini, Ghei, Papà, Vita mia): sotto la copertina c'è l'interruttore *Mostra la copertina grande in cima alla pagina*
+  (spento = la pagina parte dalla prima foto della sequenza; in home la copertina resta). Su ogni foto della sequenza scegli **Dimensione**
+  (Piccola, Media, Grande, Tutta larghezza) e **Posizione** (a sinistra, al centro, a destra); se sposti una foto, le sue scelte la seguono.
+  Sul telefono le foto vanno comunque a tutta larghezza. Le scelte sono in `content/layout/<pagina>.json`.
 - **Archivio**: aggiungi o togli foto e scrivi pellicola, luogo e anno sotto ciascuna.
 - **Testi**: ogni campo è un pezzo della pagina. `**grassetto**`, `_corsivo_`, `[testo del link](https://...)`; un rigo vuoto separa i paragrafi.
   Le frasi con `[DA VERIFICARE]` restano evidenziate sul sito finché non togli la nota.
