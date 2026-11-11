@@ -292,9 +292,13 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 .layout-ritmo { grid-template-columns: 1fr 1fr; }
 .layout-ritmo li:nth-child(3n + 1) { grid-column: 1 / -1; }
 .layout-grande li.portrait, .layout-ritmo li.portrait:nth-child(3n + 1) { width: 50%; justify-self: center; }
+/* a layout generated at random in /admin: each photo has its place on 12 columns (--c, --r) */
+.layout-custom { grid-template-columns: repeat(12, 1fr); }
+.layout-custom li { width: 100%; grid-column: var(--c); grid-row: var(--r); }
+.layout-custom .count { position: static; display: block; margin-top: 4px; }
 .layout-griglia .count, .layout-grande .count, .layout-ritmo .count { position: static; display: block; margin-top: 4px; }
 @media (max-width: 1024px) { .photo-seq li { width: 60%; } .layout-alternato li { width: 70%; } .layout-griglia li, .layout-grande li, .layout-ritmo li { width: 100%; } }
-@media (max-width: 640px) { .photo-seq { grid-template-columns: 1fr; } .photo-seq li, .layout-alternato li { width: 100%; } }
+@media (max-width: 640px) { .photo-seq { grid-template-columns: 1fr; } .photo-seq li, .layout-alternato li { width: 100%; } .layout-custom li { grid-column: 1 / -1; grid-row: auto; } }
 @media (max-width: 640px) { .photo-seq .count { position: static; display: block; margin-top: 4px; } }
 .photo-text { max-width: var(--text-width); margin: clamp(56px, 7vw, 104px) auto 0; padding: 0 var(--pad); }
 .photo-text p + p { margin-top: 1em; }

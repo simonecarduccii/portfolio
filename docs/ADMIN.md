@@ -36,6 +36,9 @@ Clicca un elemento: al centro trovi insieme le sue **foto** e i suoi **testi**, 
   (spento = la pagina parte dalla prima foto della sequenza; in home la copertina resta). Poi scegli uno dei layout standard cliccando la miniatura:
   **Colonna** (una foto per riga, al centro), **Alternato** (una a sinistra, una a destra), **Griglia** (due per riga),
   **Grande** (tutta larghezza), **Ritmo** (una grande, poi due affiancate). Sul telefono le foto sono sempre una per riga.
+  **Casuale** genera un layout a caso (ogni clic, o *↻ Un altro*, ne crea uno nuovo); se ti piace, *♥ Salva tra i miei layout*
+  lo aggiunge alle miniature con il nome che scegli, e lo puoi usare anche negli altri progetti (× lo toglie). I layout salvati sono in
+  `content/layout/_layouts.json`: ogni riga è un elenco di `[colonna di partenza, larghezza]` su 12 colonne, e le righe si ripetono lungo la pagina.
   La *Sequenza della pagina* sotto è un'anteprima in piccolo della pagina: le foto sono già disposte come nel layout scelto, e cambiano subito se cambi layout.
   Le scelte sono in `content/layout/<pagina>.json`; i layout sono le classi `.photo-seq.layout-<nome>` in `assets/style.css`.
 - **Archivio**: aggiungi o togli foto e scrivi pellicola, luogo e anno sotto ciascuna.

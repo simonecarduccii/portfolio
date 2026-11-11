@@ -102,6 +102,12 @@ body.no-preview .preview { display: none; }
 .seq.lay .num { font-size: 10px; left: 4px; top: 4px; }
 .seq.lay .tools { padding: 2px; }
 .seq.lay .tools button { width: 22px; height: 20px; font-size: 11px; }
+.seq.lay-custom { grid-template-columns: repeat(12, 1fr); }
+.seq.lay-custom li { width: 100%; }
+.layout-opt .del { position: absolute; top: 4px; right: 4px; border: 0; background: none; color: var(--ink-2); cursor: pointer; font-size: 14px; line-height: 1; padding: 2px 4px; }
+.layout-opt.random { border-style: dashed; }
+.layout-tools { display: flex; gap: 8px; margin-top: 10px; }
+.layout-tools:empty { display: none; }
 .seq li.add, .arc.add { display: grid; place-items: center; border: 1px dashed #bbb; background: none; cursor: pointer; color: var(--ink-2); text-align: center; }
 .seq li.add label { cursor: pointer; padding: 20px; }
 .archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
