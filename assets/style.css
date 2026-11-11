@@ -412,3 +412,8 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* Missing photo: blank space, no texture or label. Empty galleries and sequences are hidden. */
+.media.empty, .zigzag .media.empty, .bw .media.empty { background: none; box-shadow: none; }
+.media.empty::after { display: none; }
+.gallery:empty, .photo-seq:empty { display: none; }

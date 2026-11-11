@@ -335,7 +335,15 @@ _FILM = ["", " f-b", " f-c", " f-d"]
 _film_i = [0]
 
 
+def exists(src):
+    """True when a local photo is on disk (external URLs count as present)."""
+    return "://" in src or (ROOT / src).is_file()
+
+
 def img(src, alt, label=None, eager=False):
+    # No photo yet: leave the space blank, no placeholder texture or label (Simone, 2026-11-11).
+    if not exists(src):
+        return '<div class="media empty"></div>'
     label = label or f"Foto in arrivo · {src}"
     loading = "" if eager else ' loading="lazy"'
     film = _FILM[_film_i[0] % 4]
@@ -407,7 +415,7 @@ def build_culture(i, p):
     <div class="prose">
 {chr(10).join(f"<p>{inline(x)}</p>" for x in paras)}
     </div>
-    <div class="gallery col" aria-label="Immagini del progetto">{"".join(img(f"img/{s}/{n:02d}.jpg", f"{p['title']}, immagine {n}") for n in range(1, slots(s, 6) + 1))}</div>
+    <div class="gallery col" aria-label="Immagini del progetto">{"".join(img(f"img/{s}/{n:02d}.jpg", f"{p['title']}, immagine {n}") for n in range(1, slots(s, 6) + 1) if exists(f"img/{s}/{n:02d}.jpg"))}</div>
   </section>
   <a class="next-project" href="{nxt["slug"]}.html"><span>Progetto successivo</span><span>{html.escape(nxt["title"])} ›</span></a>
 {band_archive()}"""
@@ -436,9 +444,10 @@ def build_photo(i, p):
     schema = schema_of(lay)
     spots = grid_places(schema, total) if schema else []
     seq_class = "custom" if schema else (lay.get("layout") if lay.get("layout") in LAYOUTS else "colonna")
+    have = [n for n in range(1, total + 1) if exists(f"img/{s}/{n:02d}.jpg")]
     seq = "".join(
-        f'<li data-src="img/{s}/{n:02d}.jpg"{grid_spot(spots, n)}>{img(f"img/{s}/{n:02d}.jpg", f"{p["title"]}, fotografia {n}")}<span class="count label">{n:02d}/{total:02d}</span></li>'
-        for n in range(1, total + 1))
+        f'<li data-src="img/{s}/{n:02d}.jpg"{grid_spot(spots, k)}>{img(f"img/{s}/{n:02d}.jpg", f"{p["title"]}, fotografia {k}")}<span class="count label">{k:02d}/{len(have):02d}</span></li>'
+        for k, n in enumerate(have, 1))
     shown = {r["pagina"] for r in RESEARCH if r.get("visibile", True) and r.get("pagina")}
     others = [q for q in PHOTO if q["slug"] != s and q["slug"] in shown]
     related = "".join(
@@ -510,7 +519,7 @@ def build_ai_detail(p):
 <p class="lead">{inline(lead)}</p>
 {chr(10).join(parts)}
     </div>
-    <div class="gallery col shots" aria-label="Schermate">{"".join(img(f"img/{s}/{n:02d}.jpg", f"{p['title']}, schermata {n}", "Schermata in arrivo") for n in range(1, slots(s, 3) + 1))}</div>
+    <div class="gallery col shots" aria-label="Schermate">{"".join(img(f"img/{s}/{n:02d}.jpg", f"{p['title']}, schermata {n}", "Schermata in arrivo") for n in range(1, slots(s, 3) + 1) if exists(f"img/{s}/{n:02d}.jpg"))}</div>
   </section>
   <a class="next-project" href="ai.html"><span>Progetti con l'AI</span><span>Tutti gli strumenti ›</span></a>
 {band_archive()}"""
@@ -538,7 +547,7 @@ def build_home():
         if sl:
             tiles += f'<a class="tile" href="{sl}.html">{img(f"img/{sl}/cover.jpg", title).replace("<div ", f"<div{st} ", 1)}{cap}</a>'
         else:
-            tiles += f'<div class="tile is-soon"><div{st} class="media soon"><span class="ph">foto in arrivo</span></div>{cap}</div>'
+            tiles += f'<div class="tile is-soon"><div{st} class="media empty"></div>{cap}</div>'
     parts = []
     if on("hero") and hero:
         parts.append(f"""  <section class="hero hero-full bw" id="cultura" aria-label="Progetti culturali">
@@ -605,7 +614,7 @@ def build_archive():
       <p>{inline(field(a, "Lead"))}</p>
     </div>
     <div class="archive-stage" data-random-photo data-click-next title="Clicca per un'altra foto">
-      <div class="media"><span class="ph">Le foto dell'archivio arrivano a breve</span></div>
+      <div class="media"><span class="ph"></span></div>
     </div>
     <div class="archive-bar">
       <span class="archive-info" data-photo-info aria-live="polite">Clicca la foto, o premi lo spazio</span>
@@ -744,7 +753,7 @@ def block_html(b, p, i):
         items = "".join(f'<div class="fact"><dt>{html.escape(k)}</dt><dd>{inline(v)}</dd></div>' for k, v in rows)
         return f'  <div class="p-facts-wrap"><dl class="p-facts">{items}</dl></div>'
     if kind == "sequenza":
-        photos = [f for f in b.get("foto") or [] if _photo(f, s)]
+        photos = [f for f in b.get("foto") or [] if _photo(f, s) and exists(f)]
         if not photos:
             return ""
         lay = b.get("layout")
