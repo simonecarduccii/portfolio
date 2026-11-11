@@ -10,6 +10,7 @@ Usage:  python3 tools/build_pages.py
 Phrases marked [DA VERIFICARE ...] in the docs are shown highlighted on the page,
 so they are easy to spot in the preview. Remove the marker in the docs once checked.
 """
+import hashlib
 import html
 import re
 from pathlib import Path
@@ -197,6 +198,12 @@ SECTIONS = [("Cultura", "index.html#cultura"), ("Archivio", "archivio.html"), ("
             ("AI", "ai.html"), ("About", "about.html")]
 
 
+def asset_version(name):
+    """Short content hash, so browsers fetch the new CSS/JS after every change."""
+    data = (Path(__file__).resolve().parent.parent / "assets" / name).read_bytes()
+    return hashlib.sha1(data).hexdigest()[:8]
+
+
 def page(*, file, title, description, body, current=None, header="", body_class="", main_class=""):
     full_title = f"{title} — {SITE}" if title != SITE else f"{SITE} — Editorial, Events & Cultural Projects"
     nav = "".join(
@@ -218,7 +225,7 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="{FONTS}" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/style.css?v={asset_version('style.css')}">
 </head>
 <body{f' class="{body_class}"' if body_class else ""}>
 <a class="skip" href="#main">Vai al contenuto</a>
@@ -232,7 +239,7 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 {body}
 </main>
 {footer()}
-<script src="assets/main.js"></script>
+<script src="assets/main.js?v={asset_version('main.js')}"></script>
 </body>
 </html>
 """
