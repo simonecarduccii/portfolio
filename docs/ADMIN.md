@@ -155,3 +155,13 @@ Quando il Mac invia delle foto compare una notifica "Portfolio".
 **Foto sostituite.** Quando cambi una foto che mantiene lo stesso nome (es. il ritratto dell'About), il pannello per 15 minuti la mostra direttamente da GitHub, così la vedi subito anche se il sito non è ancora aggiornato. Le pagine del sito chiamano ogni foto con un codice della sua versione (`ritratto.jpg?v=…`): appena il sito si aggiorna, il browser scarica la foto nuova invece di mostrare quella vecchia salvata in memoria.
 
 **About.** "Dati accanto al ritratto" modifica le voci accanto alla foto (Base, Ambiti, Contatti, Lingue…): testo, link, voci nuove, da togliere o da spostare (`content/schede/about.json`). Mentre scrivi la frase d'apertura e la bio, l'anteprima a destra si aggiorna subito, prima ancora di salvare. Tutte le sezioni della bio hanno lo stesso stile di testo, in qualunque posizione si trovino.
+
+**Header e footer** (prima voce della lista a sinistra). Qui modifichi:
+- **header:** nome, sottotitolo e voci del menu (testo e link);
+- **footer:** la scritta grande e la riga sotto, ognuna con il suo link;
+- **colonne del footer:** titolo e righe, ogni riga con un link facoltativo. Puoi aggiungere, togliere e spostare sia le colonne sia le righe;
+- **riga in fondo:** copyright, credito e P.IVA.
+
+Tutto viene salvato in `content/sito.json` (`testata` e `footer`). Prima del primo salvataggio il pannello mostra quello che c'è oggi sul sito.
+
+Una volta salvate, le colonne del footer non seguono più da sole i cambi fatti in Impostazioni → Contatti e link. Se cambi email o profili, aggiornali anche qui.

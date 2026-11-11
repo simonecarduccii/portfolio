@@ -52,6 +52,8 @@ window.PROGETTI_FOTO = { faccioni: "faccioni", "place-of-freedom": "place-of-fre
 window.photoProject = photoProject;
 
 window.STRUTTURA = [
+  { id: "header-footer", title: "Header e footer", page: "index.html#footer", headerFooter: true,
+    note: "Le parti uguali in tutte le pagine: il nome e il menu in alto, e tutto il footer (scritta grande, colonne, link, riga in fondo)." },
   {
     id: "home", title: "Home", page: "index.html",
     texts: [{ label: "Descrizione per Google (max 155 caratteri)", file: C, meta: "Description home", rows: 3 }],

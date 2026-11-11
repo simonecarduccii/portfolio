@@ -368,6 +368,7 @@
     if (node.facts) body.append(await factsPanel(node));
     if (node.texts) body.append(await textPanel(node));
     if (node.settings) body.append(await settingsPanel());
+    if (node.headerFooter) body.append(await headerFooterPanel());
     if (node.library) body.append(await libraryPanel());
     if (node.pagesList) body.append(await pagesPanel());
     if (node.freePage) body.append(await builderPanel(node));
@@ -387,7 +388,7 @@
     if (seoKey(node)) body.append(await seoPanel(node));
     const hist = historyTargets(node);
     if (hist.whole.length || hist.prefixes.length || hist.fields.length) body.append(historyPanel(node, hist));
-    const editable = node.library || node.photos || node.facts || node.texts || node.homeList || node.settings || node.freePage || pageSlug(node) || node.switchKey || (node.children || []).some((c) => c.switchKey);
+    const editable = node.headerFooter || node.library || node.photos || node.facts || node.texts || node.homeList || node.settings || node.freePage || pageSlug(node) || node.switchKey || (node.children || []).some((c) => c.switchKey);
     return h("div", {}, head, body, editable ? bar : null);
   }
 
@@ -965,8 +966,6 @@ Fotografie e testo: Simone Carducci · ${year}
     { title: "Contatti e link", hint: "Valgono in tutto il sito: footer, About, link di Lomography. Lascia LinkedIn vuoto per non mostrarlo.", fields: [
       ["contatti.email", "Email"], ["contatti.instagram", "Instagram (indirizzo completo)"],
       ["contatti.lomography", "Lomography (indirizzo completo)"], ["contatti.linkedin", "LinkedIn (indirizzo completo)"]] },
-    { title: "Riga in fondo al footer", hint: "Una riga vuota non compare.", fields: [
-      ["footer.copyright", "Copyright"], ["footer.credito", "Credito del sito"], ["footer.piva", "Partita IVA"]] },
     { title: "Bohème Magazine", fields: [["cultura.boheme.titolo", "Titolo"], ["cultura.boheme.anno", "Anno nella pagina"], ["cultura.boheme.anno_home", "Anno accanto al titolo in home"]] },
     { title: "Colectivo modì", fields: [["cultura.modi.titolo", "Titolo"], ["cultura.modi.anno", "Anno nella pagina"], ["cultura.modi.anno_home", "Anno accanto al titolo in home"]] },
     { title: "Progetti con l'AI (righe della lista)", hint: "In home e nella pagina Progetti con l'AI. Lettura resta privato: niente pagina e niente stato.", fields: [
@@ -1125,6 +1124,119 @@ Fotografie e testo: Simone Carducci · ${year}
     });
     wrap.append(stylePanel(data));
     return wrap;
+  }
+
+  // ---------------------------------------------------------------- header and footer
+  // content/sito.json "testata": {nome, sottotitolo, menu: [{testo, link}]} and "footer": {invito, invito_link,
+  // indirizzo, indirizzo_link, colonne: [{titolo, voci: [{testo, link}]}], copyright, credito, piva}.
+  // Until they are saved once, the panel starts from what the published home shows.
+
+  function rowsEditor(rows, keys, onChange, addLabel) {
+    const box = h("div", { class: "facts-edit sheet-edit" });
+    const draw = () => box.replaceChildren(...rows.map((r, i) => {
+      const inputs = keys.map(([key, ph]) => {
+        const el = h("input", { type: "text", placeholder: ph, "aria-label": ph });
+        el.value = r[key] || "";
+        el.addEventListener("input", () => { r[key] = el.value; onChange(); });
+        return el;
+      });
+      const move = (d) => { const j = i + d; if (j < 0 || j >= rows.length) return; [rows[i], rows[j]] = [rows[j], rows[i]]; draw(); onChange(); };
+      return h("div", { class: "sheet-row" + (keys.length === 2 ? " two" : "") }, ...inputs,
+        h("div", { class: "row-tools" },
+          h("button", { type: "button", title: "Sposta su", disabled: i === 0 ? true : null, onclick: () => move(-1) }, "↑"),
+          h("button", { type: "button", title: "Sposta giù", disabled: i === rows.length - 1 ? true : null, onclick: () => move(1) }, "↓"),
+          h("button", { type: "button", title: "Togli", onclick: () => { rows.splice(i, 1); draw(); onChange(); } }, "×")));
+    }), h("button", { type: "button", class: "btn small", onclick: () => { rows.push(Object.fromEntries(keys.map(([k]) => [k, ""]))); draw(); onChange(); const l = box.querySelectorAll(".sheet-row"); l[l.length - 1].querySelector("input").focus(); } }, addLabel || "+ Aggiungi voce"));
+    draw();
+    return box;
+  }
+
+  async function headerFooterPanel() {
+    let data = {};
+    try { data = JSON.parse(await readText(SITO_FILE, true) || "{}"); } catch (e) { data = {}; }
+    const doc = new DOMParser().parseFromString(await readText("index.html") || "", "text/html");
+    const txt = (el) => (el ? el.textContent.trim() : "");
+    const href = (el) => (el && el.getAttribute("href")) || "";
+    const t = data.testata && typeof data.testata === "object" ? data.testata : {};
+    const f = data.footer && typeof data.footer === "object" ? data.footer : {};
+    const str = (v, dflt) => (typeof v === "string" ? v : dflt);
+    const links = (els) => [...els].map((a) => ({ testo: txt(a), link: href(a) }));
+    const hf = {
+      dirty: false,
+      testata: {
+        nome: str(t.nome, txt(doc.querySelector("header .brand"))),
+        sottotitolo: str(t.sottotitolo, txt(doc.querySelector("header .tag"))),
+        menu: Array.isArray(t.menu) ? t.menu.map((r) => ({ testo: r.testo || "", link: r.link || "" })) : links(doc.querySelectorAll("header .nav a")),
+      },
+      footer: {
+        invito: str(f.invito, txt(doc.querySelector(".footer-cta"))), invito_link: str(f.invito_link, href(doc.querySelector(".footer-cta"))),
+        indirizzo: str(f.indirizzo, txt(doc.querySelector(".footer-email"))), indirizzo_link: str(f.indirizzo_link, href(doc.querySelector(".footer-email"))),
+        colonne: Array.isArray(f.colonne)
+          ? f.colonne.map((c) => ({ titolo: c.titolo || "", voci: (c.voci || []).map((r) => ({ testo: r.testo || "", link: r.link || "" })) }))
+          : [...doc.querySelectorAll(".footer-cols > div")].map((d) => ({ titolo: txt(d.querySelector("h2")), voci: links(d.querySelectorAll("li a, li span")) })),
+      },
+    };
+    draft.hf = hf;
+    draft.sito = draft.sito || {};
+    const changed = () => { hf.dirty = true; markDirty(); };
+    const field = (obj, key, label, ph) => {
+      const id = "hf-" + key + Math.random().toString(36).slice(2, 6);
+      const el = h("input", { id, type: "text", placeholder: ph || "" });
+      el.value = obj[key] || "";
+      el.addEventListener("input", () => { obj[key] = el.value; changed(); });
+      return h("label", { class: "field", for: id }, h("span", {}, label), el);
+    };
+    const pair = (obj, k, kl, label, linkPh) => h("div", { class: "hf-pair" }, field(obj, k, label), field(obj, kl, "Link", linkPh));
+
+    const header = h("section", { class: "panel" }, h("h2", {}, "Header (in alto in ogni pagina)"),
+      h("p", { class: "hint" }, "Il nome porta sempre alla home. Il sottotitolo vuoto non compare. Il menu è a destra: ogni voce ha un testo e un link."),
+      field(hf.testata, "nome", "Nome"), field(hf.testata, "sottotitolo", "Sottotitolo"),
+      h("div", { class: "field" }, h("span", {}, "Menu"), rowsEditor(hf.testata.menu, [["testo", "Testo (es. about)"], ["link", "Link (es. about.html)"]], changed)));
+
+    const colsBox = h("div", { class: "hf-cols" });
+    const drawCols = () => colsBox.replaceChildren(...hf.footer.colonne.map((c, i) => {
+      const title = h("input", { type: "text", placeholder: "Titolo della colonna", "aria-label": "Titolo della colonna" });
+      title.value = c.titolo;
+      title.addEventListener("input", () => { c.titolo = title.value; changed(); });
+      const move = (d) => { const j = i + d; const L = hf.footer.colonne; if (j < 0 || j >= L.length) return; [L[i], L[j]] = [L[j], L[i]]; drawCols(); changed(); };
+      return h("div", { class: "hf-col" },
+        h("div", { class: "hf-col-head" }, title, h("div", { class: "row-tools" },
+          h("button", { type: "button", title: "Sposta prima", disabled: i === 0 ? true : null, onclick: () => move(-1) }, "←"),
+          h("button", { type: "button", title: "Sposta dopo", disabled: i === hf.footer.colonne.length - 1 ? true : null, onclick: () => move(1) }, "→"),
+          h("button", { type: "button", title: "Togli la colonna", onclick: () => { if (!confirm(`Tolgo la colonna “${c.titolo || "senza titolo"}”?`)) return; hf.footer.colonne.splice(i, 1); drawCols(); changed(); } }, "×"))),
+        rowsEditor(c.voci, [["testo", "Testo"], ["link", "Link (facoltativo)"]], changed, "+ Aggiungi riga"));
+    }), h("button", { type: "button", class: "btn small", onclick: () => { hf.footer.colonne.push({ titolo: "", voci: [] }); drawCols(); changed(); } }, "+ Aggiungi colonna"));
+    drawCols();
+
+    const legal = h("div", {});
+    [["footer.copyright", "Copyright"], ["footer.credito", "Credito del sito"], ["footer.piva", "Partita IVA"]].forEach(([path, label]) => {
+      const id = "s" + path.replace(/\W/g, "-");
+      const input = h("input", { id, type: "text" });
+      input.value = getPath(data, path) || "";
+      input.addEventListener("input", () => { draft.sito[path] = input.value.trim(); markDirty(); });
+      legal.append(h("label", { class: "field", for: id }, h("span", {}, label), input));
+    });
+
+    const footer = h("section", { class: "panel" }, h("h2", {}, "Footer (in fondo a ogni pagina)"),
+      h("p", { class: "hint" }, "Nei link puoi scrivere un indirizzo (https://…), una pagina del sito (es. about.html o index.html#cultura), una mail, @nome per Instagram o un file (es. assets/cv-simone-carducci.pdf). Una riga senza link resta semplice testo. Un testo vuoto non compare."),
+      pair(hf.footer, "invito", "invito_link", "Scritta grande (es. Scrivimi)"),
+      pair(hf.footer, "indirizzo", "indirizzo_link", "Riga sotto la scritta grande"),
+      h("div", { class: "field" }, h("span", {}, "Colonne"), colsBox),
+      h("div", { class: "field" }, h("span", {}, "Riga in fondo"), legal));
+    return h("div", {}, header, footer);
+  }
+
+  function headerFooterChanges(fresh) {
+    const hf = draft.hf;
+    if (!hf || !hf.dirty) return;
+    const clean = (rows) => rows.map((r) => ({ testo: (r.testo || "").trim(), link: (r.link || "").trim() })).filter((r) => r.testo);
+    fresh.testata = { nome: hf.testata.nome.trim(), sottotitolo: hf.testata.sottotitolo.trim(), menu: clean(hf.testata.menu) };
+    fresh.footer = {
+      ...(fresh.footer && typeof fresh.footer === "object" ? fresh.footer : {}),
+      invito: hf.footer.invito.trim(), invito_link: hf.footer.invito_link.trim(),
+      indirizzo: hf.footer.indirizzo.trim(), indirizzo_link: hf.footer.indirizzo_link.trim(),
+      colonne: hf.footer.colonne.map((c) => ({ titolo: c.titolo.trim(), voci: clean(c.voci) })).filter((c) => c.titolo || c.voci.length),
+    };
   }
 
   // ---------------------------------------------------------------- facts at the top of a page
@@ -1633,8 +1745,9 @@ Fotografie e testo: Simone Carducci · ${year}
           out[draft.facts.path] = await blobFrom({ text: JSON.stringify({ righe }, null, 2) + "\n" });
         }
         // site settings (and the "in costruzione" switch of this page)
-        if ((draft.sito && Object.keys(draft.sito).length) || draft.building != null || draft.stile) {
+        if ((draft.sito && Object.keys(draft.sito).length) || draft.building != null || draft.stile || (draft.hf && draft.hf.dirty)) {
           const fresh = JSON.parse(await readText(SITO_FILE, true) || "{}");
+          headerFooterChanges(fresh);
           for (const [path, v] of Object.entries(draft.sito || {})) setPath(fresh, path, v);
           if (draft.stile) {
             const st = {};
@@ -2035,7 +2148,7 @@ Fotografie e testo: Simone Carducci · ${year}
     if (ph && ph.kind === "archivio") prefixes.add("img/archivio/");
     if (node.facts) whole.add(`content/schede/${node.facts.slug}.json`);
     if (node.freePage) { whole.add(`${PAGE_DIR}${node.freePage}.json`); prefixes.add(`img/${node.freePage}/`); }
-    if (node.settings) whole.add(SITO_FILE);
+    if (node.settings || node.headerFooter) whole.add(SITO_FILE);
     if (node.id === "home" || node.homeList) whole.add("content/home.json");
     return { whole: [...whole], prefixes: [...prefixes], fields };
   }
