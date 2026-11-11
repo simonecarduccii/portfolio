@@ -445,6 +445,12 @@ def build_ai_detail(p):
     page(file=f"{s}.html", title=p["title"], description=plain(lead), body=body, header="overlay", main_class="flush")
 
 
+def fmt_style(fmt):
+    """Shape of a project's cover in the home grid, chosen in /admin ("4:3", "1:1" ...); empty = the design's own."""
+    m = re.fullmatch(r"(\d{1,2}):(\d{1,2})", fmt or "")
+    return f' style="aspect-ratio: {m.group(1)} / {m.group(2)}"' if m else ""
+
+
 def build_home():
     c = contenuti()
     desc = field(c, "Description home")
@@ -453,14 +459,14 @@ def build_home():
         f'<li><a href="{sl}.html" data-cover="img/{sl}/cover.jpg">{html.escape(t)}<sup class="yr">{y}</sup></a></li>'
         for sl, t, y in hero)
     # Figma "Portfolio · v2": six cards; the ones without a page or photo yet are placeholders.
-    cards = [(r["titolo"], r["anno"], r.get("pagina")) for r in RESEARCH if r.get("visibile", True)]
+    cards = [(r["titolo"], r["anno"], r.get("pagina"), fmt_style(r.get("formato"))) for r in RESEARCH if r.get("visibile", True)]
     tiles = ""
-    for title, year, sl in cards:
+    for title, year, sl, st in cards:
         cap = f'<span class="fig-cap"><span>{html.escape(title)}</span><span>{year}</span></span>'
         if sl:
-            tiles += f'<a class="tile" href="{sl}.html">{img(f"img/{sl}/cover.jpg", title)}{cap}</a>'
+            tiles += f'<a class="tile" href="{sl}.html">{img(f"img/{sl}/cover.jpg", title).replace("<div ", f"<div{st} ", 1)}{cap}</a>'
         else:
-            tiles += f'<div class="tile is-soon"><div class="media soon"><span class="ph">foto in arrivo</span></div>{cap}</div>'
+            tiles += f'<div class="tile is-soon"><div{st} class="media soon"><span class="ph">foto in arrivo</span></div>{cap}</div>'
     next_btn = chev("button", ' type="button" data-band-next aria-label="Un\'altra foto a caso"')
     parts = []
     if on("hero") and hero:

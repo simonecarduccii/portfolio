@@ -288,6 +288,10 @@
 
   // ---------------------------------------------------------------- home grid (Ricerca visiva)
 
+  // Shapes a project's cover can take in the home grid ("" = the one in the design)
+  const FORMATS = [["", "come da design"], ["3:2", "3:2 orizzontale"], ["4:3", "4:3 orizzontale"], ["6:5", "6:5 orizzontale"], ["16:9", "16:9 panoramica"],
+    ["1:1", "1:1 quadrata"], ["5:6", "5:6 verticale"], ["3:4", "3:4 verticale"], ["2:3", "2:3 verticale"]];
+
   async function homePanel() {
     const data = await applyHome();
     const list = (data.ricerca_visiva || []).map((r) => ({ ...r }));
@@ -300,10 +304,21 @@
       const year = h("input", { type: "text", value: r.anno, class: "year", "aria-label": "Anno" });
       year.addEventListener("input", () => { r.anno = year.value; markDirty(); });
       const vis = toggle(r.visibile !== false, (v) => { r.visibile = v; li.classList.toggle("off", !v); markDirty(); });
+      const thumb = cover && tree[cover] ? h("img", { src: siteUrl(cover), alt: "" }) : h("span", { class: "ph" }, "foto in arrivo");
+      const shape = () => { // preview the chosen shape inside a 96 x 64 box
+        const [w, hh] = (r.formato || "3:2").split(":").map(Number), k = w / hh;
+        thumb.style.width = `${Math.round(k >= 1.5 ? 96 : 64 * k)}px`;
+        thumb.style.height = `${Math.round(k >= 1.5 ? 96 / k : 64)}px`;
+      };
+      shape();
+      const fmt = h("select", { "aria-label": "Formato in home", title: "Formato della foto nella griglia della home (non cambia la pagina del progetto)" },
+        ...FORMATS.map(([v, t]) => h("option", { value: v }, t)));
+      fmt.value = FORMATS.some(([v]) => v === (r.formato || "")) ? (r.formato || "") : "";
+      fmt.addEventListener("change", () => { if (fmt.value) r.formato = fmt.value; else delete r.formato; shape(); markDirty(); });
       const li = h("li", { draggable: "true", class: r.visibile === false ? "off" : null },
         h("span", { class: "grip", title: "Trascina per spostare" }, "⋮⋮"),
-        cover && tree[cover] ? h("img", { src: siteUrl(cover), alt: "" }) : h("span", { class: "ph" }, "foto in arrivo"),
-        h("div", { class: "home-fields" }, title, year,
+        h("div", { class: "thumb" }, thumb),
+        h("div", { class: "home-fields" }, title, year, h("label", { class: "fmt" }, "Formato in home ", fmt),
           h("small", {}, r.pagina ? `pagina ${r.pagina}.html` : "ancora senza pagina")),
         h("div", { class: "ctl" }, h("label", { class: "vis" }, vis, " In home"),
         h("span", { class: "tools" },
