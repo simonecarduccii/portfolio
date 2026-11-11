@@ -10,6 +10,7 @@ Usage:  python3 tools/build_pages.py
 Phrases marked [DA VERIFICARE ...] in the docs are shown highlighted on the page,
 so they are easy to spot in the preview. Remove the marker in the docs once checked.
 """
+import hashlib
 import html
 import re
 from pathlib import Path
@@ -21,8 +22,9 @@ SITE = "Simone Carducci"
 EMAIL = "simone.carducci01@gmail.com"
 INSTAGRAM = "https://instagram.com/simonecarduccii"
 LOMO = "https://www.lomography.com/homes/simonecarduccii"
+LINKEDIN = None  # URL still to come from Simone; the footer shows LinkedIn only once this is set
 CV = "assets/cv-simone-carducci.pdf"
-FONTS = "https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Overpass:ital,wght@1,200&display=swap"
+FONTS = "https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
 
 CULTURE = [
     {"slug": "boheme", "doc": "boheme-magazine", "title": "Bohème Magazine", "year": "2024",
@@ -47,7 +49,66 @@ AI = [
      "what": "Uno strumento di lettura per una persona della mia famiglia.", "tools": "—",
      "year": "2026", "status": "private"},
 ]
+# Home "Ricerca visiva": order, visibility, title and year of each photo project, edited in /admin.
+HOME = __import__("json").loads((ROOT / "content" / "home.json").read_text(encoding="utf-8"))
+RESEARCH = HOME["ricerca_visiva"]
+ON = HOME.get("sezioni", {})  # home sections switched on/off in /admin; missing = on
+
+
+def on(key):
+    return ON.get(key, True) is not False
+for _p in PHOTO:  # one name everywhere: the home card, the page title, "Altri progetti"
+    _h = next((r for r in RESEARCH if r.get("pagina") == _p["slug"]), None)
+    if _h:
+        _p.update(title=_h["titolo"], year=_h["anno"])
+PHOTO.sort(key=lambda q: next((i for i, r in enumerate(RESEARCH) if r.get("pagina") == q["slug"]), 99))
+
 PHOTO_SLOTS = 12  # sequence slots per photo project; missing files are hidden by main.js
+
+
+LAYOUTS = ("colonna", "alternato", "griglia", "grande", "ritmo")  # same list as admin/admin.js
+
+
+def mine():
+    """Layouts Simone generated in /admin and kept: content/layout/_layouts.json [{id, name, schema}]."""
+    f = ROOT / "content" / "layout" / "_layouts.json"
+    return {l["id"]: l for l in __import__("json").loads(f.read_text(encoding="utf-8"))} if f.exists() else {}
+
+
+def schema_of(lay):
+    """Rows of [start column, width] on 12 columns for a random or saved layout, else None."""
+    sc = lay.get("schema") if lay.get("layout") == "casuale" else mine().get(lay.get("layout"), {}).get("schema")
+    ok = isinstance(sc, list) and sc and all(isinstance(r, list) and r and all(
+        isinstance(c, list) and len(c) == 2 and all(isinstance(v, int) for v in c) and 1 <= c[0] and c[1] >= 1 and c[0] + c[1] <= 13
+        for c in r) for r in sc)
+    return sc if ok else None
+
+
+def grid_places(schema, n):
+    out, r = [], 0
+    while len(out) < n:
+        for s, w in schema[r % len(schema)]:
+            if len(out) < n:
+                out.append((s, w, r + 1))
+        r += 1
+    return out
+
+
+def layout(slug):
+    """Layout chosen in /admin for a photo page, content/layout/<slug>.json:
+    {"copertina": false} hides the big cover; "layout" is one of LAYOUTS (default: colonna)."""
+    f = ROOT / "content" / "layout" / f"{slug}.json"
+    return __import__("json").loads(f.read_text(encoding="utf-8")) if f.exists() else {}
+
+
+
+def slots(slug, default):
+    """Number of numbered photos (01.jpg, 02.jpg ...) to show for a page.
+
+    When photos are on disk (from /admin, the Mac folder sync or optimize_images.py) the page
+    shows exactly those; until then it keeps `default` placeholder slots."""
+    nums = [int(f.stem) for f in (ROOT / "img" / slug).glob("[0-9][0-9]*.jpg") if f.stem.isdigit()]
+    return max(nums) if nums else default
 
 
 # ---------------------------------------------------------------- markdown
@@ -155,6 +216,12 @@ SECTIONS = [("Cultura", "index.html#cultura"), ("Archivio", "archivio.html"), ("
             ("AI", "ai.html"), ("About", "about.html")]
 
 
+def asset_version(name):
+    """Short content hash, so browsers fetch the new CSS/JS after every change."""
+    data = (Path(__file__).resolve().parent.parent / "assets" / name).read_bytes()
+    return hashlib.sha1(data).hexdigest()[:8]
+
+
 def page(*, file, title, description, body, current=None, header="", body_class="", main_class=""):
     full_title = f"{title} — {SITE}" if title != SITE else f"{SITE} — Editorial, Events & Cultural Projects"
     nav = "".join(
@@ -176,13 +243,12 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="{FONTS}" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/style.css?v={asset_version('style.css')}">
 </head>
 <body{f' class="{body_class}"' if body_class else ""}>
 <a class="skip" href="#main">Vai al contenuto</a>
 <header class="{hc}">
   <a class="brand" href="index.html">Simone Carducci</a>
-  <span class="dash" aria-hidden="true">-</span>
   <span class="tag">Creative development</span>
   <nav class="nav" aria-label="Menu principale">{nav}</nav>
 </header>
@@ -191,7 +257,7 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 {body}
 </main>
 {footer()}
-<script src="assets/main.js"></script>
+<script src="assets/main.js?v={asset_version('main.js')}"></script>
 </body>
 </html>
 """
@@ -200,20 +266,22 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 
 
 def footer():
+    linkedin = f'<li><a href="{LINKEDIN}" target="_blank" rel="noopener">LinkedIn</a></li>' if LINKEDIN else ""
     return f"""<footer class="site-footer">
   <a class="footer-cta" href="mailto:{EMAIL}">Scrivimi</a>
   <a class="footer-email" href="mailto:{EMAIL}">{EMAIL}</a>
   <div class="footer-cols">
-    <div><h2>Contatti</h2><ul><li><a class="lower" href="mailto:{EMAIL}">{EMAIL}</a></li><li>Roma / Torino</li></ul></div>
-    <div><h2>Altrove</h2><ul><li><a class="ig" href="{INSTAGRAM}" target="_blank" rel="noopener">Instagram</a></li><li><a href="{LOMO}" target="_blank" rel="noopener">Lomography</a></li></ul></div>
+    <div><h2>Contatti</h2><ul><li><a class="lower" href="mailto:{EMAIL}">{EMAIL}</a></li></ul></div>
+    <div><h2>Altrove</h2><ul><li><a class="ig" href="{INSTAGRAM}" target="_blank" rel="noopener">Instagram</a></li><li><a href="{LOMO}" target="_blank" rel="noopener">Lomography</a></li>{linkedin}</ul></div>
     <div><h2>Sezioni</h2><ul><li><a href="index.html#cultura">Cultura</a></li><li><a href="index.html#ricerca-visiva">Ricerca visiva</a></li><li><a href="archivio.html">Archivio</a></li><li><a href="about.html">About</a></li></ul></div>
-    <div><h2>CV</h2><ul><li><a href="{CV}" target="_blank">↗ Scarica il CV (PDF)</a></li></ul></div>
+    <div><h2>CV</h2><ul><li><a href="{CV}" target="_blank">Scarica il CV (PDF)</a></li></ul></div>
   </div>
   <div class="footer-legal"><span>© 2025-2026 Simone Carducci. Tutti i diritti riservati.</span><span>Developed by me</span><span>P.Iva 18337621009</span></div>
 </footer>"""
 
 
 def band_archive():
+    # The whole photo band is one link to the archive.
     return f"""  <a class="band band-bw" href="archivio.html">
     <div class="media bw has-photo"><img src="img/home/archivio.jpg" alt="" loading="lazy"></div>
     <span class="band-text">Archivio</span>
@@ -302,11 +370,18 @@ def build_culture(i, p):
     <div class="prose">
 {chr(10).join(f"<p>{inline(x)}</p>" for x in paras)}
     </div>
-    <div class="gallery col" aria-label="Immagini del progetto">{"".join(img(f"img/{s}/{n:02d}.jpg", f"{p['title']}, immagine {n}") for n in range(1, 7))}</div>
+    <div class="gallery col" aria-label="Immagini del progetto">{"".join(img(f"img/{s}/{n:02d}.jpg", f"{p['title']}, immagine {n}") for n in range(1, slots(s, 6) + 1))}</div>
   </section>
   <a class="next-project" href="{nxt["slug"]}.html"><span>Progetto successivo</span><span>{html.escape(nxt["title"])} ›</span></a>
 {band_archive()}"""
     page(file=f"{s}.html", title=p["title"], description=plain(lead), body=body, header="overlay", main_class="flush")
+
+
+def grid_spot(spots, n):
+    if not spots:
+        return ""
+    s, w, r = spots[n - 1]
+    return f' style="--c: {s} / span {w}; --r: {r}"'
 
 
 def build_photo(i, p):
@@ -319,22 +394,28 @@ def build_photo(i, p):
     year = meta.get("Anno", p["year"]).replace(" – ", " — ")
     meta_lines = [x for x in [place, f"Progetto: {year}"] if x]
     tech = [f"{k}: {inline(v)}" for k, v in meta.items() if k in ("Supporto", "Fotocamera", "Pellicola")]
+    total = slots(s, PHOTO_SLOTS)
+    lay = layout(s)
+    schema = schema_of(lay)
+    spots = grid_places(schema, total) if schema else []
+    seq_class = "custom" if schema else (lay.get("layout") if lay.get("layout") in LAYOUTS else "colonna")
     seq = "".join(
-        f'<li data-src="img/{s}/{n:02d}.jpg">{img(f"img/{s}/{n:02d}.jpg", f"{p["title"]}, fotografia {n}")}<span class="count label">{n:02d}/{PHOTO_SLOTS:02d}</span></li>'
-        for n in range(1, PHOTO_SLOTS + 1))
-    others = [q for q in PHOTO if q["slug"] != s]
+        f'<li data-src="img/{s}/{n:02d}.jpg"{grid_spot(spots, n)}>{img(f"img/{s}/{n:02d}.jpg", f"{p["title"]}, fotografia {n}")}<span class="count label">{n:02d}/{total:02d}</span></li>'
+        for n in range(1, total + 1))
+    shown = {r["pagina"] for r in RESEARCH if r.get("visibile", True) and r.get("pagina")}
+    others = [q for q in PHOTO if q["slug"] != s and q["slug"] in shown]
     related = "".join(
         f'<a class="tile" href="{q["slug"]}.html">{img(f"img/{q["slug"]}/cover.jpg", q["title"], " ")}'
         f'<span class="fig-cap"><span>{html.escape(q["title"])}</span><span>{q["year"]}</span></span></a>'
         for q in others[:3])
+    first = f'  <div class="photo-first">{img(f"img/{s}/cover.jpg", p["title"], eager=True)}</div>\n' if lay.get("copertina", True) is not False else ""
     note = draft_note(inline(notes[0])) if notes else (draft_note() if "DA VERIFICARE" in str(secs) else "")
     body = f"""  <div class="p-title-row page-head"><h1 class="p-title">{html.escape(p["title"])}<sup class="yr">{html.escape(year)}</sup></h1></div>
   <div class="photo-intro">
     <p>{inline(intro)}</p>
     <p class="meta">{" · ".join(html.escape(x) for x in meta_lines)}</p>
   </div>
-  <div class="photo-first">{img(f"img/{s}/cover.jpg", p["title"], eager=True)}</div>
-  <ol class="photo-seq" aria-label="Fotografie del progetto">{seq}</ol>
+{first}  <ol class="photo-seq layout-{seq_class}" aria-label="Fotografie del progetto">{seq}</ol>
   <section class="photo-text">
     {note}
     {render_blocks(long_text)}
@@ -392,54 +473,69 @@ def build_ai_detail(p):
 <p class="lead">{inline(lead)}</p>
 {chr(10).join(parts)}
     </div>
-    <div class="gallery col shots" aria-label="Schermate">{"".join(img(f"img/{s}/{n:02d}.jpg", f"{p['title']}, schermata {n}", "Schermata in arrivo") for n in range(1, 4))}</div>
+    <div class="gallery col shots" aria-label="Schermate">{"".join(img(f"img/{s}/{n:02d}.jpg", f"{p['title']}, schermata {n}", "Schermata in arrivo") for n in range(1, slots(s, 3) + 1))}</div>
   </section>
   <a class="next-project" href="ai.html"><span>Progetti con l'AI</span><span>Tutti gli strumenti ›</span></a>
 {band_archive()}"""
     page(file=f"{s}.html", title=p["title"], description=plain(lead), body=body, header="overlay", main_class="flush")
 
 
+def fmt_style(fmt):
+    """Shape of a project's cover in the home grid, chosen in /admin ("4:3", "1:1" ...); empty = the design's own."""
+    m = re.fullmatch(r"(\d{1,2}):(\d{1,2})", fmt or "")
+    return f' style="aspect-ratio: {m.group(1)} / {m.group(2)}"' if m else ""
+
+
 def build_home():
     c = contenuti()
     desc = field(c, "Description home")
-    hero = [("boheme", "Bohème Magazine", "since 2023"), ("modi", "Colectivo modì", "2025-2026")]
+    hero = [h for h in [("boheme", "Bohème Magazine", "since 2023"), ("modi", "Colectivo modì", "2025-2026")] if on(h[0])]
     hero_items = "".join(
         f'<li><a href="{sl}.html" data-cover="img/{sl}/cover.jpg">{html.escape(t)}<sup class="yr">{y}</sup></a></li>'
         for sl, t, y in hero)
     # Figma "Portfolio · v2": six cards; the ones without a page or photo yet are placeholders.
-    cards = [("Torino 17", "2026", None), ("Maghreb", "2026", None), ("Ghei", "2025", None),
-             ("Papà che fanno i papà", "2025", "papa-che-fanno-i-papa"), ("Faccioni", "2025", "faccioni"),
-             ("Vita mia", "2025", None)]
+    cards = [(r["titolo"], r["anno"], r.get("pagina"), fmt_style(r.get("formato"))) for r in RESEARCH if r.get("visibile", True)]
     tiles = ""
-    for title, year, sl in cards:
+    for title, year, sl, st in cards:
         cap = f'<span class="fig-cap"><span>{html.escape(title)}</span><span>{year}</span></span>'
         if sl:
-            tiles += f'<a class="tile" href="{sl}.html">{img(f"img/{sl}/cover.jpg", title)}{cap}</a>'
+            tiles += f'<a class="tile" href="{sl}.html">{img(f"img/{sl}/cover.jpg", title).replace("<div ", f"<div{st} ", 1)}{cap}</a>'
         else:
-            tiles += f'<div class="tile is-soon"><div class="media soon"><span class="ph">foto in arrivo</span></div>{cap}</div>'
+            tiles += f'<div class="tile is-soon"><div{st} class="media soon"><span class="ph">foto in arrivo</span></div>{cap}</div>'
     next_btn = chev("button", ' type="button" data-band-next aria-label="Un\'altra foto a caso"')
-    body = f"""  <section class="hero hero-full bw" id="cultura" aria-label="Progetti culturali">
-    <div class="media bw has-photo"><img src="img/home/hero.jpg" alt="Fotografia in bianco e nero di Simone Carducci"></div>
+    parts = []
+    if on("hero") and hero:
+        parts.append(f"""  <section class="hero hero-full bw" id="cultura" aria-label="Progetti culturali">
+    <div class="media bw has-photo"><img src="img/{hero[0][0]}/cover.jpg" alt=""></div>
     <h1 class="sr-only">Simone Carducci, creative development</h1>
     <ul class="hero-list">{hero_items}</ul>
-  </section>
-
-  <section class="band band-color">
+  </section>""")
+    else:
+        parts.append('  <h1 class="sr-only">Simone Carducci, creative development</h1>')
+    if on("pellicole"):
+        parts.append(f"""  <section class="band band-color">
     <div class="media has-photo" data-random-photo data-keep><img src="img/home/pellicole.jpg" alt="Fotografia a colori su pellicola di Simone Carducci" loading="lazy"></div>
+    <a class="band-link" href="{LOMO}" target="_blank" rel="noopener" aria-label="Tutte le mie pellicole su Lomography"></a>
     <ul class="band-list">
       <li><a href="archivio.html">Tutto ciò che mi sta intorno</a></li>
       <li><a href="{LOMO}" target="_blank" rel="noopener">Tutte le mie pellicole</a></li>
       <li><a href="archivio.html">Tutta la mia vita</a></li>
     </ul>
     {next_btn}
-  </section>
-
-  <section class="research zigzag-wrap" id="ricerca-visiva">
+  </section>""")
+    if on("ricerca-visiva") and tiles:
+        parts.append(f"""  <section class="research zigzag-wrap" id="ricerca-visiva">
     <h2 class="research-title">Ricerca visiva</h2>
     <div class="zigzag">{tiles}</div>
-  </section>
-
-{band_archive()}"""
+  </section>""")
+    if on("ia"):
+        parts.append(f"""  <section class="list-wrap" id="ai">
+    <h2 class="small-title"><a href="ai.html">Progetti con l'AI</a></h2>
+    {ai_rows()}
+  </section>""")
+    if on("banda-archivio"):
+        parts.append(band_archive())
+    body = "\n\n".join(parts)
     page(file="index.html", title=SITE, description=plain(desc), body=body, header="overlay", main_class="flush", body_class="home")
 
 

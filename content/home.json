@@ -1,0 +1,59 @@
+{
+  "sezioni": {
+    "hero": true,
+    "boheme": true,
+    "modi": true,
+    "pellicole": true,
+    "ricerca-visiva": true,
+    "ia": false,
+    "banda-archivio": true
+  },
+  "ricerca_visiva": [
+    {
+      "id": "torino-17",
+      "titolo": "Torino 17",
+      "anno": "2026",
+      "pagina": null,
+      "visibile": false
+    },
+    {
+      "id": "maghreb",
+      "titolo": "Maghreb",
+      "anno": "2026",
+      "pagina": null,
+      "visibile": false
+    },
+    {
+      "id": "faccioni",
+      "titolo": "Faccini",
+      "anno": "2025 - attuale",
+      "pagina": "faccioni",
+      "visibile": true,
+      "formato": "4:3"
+    },
+    {
+      "id": "papa-che-fanno-i-papa",
+      "titolo": "Papà",
+      "anno": "2025 - attuale",
+      "pagina": "papa-che-fanno-i-papa",
+      "visibile": true,
+      "formato": "3:2"
+    },
+    {
+      "id": "place-of-freedom",
+      "titolo": "Ghei",
+      "anno": "2025",
+      "pagina": "place-of-freedom",
+      "visibile": true,
+      "formato": "16:9"
+    },
+    {
+      "id": "siculo",
+      "titolo": "Vita mia",
+      "anno": "2025",
+      "pagina": "siculo",
+      "visibile": true,
+      "formato": "6:5"
+    }
+  ]
+}

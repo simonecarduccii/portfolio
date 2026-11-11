@@ -1,0 +1,50 @@
+{
+  "home-pellicole": {
+    "tipo": "singola",
+    "destinazione": "img/home/pellicole.jpg"
+  },
+  "home-archivio": {
+    "tipo": "singola",
+    "destinazione": "img/home/archivio.jpg"
+  },
+  "boheme": {
+    "tipo": "serie",
+    "destinazione": "img/boheme"
+  },
+  "modi": {
+    "tipo": "serie",
+    "destinazione": "img/modi"
+  },
+  "faccioni": {
+    "tipo": "serie",
+    "destinazione": "img/faccioni"
+  },
+  "place-of-freedom": {
+    "tipo": "serie",
+    "destinazione": "img/place-of-freedom"
+  },
+  "papa-che-fanno-i-papa": {
+    "tipo": "serie",
+    "destinazione": "img/papa-che-fanno-i-papa"
+  },
+  "siculo": {
+    "tipo": "serie",
+    "destinazione": "img/siculo"
+  },
+  "vedetta": {
+    "tipo": "serie",
+    "destinazione": "img/vedetta"
+  },
+  "coaching": {
+    "tipo": "serie",
+    "destinazione": "img/coaching"
+  },
+  "about": {
+    "tipo": "singola",
+    "destinazione": "img/about/ritratto.jpg"
+  },
+  "archivio": {
+    "tipo": "archivio",
+    "destinazione": "img/archivio"
+  }
+}
