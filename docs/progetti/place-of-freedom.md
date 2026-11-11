@@ -5,20 +5,18 @@ Testi segnaposto (lorem ipsum): servono a fissare struttura e lunghezze. Simone 
 - **Anno:** 2025
 - **Fotografia:** Simone Carducci
 - **Supporto:** Pellicola
-- **Fotocamera:** Lorem ipsum
-- **Pellicola:** Lorem ipsum
-- **Luogo:** Lorem ipsum
+- **Fotocamera:** Chinon Auto 3001
+- **Pellicola:** Varie
+- **Luogo:** Bologna
 - **Immagine di copertina:** img/place-of-freedom/cover.jpg
 
 ## Intro in testata (max 40 parole)
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+ㅤ
 
 ## Testo in fondo, dopo le foto (80–150 parole)
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-
-Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus, nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris.
+ㅤ
 
 ## Crediti
 
