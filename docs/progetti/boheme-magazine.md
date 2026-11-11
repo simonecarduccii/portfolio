@@ -14,9 +14,6 @@ Un magazine indipendente che racconta l'arte emergente e mette in fila le opport
 
 ## Testo pagina (mockup: 3–4 paragrafi da 60–90 parole, senza titoletti)
 
-Scheda (etichette in inglese come nei mockup):
-IDEATED BY Simone Carducci · YEAR 2024 – ongoing · ARTISTIC DIRECTION Simone Carducci · EDITORIAL DIRECTION Simone Carducci · FORMAT Instagram magazine · WHERE @bohememag
-
 Bohème è un magazine indipendente che ho fondato su Instagram nel luglio 2024. Racconta l'arte emergente e raccoglie le opportunità che contano per chi la fa: bandi, residenze, premi, open call, mostre. In Italia queste occasioni esistono, ma sono sparse tra decine di siti di enti, fondazioni e festival, e spesso arrivano tardi o incomplete. Bohème le cerca, le verifica e le racconta in un carosello che si legge in un minuto.
 
 Ne curo la direzione artistica ed editoriale: la linea curatoriale e il tono, la ricerca e la selezione dei progetti fotografici e artistici, le rubriche e i format, l'editing dei testi, dalle presentazioni alle interviste, e l'immagine complessiva di ogni uscita. In ventisei mesi, partendo da zero, il magazine ha raccolto 5.022 follower, pubblicato 563 caroselli e superato 1,47 milioni di visualizzazioni, con un pubblico soprattutto italiano tra i 25 e i 44 anni.
