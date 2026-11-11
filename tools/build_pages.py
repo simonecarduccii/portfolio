@@ -119,7 +119,18 @@ def on(key):
 # Photo projects ("Ricerca visiva"): every entry of content/home.json with a page and a sheet in docs/progetti/
 # gets its page, in the home order, with one name everywhere (home card, page title, "Altri progetti").
 # New projects are created (and deleted) in /admin.
-PHOTO = [{"slug": r["pagina"], "title": r["titolo"], "year": r["anno"]} for r in RESEARCH
+def project_year(r):
+    """Year of a photo project: the page's own "Anno" (edited in /admin), else the home list value."""
+    if r.get("pagina"):
+        f = ROOT / "docs" / "progetti" / f'{r["pagina"]}.md'
+        if f.exists():
+            m = re.search(r"^- \*\*Anno:\*\*\s*(.+)$", f.read_text(encoding="utf-8"), re.M)
+            if m and m.group(1).strip():
+                return m.group(1).strip()
+    return r.get("anno", "")
+
+
+PHOTO = [{"slug": r["pagina"], "title": r["titolo"], "year": project_year(r)} for r in RESEARCH
          if r.get("pagina") and (ROOT / "docs" / "progetti" / f'{r["pagina"]}.md').exists()]
 
 PHOTO_SLOTS = 12  # sequence slots per photo project; missing files are hidden by main.js
@@ -767,7 +778,7 @@ def build_home():
         f'<li><a href="{sl}.html" data-cover="img/{sl}/cover.jpg"{focus(f"img/{sl}/cover.jpg").replace(" style=", " data-pos=").replace("object-position: ", "")}>{html.escape(t)}<sup class="yr">{html.escape(y)}</sup></a></li>'
         for sl, t, y in hero)
     # Figma "Portfolio · v2": six cards; the ones without a page or photo yet are placeholders.
-    cards = [(r["titolo"], r["anno"], r.get("pagina"), fmt_style(r.get("formato"))) for r in RESEARCH if r.get("visibile", True)]
+    cards = [(r["titolo"], project_year(r), r.get("pagina"), fmt_style(r.get("formato"))) for r in RESEARCH if r.get("visibile", True)]
     tiles = ""
     for title, year, sl, st in cards:
         cap = f'<span class="fig-cap"><span>{html.escape(title)}</span><span>{year}</span></span>'
