@@ -22,4 +22,4 @@ La forza fisica, quasi bruta, si piega allo sforzo di portare qualcuno e diventa
 
 ## Crediti
 
-Fotografie e testo: Simone Carducci · 2025 – in corso · © 2025 Simone Carducci. Tutti i diritti riservati.
+Fotografie e testo: Simone Carducci · 2025-in corso · © 2025 Simone Carducci. Tutti i diritti riservati.
