@@ -18,7 +18,7 @@ Padri fotografati con i figli, senza posa e senza consenso. Archivio aperto, sen
 
 In una società patriarcale un padre spesso non si mostra debole e non dichiara la cura. Papà cerca il momento in cui questa maschera cade da sola. Le fotografie sono scattate senza posa e senza consenso, perché l’intimità si lascia cogliere solo quando nessuno si sente osservato: sguardi rivolti altrove, mani che sostengono, spalle che diventano sedie, zaini e fasce che trasformano il corpo in rifugio.
 
-La forza fisica, quasi bruta, si piega allo sforzo di portare qualcuno e diventa tenerezza senza mai nominarsi. Il lavoro nasce dalla riscoperta dell’amore per il proprio padre, un amore che nessuno aveva insegnato a immaginare possibile, ed è per questo una ricerca che non si chiude: un archivio che continua a crescere nel tempo, tra pellicola e digitale. Non è un ritratto della paternità, ma una raccolta di testimonianze reali di come si ama senza dirlo.
+La forza fisica, quasi bruta, si piega allo sforzo di portare qualcuno e diventa tenerezza senza mai nominarsi. Il lavoro nasce dalla riscoperta dell’amore per il proprio padre, un amore che nessuno aveva insegnato a immaginare possibile, ed è per questo una ricerca che non si chiude: un archivio che continua a crescere nel tempo, tra pellicola e digitale. Sì il ritratto della paternità, ma anche una raccolta di testimonianze reali di come si ama senza dirlo.
 
 ## Crediti
 
