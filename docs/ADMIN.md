@@ -55,6 +55,9 @@ Clicca un elemento: al centro trovi insieme le sue **foto** e i suoi **testi**, 
   (link a un'altra pagina), **Fascia** (Pellicole o Archivio). ↑ ↓ spostano un blocco, × lo toglie. Le foto si caricano dentro il blocco
   (o trascinandole dal Finder) e finiscono in `img/<pagina>/`; quelle che nessun blocco usa più vengono tolte al salvataggio.
   La pagina è in `content/pagine/<pagina>.json`. Per ora non compare nei menu: si raggiunge dal suo indirizzo o da un blocco *Progetto successivo*.
+- **Pagina in costruzione**: ogni elemento con una pagina sua (progetti, Bohème, modì, AI, About, Archivio, Pagine) ha in alto
+  l'interruttore *Pagina in costruzione*. Acceso = chi apre la pagina vede solo l'avviso "Pagina in costruzione" (stile della pagina 404,
+  con menu e footer, non indicizzata da Google); nell'albero l'elemento ha la scritta *in costruzione*. L'elenco è `in_costruzione` in `content/sito.json`.
 - **Impostazioni**: le parti che compaiono in più pagine. Email, Instagram, Lomography e LinkedIn (vuoto = non compare),
   la riga in fondo al footer (copyright, credito, partita IVA: una riga vuota non compare), titolo e anni di Bohème e modì
   (l'anno della pagina e quello accanto al titolo in home), titolo, descrizione, stato e anno dei progetti con l'AI.
