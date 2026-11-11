@@ -8,7 +8,65 @@
   "footer": {
     "copyright": "©2026 Simone Carducci. Tutti i diritti riservati.",
     "credito": "Developed by me",
-    "piva": "P.Iva 18337621009"
+    "piva": "P.Iva 18337621009",
+    "invito": "Scrivimi",
+    "invito_link": "mailto:simone.carducci01@gmail.com",
+    "indirizzo": "simone.carducci01@gmail.com",
+    "indirizzo_link": "mailto:simone.carducci01@gmail.com",
+    "colonne": [
+      {
+        "titolo": "Contatti",
+        "voci": [
+          {
+            "testo": "simone.carducci01@gmail.com",
+            "link": "mailto:simone.carducci01@gmail.com"
+          }
+        ]
+      },
+      {
+        "titolo": "Altrove",
+        "voci": [
+          {
+            "testo": "Instagram",
+            "link": "https://instagram.com/simonecarduccii"
+          },
+          {
+            "testo": "Lomography",
+            "link": "https://www.lomography.com/homes/simonecarduccii"
+          },
+          {
+            "testo": "LinkedIn",
+            "link": "https://www.linkedin.com/in/simonecarducci/"
+          }
+        ]
+      },
+      {
+        "titolo": "Sezioni",
+        "voci": [
+          {
+            "testo": "Cultura",
+            "link": "index.html#cultura"
+          },
+          {
+            "testo": "Ricerca visiva",
+            "link": "index.html#ricerca-visiva"
+          },
+          {
+            "testo": "About",
+            "link": "about.html"
+          }
+        ]
+      },
+      {
+        "titolo": "CV",
+        "voci": [
+          {
+            "testo": "Scarica il CV (PDF)",
+            "link": "assets/cv-simone-carducci.pdf"
+          }
+        ]
+      }
+    ]
   },
   "cultura": {
     "boheme": {
@@ -50,5 +108,15 @@
   ],
   "scheda": {
     "titolo": "Simone Carducci - Creative development"
+  },
+  "testata": {
+    "nome": "Simone Carducci",
+    "sottotitolo": "Creative development",
+    "menu": [
+      {
+        "testo": "about",
+        "link": "about.html"
+      }
+    ]
   }
 }
