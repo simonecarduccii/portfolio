@@ -58,5 +58,9 @@
   "maghreb-2": {
     "tipo": "serie",
     "destinazione": "img/maghreb-2"
+  },
+  "vincere-il-mondiale": {
+    "tipo": "serie",
+    "destinazione": "img/vincere-il-mondiale"
   }
 }

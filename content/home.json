@@ -63,6 +63,13 @@
       "anno": "2026",
       "pagina": "maghreb-2",
       "visibile": false
+    },
+    {
+      "id": "vincere-il-mondiale",
+      "titolo": "Vincere il mondiale",
+      "anno": "2026",
+      "pagina": "vincere-il-mondiale",
+      "visibile": false
     }
   ]
 }
