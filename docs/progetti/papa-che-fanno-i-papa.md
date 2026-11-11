@@ -4,10 +4,10 @@ Testi segnaposto (lorem ipsum): servono a fissare struttura e lunghezze. Simone 
 
 - **Anno:** 2025 – in corso
 - **Fotografia:** Simone Carducci
-- **Supporto:** Pellicola
-- **Fotocamera:** Lorem ipsum
-- **Pellicola:** Lorem ipsum
-- **Luogo:** Lorem ipsum
+- **Supporto:** Varie
+- **Fotocamera:** Varie
+- **Pellicola:** 
+- **Luogo:** Torino - Granada - Marrakech
 - **Immagine di copertina:** img/papa-che-fanno-i-papa/cover.jpg
 
 ## Intro in testata (max 40 parole)
