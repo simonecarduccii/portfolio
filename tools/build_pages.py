@@ -11,6 +11,7 @@ Phrases marked [DA VERIFICARE ...] in the docs are shown highlighted on the page
 so they are easy to spot in the preview. Remove the marker in the docs once checked.
 """
 import hashlib
+import json
 import html
 import re
 from pathlib import Path
@@ -361,6 +362,49 @@ def facts(meta, skip=()):
     return '<dl class="p-facts">' + "".join(items) + "</dl>"
 
 
+def fact_href(link):
+    """Link of a facts row as typed in /admin: https://..., a page (boheme.html), a mail, or @name (Instagram)."""
+    link = link.strip()
+    if not link:
+        return ""
+    if link.startswith("@") and " " not in link:
+        return f"https://instagram.com/{link[1:]}"
+    if re.match(r"^(https?:|mailto:|tel:|/|#)", link) or re.match(r"^[\w-]+\.html(#.*)?$", link):
+        return link
+    if "@" in link and "/" not in link:
+        return f"mailto:{link}"
+    return "https://" + link
+
+
+def fact_rows_html(rows):
+    """rows: [(label, value, link)] -> <dl class="p-facts">; a value with a link becomes a link."""
+    items = []
+    for k, v, link in rows:
+        if not (k or v):
+            continue
+        val = inline(v)
+        href = fact_href(link)
+        if href:
+            ext = "" if href.endswith(".html") or ".html#" in href or href.startswith(("/", "#", "mailto:", "tel:")) else ' target="_blank" rel="noopener"'
+            val = f'<a href="{html.escape(href)}"{ext}>{val or html.escape(link)}</a>'
+        items.append(f'<div class="fact"><dt>{html.escape(k)}</dt><dd>{val}</dd></div>')
+    return '<dl class="p-facts">' + "".join(items) + "</dl>" if items else ""
+
+
+def sheet_override(slug):
+    """Facts at the top of a page as edited in /admin (content/schede/<slug>.json), or None."""
+    f = ROOT / "content" / "schede" / f"{slug}.json"
+    if not f.is_file():
+        return None
+    try:
+        data = json.loads(f.read_text(encoding="utf-8"))
+    except ValueError:
+        return None
+    rows = [(_str(r.get("etichetta")), _str(r.get("valore")), _str(r.get("link")))
+            for r in data.get("righe") or [] if isinstance(r, dict)]
+    return fact_rows_html(rows)
+
+
 def draft_note(text="Bozza: le parti evidenziate vanno verificate con Simone prima della pubblicazione."):
     return f'<p class="draft-note">{text}</p>'
 
@@ -404,6 +448,9 @@ def build_culture(i, p):
     facts_html, paras = mockup_sheet(section(secs, "Testo pagina"))
     if not facts_html:
         facts_html = facts(meta)
+    override = sheet_override(p["slug"])
+    if override is not None:
+        facts_html = override
     s = p["slug"]
     body = f"""  <section class="p-hero bw">
     {img(f"img/{s}/cover.jpg", p["title"], eager=True)}
@@ -531,7 +578,7 @@ def build_ai_detail(p):
     {img(f"img/{s}/cover.jpg", p["title"], eager=True)}
   </section>
   <div class="p-title-row"><h1 class="p-title">{html.escape(p["title"])}<sup class="yr">{html.escape(year)}</sup></h1></div>
-  <div class="p-facts-wrap">{facts(meta)}</div>
+  <div class="p-facts-wrap">{sheet_override(s) if sheet_override(s) is not None else facts(meta)}</div>
   <section class="p-body">
     {draft_note() if "DA VERIFICARE" in str(secs) + str(meta) + str(notes) else ""}
     <div class="prose">
@@ -765,12 +812,10 @@ def block_html(b, p, i):
         return (f'  <figure class="quote"><blockquote><p>{inline(t)}</p></blockquote>'
                 f'{f"<figcaption>{inline(a)}</figcaption>" if a else ""}</figure>')
     if kind == "scheda":
-        rows = [(_str(r[0]), _str(r[1])) for r in b.get("righe") or [] if isinstance(r, list) and len(r) == 2]
-        rows = [r for r in rows if r[0] or r[1]]
-        if not rows:
-            return ""
-        items = "".join(f'<div class="fact"><dt>{html.escape(k)}</dt><dd>{inline(v)}</dd></div>' for k, v in rows)
-        return f'  <div class="p-facts-wrap"><dl class="p-facts">{items}</dl></div>'
+        rows = [(_str(r[0]), _str(r[1]), _str(r[2]) if len(r) > 2 else "")
+                for r in b.get("righe") or [] if isinstance(r, list) and len(r) >= 2]
+        dl = fact_rows_html(rows)
+        return f'  <div class="p-facts-wrap">{dl}</div>' if dl else ""
     if kind == "sequenza":
         photos = [f for f in b.get("foto") or [] if _photo(f, s) and exists(f)]
         if not photos:
