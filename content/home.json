@@ -63,6 +63,13 @@
       "pagina": "albania-coast-to-coast",
       "visibile": true,
       "formato": "3:2"
+    },
+    {
+      "id": "maghreb-2",
+      "titolo": "Maghreb",
+      "anno": "2026",
+      "pagina": "maghreb-2",
+      "visibile": false
     }
   ]
 }

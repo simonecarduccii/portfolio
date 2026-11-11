@@ -54,5 +54,9 @@
   "torino-17": {
     "tipo": "serie",
     "destinazione": "img/torino-17"
+  },
+  "maghreb-2": {
+    "tipo": "serie",
+    "destinazione": "img/maghreb-2"
   }
 }
