@@ -187,7 +187,7 @@
     try { data = JSON.parse(await readText("content/home.json", true) || "{}"); } catch (e) { /* keep empty */ }
     const group = ALL.find((n) => n.homeList);
     group.children = (data.ricerca_visiva || []).map((r) => {
-      const doc = r.pagina && window.PROGETTI_FOTO[r.pagina];
+      const doc = r.pagina && ((window.PROGETTI_FOTO || {})[r.pagina] || (tree[`docs/progetti/${r.pagina}.md`] ? r.pagina : null));
       const n = doc ? window.photoProject(r.pagina, doc, r.titolo)
         : { id: r.id, title: r.titolo, page: "index.html#ricerca-visiva", noPage: true,
             note: "Questo progetto non ha ancora una pagina: se lo accendi, in home compare la sua scheda con la scritta “foto in arrivo”." };
@@ -324,7 +324,9 @@
         h("span", { class: "tools" },
           h("button", { type: "button", title: "Su", onclick: () => move(i, i - 1) }, "↑"),
           h("button", { type: "button", title: "Giù", onclick: () => move(i, i + 1) }, "↓"),
-          h("button", { type: "button", title: "Apri", onclick: () => open(ALL.find((n) => n.id === (r.pagina || r.id))) }, "Apri"))));
+          h("button", { type: "button", title: "Apri", onclick: () => open(ALL.find((n) => n.id === (r.pagina || r.id))) }, "Apri"),
+          r.pagina ? null : h("button", { type: "button", title: "Crea la pagina del progetto (testi, foto, layout)", onclick: () => createProject(r) }, "Crea pagina"),
+          h("button", { type: "button", class: "danger", title: "Elimina il progetto", onclick: () => deleteProject(r) }, "Elimina"))));
       li.addEventListener("dragstart", (e) => { e.dataTransfer.setData("text/x-home", String(i)); li.classList.add("dragging"); });
       li.addEventListener("dragend", () => li.classList.remove("dragging"));
       li.addEventListener("dragover", (e) => { if (e.dataTransfer.types.includes("text/x-home")) e.preventDefault(); });
@@ -338,7 +340,124 @@
     draw();
     return h("section", { class: "panel" }, h("h2", {}, "Progetti in home"),
       h("p", { class: "hint" }, "Trascina per cambiare l'ordine della griglia (il primo è in alto a sinistra). Spegni l'interruttore per toglierlo dalla home. Il titolo è anche quello della pagina del progetto."),
-      ul);
+      ul,
+      h("button", { type: "button", class: "btn add-project", onclick: () => createProject(null) }, "+ Nuovo progetto"));
+  }
+
+  // ---------------------------------------------------------------- new / deleted photo projects
+  // A project = an entry in content/home.json + docs/progetti/<slug>.md (texts) + img/<slug>/ (photos).
+  // tools/build_pages.py makes a page for every entry whose sheet exists.
+
+  const RESERVED = ["index", "about", "archivio", "ai", "boheme", "modi", "vedetta", "coaching", "admin", "404",
+    "assets", "img", "docs", "content", "tools", "_template"];
+  const slugify = (t) => (t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40)) || "progetto";
+  const projectSheet = (title, year) => `# ${title}
+
+- **Anno:** ${year}
+- **Fotografia:** Simone Carducci
+- **Supporto:** Pellicola
+- **Fotocamera:** –
+- **Pellicola:** –
+- **Luogo:** –
+
+## Intro in testata (max 40 parole)
+
+Testo da scrivere.
+
+## Testo in fondo, dopo le foto (80–150 parole)
+
+Testo da scrivere.
+
+## Crediti
+
+Fotografie e testo: Simone Carducci · ${year}
+`;
+  const unsaved = () => draft.dirty && !confirm("Ci sono modifiche non salvate in questa scheda: se continui le perdi. Continuare?");
+  const asJson = (v) => JSON.stringify(v, null, 2) + "\n";
+
+  async function createProject(existing) {
+    if (unsaved()) return;
+    const title = existing ? existing.titolo : (prompt("Titolo del nuovo progetto") || "").trim();
+    if (!title) return;
+    const year = existing ? existing.anno : (prompt("Anno (o periodo, es. 2025 - attuale)", String(new Date().getFullYear())) || "").trim();
+    if (year === null) return;
+    const st = $("#save-state");
+    if (st) st.textContent = "Creo il progetto…";
+    let slug = null;
+    try {
+      const sha = await commit(`Create ${title} from admin`, async () => {
+        const home = JSON.parse(await readText("content/home.json", true) || "{}");
+        const list = home.ricerca_visiva = home.ricerca_visiva || [];
+        const base = slugify(existing ? existing.id : title);
+        const taken = (s) => RESERVED.includes(s) || tree[`docs/progetti/${s}.md`] || tree[`${s}.html`] ||
+          list.some((r) => r.pagina === s || (r.id === s && !(existing && r.id === existing.id)));
+        slug = base;
+        for (let k = 2; taken(slug); k++) slug = `${base}-${k}`;
+        if (existing) {
+          const r = list.find((x) => x.id === existing.id);
+          if (!r) throw new Error("progetto non trovato in content/home.json");
+          r.pagina = slug;
+        } else {
+          list.push({ id: slug, titolo: title, anno: year, pagina: slug, visibile: false });
+        }
+        const dest = JSON.parse(await readText("content/destinazioni.json", true) || "{}");
+        dest[slug] = { tipo: "serie", destinazione: `img/${slug}` };
+        return {
+          "content/home.json": await blobFrom({ text: asJson(home) }),
+          "content/destinazioni.json": await blobFrom({ text: asJson(dest) }),
+          [`docs/progetti/${slug}.md`]: await blobFrom({ text: projectSheet(title, year) }),
+        };
+      });
+      draft.dirty = false;
+      await applyHome(); renderNav();
+      const node = ALL.find((n) => n.id === slug);
+      if (node) await open(node);
+      const s2 = $("#save-state");
+      if (s2) s2.textContent = "Progetto creato (spento in home finché non lo accendi). La pagina è online in 1-2 minuti…";
+      if (sha && node) waitPublished(sha, node);
+    } catch (e) {
+      if (st) st.textContent = "";
+      alert("Non sono riuscito a creare il progetto: " + e.message);
+    }
+  }
+
+  async function deleteProject(r) {
+    if (unsaved()) return;
+    const msg = r.pagina
+      ? `Eliminare “${r.titolo}”? Spariscono dalla home e dal sito la sua pagina, i testi e le foto (restano recuperabili nella cronologia di GitHub).`
+      : `Togliere “${r.titolo}” dalla lista dei progetti?`;
+    if (!confirm(msg)) return;
+    const st = $("#save-state");
+    if (st) st.textContent = "Elimino…";
+    try {
+      const sha = await commit(`Delete ${r.titolo} from admin`, async () => {
+        const out = {};
+        const home = JSON.parse(await readText("content/home.json", true) || "{}");
+        home.ricerca_visiva = (home.ricerca_visiva || []).filter((x) => x.id !== r.id);
+        out["content/home.json"] = await blobFrom({ text: asJson(home) });
+        const p = r.pagina;
+        if (p && !RESERVED.includes(p) && !home.ricerca_visiva.some((x) => x.pagina === p)) {
+          Object.keys(tree).forEach((path) => {
+            if (path === `docs/progetti/${p}.md` || path.startsWith(`img/${p}/`) || path === `content/layout/${p}.json` ||
+                path === `content/foto/${p}.json` || path === `content/.stato/${p}.json` || path === `${p}.html`) out[path] = null;
+          });
+          const dest = JSON.parse(await readText("content/destinazioni.json", true) || "{}");
+          if (dest[p]) { delete dest[p]; out["content/destinazioni.json"] = await blobFrom({ text: asJson(dest) }); }
+        }
+        return out;
+      });
+      draft.dirty = false;
+      await applyHome(); renderNav();
+      const group = ALL.find((n) => n.homeList);
+      await open(group);
+      const s2 = $("#save-state");
+      if (s2) s2.textContent = "Eliminato. Il sito si aggiorna in 1-2 minuti…";
+      if (sha) waitPublished(sha, group);
+    } catch (e) {
+      if (st) st.textContent = "";
+      alert("Non sono riuscito a eliminare il progetto: " + e.message);
+    }
   }
 
   // ---------------------------------------------------------------- texts
