@@ -412,6 +412,8 @@ def band_color():
 
 
 def band_archive():
+    if "archivio" in BUILDING or not on("banda-archivio"):
+        return ""
     # The whole photo band is one link to the archive.
     return f"""  <a class="band band-bw" href="archivio.html">
     <div class="media bw has-photo"><img src="img/home/archivio.jpg" alt="" loading="lazy"{focus("img/home/archivio.jpg")}></div>
@@ -546,8 +548,15 @@ def video_html(src, title):
     return ""
 
 
-def draft_note(text="Bozza: le parti evidenziate vanno verificate con Simone prima della pubblicazione."):
-    return f'<p class="draft-note">{text}</p>'
+def back(fallback):
+    """Small back arrow before a project title: previous page, or the home section if opened directly."""
+    return (f'<a class="back-link" href="{fallback}" aria-label="Torna indietro" '
+            f'onclick="if (document.referrer.indexOf(location.host) > -1) {{ history.back(); return false; }}">&larr;</a>')
+
+
+def draft_note(text=""):
+    # Internal notes (placeholder texts, facts to verify) stay in docs/, never on the site (Simone, 2026-11-11).
+    return ""
 
 
 # ---------------------------------------------------------------- pages
@@ -596,7 +605,7 @@ def build_culture(i, p):
     body = f"""  <section class="p-hero bw">
     {img(f"img/{s}/cover.jpg", p["title"], eager=True)}
   </section>
-  <div class="p-title-row"><h1 class="p-title">{html.escape(p["title"])}<sup class="yr">{html.escape(p["year"])}</sup></h1></div>
+  <div class="p-title-row">{back("index.html#cultura")}<h1 class="p-title">{html.escape(p["title"])}<sup class="yr">{html.escape(p["year"])}</sup></h1></div>
   <div class="p-facts-wrap">{facts_html}</div>
   <section class="p-body">
     {draft_note() if "DA VERIFICARE" in " ".join(paras) else ""}
@@ -672,10 +681,10 @@ def build_photo(i, p):
     related = "".join(
         f'<a class="tile" href="{q["slug"]}.html">{img(f"img/{q["slug"]}/cover.jpg", q["title"], " ")}'
         f'<span class="fig-cap"><span>{html.escape(q["title"])}</span><span>{q["year"]}</span></span></a>'
-        for q in others[:3])
+        for q in others)
     first = f'  <div class="photo-first">{img(f"img/{s}/cover.jpg", p["title"], eager=True)}</div>\n' if lay.get("copertina", True) is not False else ""
     note = draft_note(inline(notes[0])) if notes else (draft_note() if "DA VERIFICARE" in str(secs) else "")
-    body = f"""  <div class="p-title-row page-head"><h1 class="p-title">{html.escape(p["title"])}<sup class="yr">{html.escape(year)}</sup></h1></div>
+    body = f"""  <div class="p-title-row page-head">{back("index.html#ricerca-visiva")}<h1 class="p-title">{html.escape(p["title"])}<sup class="yr">{html.escape(year)}</sup></h1></div>
   <div class="photo-intro">
     <p>{inline(intro)}</p>
     <p class="meta">{" · ".join(html.escape(x) for x in meta_lines)}</p>
@@ -729,7 +738,7 @@ def build_ai_detail(p):
     body = f"""  <section class="p-hero short bw">
     {img(f"img/{s}/cover.jpg", p["title"], eager=True)}
   </section>
-  <div class="p-title-row"><h1 class="p-title">{html.escape(p["title"])}<sup class="yr">{html.escape(year)}</sup></h1></div>
+  <div class="p-title-row">{back("ai.html")}<h1 class="p-title">{html.escape(p["title"])}<sup class="yr">{html.escape(year)}</sup></h1></div>
   <div class="p-facts-wrap">{sheet_override(s) if sheet_override(s) is not None else facts(meta)}</div>
   <section class="p-body">
     {draft_note() if "DA VERIFICARE" in str(secs) + str(meta) + str(notes) else ""}
@@ -942,7 +951,8 @@ def block_html(b, p, i):
         t, y = _str(b.get("titolo")) or p["title"], _str(b.get("anno"))
         tag = "h1" if i == p["_h1"] else "h2"
         sup = f'<sup class="yr">{html.escape(y)}</sup>' if y else ""
-        return f'  <div class="p-title-row page-head"><{tag} class="p-title">{html.escape(t)}{sup}</{tag}></div>'
+        arrow = back("index.html#ricerca-visiva") if tag == "h1" else ""
+        return f'  <div class="p-title-row page-head">{arrow}<{tag} class="p-title">{html.escape(t)}{sup}</{tag}></div>'
     if kind == "foto":
         src = b.get("foto")
         if not _photo(src, s):
@@ -990,7 +1000,7 @@ def block_html(b, p, i):
         return f'  <ol class="photo-seq layout-{cls}" aria-label="Fotografie">{lis}</ol>'
     if kind == "altri":
         shown = {r["pagina"] for r in RESEARCH if r.get("visibile", True) and r.get("pagina")}
-        others = [q for q in PHOTO if q["slug"] != s and q["slug"] in shown][:3]
+        others = [q for q in PHOTO if q["slug"] != s and q["slug"] in shown]
         if not others:
             return ""
         tiles = "".join(

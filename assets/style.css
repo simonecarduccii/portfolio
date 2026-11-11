@@ -428,3 +428,8 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 .block-video.wide { max-width: none; }
 .block-video figcaption { margin-top: 10px; font-size: 13px; color: var(--ink-2, #555); }
 .photo-seq li > .video { width: 100%; }
+
+/* Back arrow before a project title */
+.p-title-row:has(.back-link) { justify-content: flex-start; }
+.back-link { font-size: var(--fs-band-link); line-height: 1; color: var(--ink); text-decoration: none; padding: 4px 4px 4px 0; }
+.back-link:hover, .back-link:focus-visible { color: var(--ink-2); }
