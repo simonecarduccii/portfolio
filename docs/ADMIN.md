@@ -21,7 +21,7 @@ Il browser se lo ricorda (pulsante **Esci** per toglierlo). Lo stesso token serv
 ## 2. Come è fatto
 
 A sinistra c'è l'albero del sito, come in `information_architecture`:
-**Home** (Hero con Bohème e modì, Pellicole, Ricerca visiva con Faccini, Ghei, Papà, Vita mia, Progetti con l'AI, Archivio), **About**, **Archivio**.
+**Home** (Hero con Bohème e modì, Pellicole, Ricerca visiva con Faccini, Ghei, Papà, Vita mia, Progetti con l'AI, Archivio), **Impostazioni**, **About**, **Archivio**.
 Clicca un elemento: al centro trovi insieme le sue **foto** e i suoi **testi**, a destra l'anteprima della pagina online.
 
 - **Copertina**: *Sostituisci*, oppure trascina una foto dal Finder sopra la copertina. Quella di Bohème e di modì è anche lo sfondo dell'hero in home; quella dei progetti fotografici è anche la loro foto nella griglia.
@@ -46,6 +46,12 @@ Clicca un elemento: al centro trovi insieme le sue **foto** e i suoi **testi**, 
   La *Sequenza della pagina* sotto è un'anteprima in piccolo della pagina: le foto sono già disposte come nel layout scelto, e cambiano subito se cambi layout.
   Le scelte sono in `content/layout/<pagina>.json`; i layout sono le classi `.photo-seq.layout-<nome>` in `assets/style.css`.
 - **Archivio**: aggiungi o togli foto e scrivi pellicola, luogo e anno sotto ciascuna.
+- **Ordine delle sezioni**: in *Home*, ↑ ↓ spostano Pellicole, Ricerca visiva, Progetti con l'AI e la banda Archivio
+  (l'hero resta sempre in alto). L'ordine è `ordine` in `content/home.json`.
+- **Impostazioni**: le parti che compaiono in più pagine. Email, Instagram, Lomography e LinkedIn (vuoto = non compare),
+  la riga in fondo al footer (copyright, credito, partita IVA: una riga vuota non compare), titolo e anni di Bohème e modì
+  (l'anno della pagina e quello accanto al titolo in home), titolo, descrizione, stato e anno dei progetti con l'AI.
+  Tutto è in `content/sito.json`.
 - **Testi**: ogni campo è un pezzo della pagina. `**grassetto**`, `_corsivo_`, `[testo del link](https://...)`; un rigo vuoto separa i paragrafi.
   Le frasi con `[DA VERIFICARE]` restano evidenziate sul sito finché non togli la nota.
 

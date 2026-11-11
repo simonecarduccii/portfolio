@@ -253,6 +253,8 @@
     const body = h("div", { class: "el-body" });
     if (node.photos) body.append(await photoPanel(node));
     if (node.texts) body.append(await textPanel(node));
+    if (node.settings) body.append(await settingsPanel());
+    if (node.id === "home") body.append(await orderPanel());
     if (node.homeList) body.append(await homePanel());
     else if (node.children) {
       body.append(h("section", { class: "panel" }, h("h2", {}, "Dentro questa sezione"),
@@ -265,7 +267,7 @@
     const bar = h("div", { class: "savebar" },
       h("span", { id: "save-state", class: "muted" }, "Nessuna modifica"),
       h("button", { id: "save", type: "button", class: "primary", disabled: true, onclick: save }, "Salva e pubblica"));
-    const editable = node.photos || node.texts || node.homeList || node.switchKey || (node.children || []).some((c) => c.switchKey);
+    const editable = node.photos || node.texts || node.homeList || node.settings || node.switchKey || (node.children || []).some((c) => c.switchKey);
     return h("div", {}, head, body, editable ? bar : null);
   }
 
@@ -458,6 +460,76 @@ Fotografie e testo: Simone Carducci · ${year}
       if (st) st.textContent = "";
       alert("Non sono riuscito a eliminare il progetto: " + e.message);
     }
+  }
+
+  // ---------------------------------------------------------------- order of the home sections
+
+  // Same keys as HOME_SECTIONS in tools/build_pages.py; the hero always stays on top.
+  const HOME_SECTIONS = [["pellicole", "Pellicole (banda a colori)"], ["ricerca-visiva", "Ricerca visiva"],
+    ["ia", "Progetti con l'AI"], ["banda-archivio", "Archivio (banda in bianco e nero)"]];
+
+  async function orderPanel() {
+    const data = JSON.parse(await readText("content/home.json", true) || "{}");
+    const keys = HOME_SECTIONS.map(([k]) => k);
+    const order = (data.ordine || []).filter((k) => keys.includes(k));
+    keys.forEach((k) => { if (!order.includes(k)) order.push(k); });
+    draft.order = order;
+    const ol = h("ol", { class: "order-list" });
+    const move = (a, b) => {
+      if (b < 0 || b >= order.length) return;
+      const [k] = order.splice(a, 1); order.splice(b, 0, k); draft.orderDirty = true; draw(); markDirty();
+    };
+    const draw = () => ol.replaceChildren(
+      h("li", { class: "fixed" }, h("span", {}, "Hero (Bohème e modì)"), h("small", {}, "sempre in alto")),
+      ...order.map((k, i) => h("li", { class: data.sezioni && data.sezioni[k] === false ? "off" : null },
+        h("span", {}, HOME_SECTIONS.find(([x]) => x === k)[1], data.sezioni && data.sezioni[k] === false ? h("small", {}, " (spenta)") : null),
+        h("span", { class: "tools" },
+          h("button", { type: "button", title: "Su", "aria-label": "Sposta su", disabled: i === 0 ? "" : null, onclick: () => move(i, i - 1) }, "↑"),
+          h("button", { type: "button", title: "Giù", "aria-label": "Sposta giù", disabled: i === order.length - 1 ? "" : null, onclick: () => move(i, i + 1) }, "↓")))));
+    draw();
+    return h("section", { class: "panel" }, h("h2", {}, "Ordine delle sezioni"),
+      h("p", { class: "hint" }, "L'ordine in cui le sezioni compaiono in home, sotto l'hero. Per spegnerne una usa gli interruttori qui sotto."), ol);
+  }
+
+  // ---------------------------------------------------------------- site settings (content/sito.json)
+
+  const SITO_FILE = "content/sito.json";
+  const SITO_FORM = [
+    { title: "Contatti e link", hint: "Valgono in tutto il sito: footer, About, link di Lomography. Lascia LinkedIn vuoto per non mostrarlo.", fields: [
+      ["contatti.email", "Email"], ["contatti.instagram", "Instagram (indirizzo completo)"],
+      ["contatti.lomography", "Lomography (indirizzo completo)"], ["contatti.linkedin", "LinkedIn (indirizzo completo)"]] },
+    { title: "Riga in fondo al footer", hint: "Una riga vuota non compare.", fields: [
+      ["footer.copyright", "Copyright"], ["footer.credito", "Credito del sito"], ["footer.piva", "Partita IVA"]] },
+    { title: "Bohème Magazine", fields: [["cultura.boheme.titolo", "Titolo"], ["cultura.boheme.anno", "Anno nella pagina"], ["cultura.boheme.anno_home", "Anno accanto al titolo in home"]] },
+    { title: "Colectivo modì", fields: [["cultura.modi.titolo", "Titolo"], ["cultura.modi.anno", "Anno nella pagina"], ["cultura.modi.anno_home", "Anno accanto al titolo in home"]] },
+    { title: "Progetti con l'AI (righe della lista)", hint: "In home e nella pagina Progetti con l'AI. Lettura resta privato: niente pagina e niente stato.", fields: [
+      ["ai.vedetta.titolo", "Bohème Vedetta · titolo"], ["ai.vedetta.cosa", "Bohème Vedetta · cosa fa"], ["ai.vedetta.stato", "Bohème Vedetta · stato"], ["ai.vedetta.anno", "Bohème Vedetta · anno"],
+      ["ai.coaching.titolo", "Running Coach · titolo"], ["ai.coaching.cosa", "Running Coach · cosa fa"], ["ai.coaching.stato", "Running Coach · stato"], ["ai.coaching.anno", "Running Coach · anno"],
+      ["ai.lettura.titolo", "Lettura · titolo"], ["ai.lettura.cosa", "Lettura · cosa fa"], ["ai.lettura.anno", "Lettura · anno"]] },
+  ];
+  const getPath = (o, path) => path.split(".").reduce((x, k) => (x && typeof x === "object" ? x[k] : undefined), o);
+  const setPath = (o, path, v) => {
+    const ks = path.split("."), last = ks.pop();
+    ks.reduce((x, k) => (x[k] = x[k] && typeof x[k] === "object" ? x[k] : {}), o)[last] = v;
+  };
+
+  async function settingsPanel() {
+    let data = {};
+    try { data = JSON.parse(await readText(SITO_FILE, true) || "{}"); } catch (e) { data = {}; }
+    draft.sito = {};
+    const wrap = h("div", {});
+    SITO_FORM.forEach((g) => {
+      const panel = h("section", { class: "panel" }, h("h2", {}, g.title), g.hint ? h("p", { class: "hint" }, g.hint) : null);
+      g.fields.forEach(([path, label]) => {
+        const id = "s" + path.replace(/\W/g, "-");
+        const input = h("input", { id, type: path.endsWith("email") ? "email" : path.startsWith("contatti.") && !path.endsWith("email") ? "url" : "text" });
+        input.value = getPath(data, path) || "";
+        input.addEventListener("input", () => { draft.sito[path] = input.value.trim(); markDirty(); });
+        panel.append(h("label", { class: "field", for: id }, h("span", {}, label), input));
+      });
+      wrap.append(panel);
+    });
+    return wrap;
   }
 
   // ---------------------------------------------------------------- texts
@@ -775,11 +847,19 @@ Fotografie e testo: Simone Carducci · ${year}
           edits.forEach(([f, v]) => { text = setField(text, f, v); });
           if (text !== before) out[file] = await blobFrom({ text });
         }
+        // site settings
+        if (draft.sito && Object.keys(draft.sito).length) {
+          const fresh = JSON.parse(await readText(SITO_FILE, true) || "{}");
+          for (const [path, v] of Object.entries(draft.sito)) setPath(fresh, path, v);
+          const json = JSON.stringify(fresh, null, 2) + "\n";
+          if (json !== (texts[SITO_FILE] || "")) out[SITO_FILE] = await blobFrom({ text: json });
+        }
         // home grid
-        if (draft.home || Object.keys(draft.switches).length) {
+        if (draft.home || draft.orderDirty || Object.keys(draft.switches).length) {
           const fresh = JSON.parse(await readText("content/home.json", true) || "{}");
           const next = { ...fresh, sezioni: { ...(fresh.sezioni || {}) } };
           if (draft.home) next.ricerca_visiva = draft.home.list;
+          if (draft.orderDirty) next.ordine = [...draft.order];
           next.ricerca_visiva = (next.ricerca_visiva || []).map((r) => ({ ...r }));
           for (const [key, v] of Object.entries(draft.switches)) {
             if (key.startsWith("rv:")) { const r = next.ricerca_visiva.find((x) => x.id === key.slice(3)); if (r) r.visibile = v; }
