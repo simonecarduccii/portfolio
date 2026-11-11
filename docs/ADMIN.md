@@ -57,6 +57,9 @@ Il triangolino ▸ / ▾ accanto a un ramo lo apre o lo chiude (il browser se lo
   un indirizzo (`https://…`, anche senza `https://`), una pagina del sito (`modi.html`), una mail o `@nome` (Instagram).
   Sul sito le etichette sono in maiuscolo. La scheda è in `content/schede/<pagina>.json`; finché non la salvi la prima volta resta quella
   scritta nel testo della pagina. Anche il blocco *Scheda dati* delle Pagine ha il link facoltativo.
+- **Modifica sull'anteprima**: nell'anteprima a destra i testi che corrispondono a un campo si evidenziano al passaggio del mouse.
+  Un clic su un paragrafo semplice lo modifica lì (Invio o Esc per finire) e il campo a sinistra segue; un testo con grassetto,
+  corsivo o link porta al suo campo. Un clic su una foto la mostra nel pannello. Poi *Salva e pubblica* come sempre.
 - **Cronologia**: in fondo a ogni elemento, *Mostra le versioni precedenti* elenca i salvataggi (data e cosa è cambiato).
   *Torna a questa versione* riporta testi, foto e layout di quell'elemento com'erano dopo quel salvataggio; *Annulla questo salvataggio*
   (sulla versione attuale) torna a prima dell'ultimo. Il resto del sito non cambia: i testi in file condivisi (es. `docs/CONTENUTI.md`)
