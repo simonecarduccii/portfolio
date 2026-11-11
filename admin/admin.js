@@ -338,6 +338,7 @@
       const view = await renderElement(node);
       main.replaceChildren(view);
       setPreview(node.page);
+      main.querySelectorAll("[data-live]").forEach((el) => livePreview(el.dataset.live, el.value));
       linkPreview();
     } catch (e) {
       main.replaceChildren(h("p", { class: "error" }, "Non riesco a caricare: " + e.message));
@@ -1152,6 +1153,13 @@ Fotografie e testo: Simone Carducci · ${year}
     let rows = [];
     if (tree[path]) {
       try { rows = (JSON.parse(await readText(path)).righe || []).map((r) => ({ etichetta: r.etichetta || "", valore: r.valore || "", link: r.link || "" })); } catch (e) { rows = []; }
+    } else if (node.facts.fromPage) {
+      // About: the rows next to the portrait, as the published page shows them today
+      const doc = new DOMParser().parseFromString(await readText(node.facts.fromPage) || "", "text/html");
+      rows = [...doc.querySelectorAll(".about-facts > div")].map((d) => {
+        const a = d.querySelector("dd a");
+        return { etichetta: (d.querySelector("dt") || {}).textContent || "", valore: ((d.querySelector("dd") || {}).textContent || "").trim(), link: a ? a.getAttribute("href") : "" };
+      });
     } else {
       rows = factsFromSheet(await readText(node.facts.doc));
     }
@@ -1174,12 +1182,43 @@ Fotografie e testo: Simone Carducci · ${year}
           h("button", { type: "button", title: "Togli la voce", onclick: () => { rows.splice(i, 1); draw(); changed(); } }, "×")));
     }), h("button", { type: "button", class: "btn small", onclick: () => { rows.push({ etichetta: "", valore: "", link: "" }); draw(); changed(); box.querySelector(".sheet-row:last-of-type input").focus(); } }, "+ Aggiungi voce"));
     draw();
-    return h("section", { class: "panel" }, h("h2", {}, "Scheda dati in alto"),
-      h("p", { class: "hint" }, "Le voci sotto il titolo (Year, Creative direction, Where…). Sul sito le etichette compaiono in maiuscolo. Nel link puoi scrivere un indirizzo (https://…), una pagina del sito (es. modi.html), una mail o @nome per Instagram; se lo lasci vuoto il valore resta semplice testo."),
+    return h("section", { class: "panel" }, h("h2", {}, node.facts.title || "Scheda dati in alto"),
+      h("p", { class: "hint" }, (node.facts.intro || "Le voci sotto il titolo (Year, Creative direction, Where…).") + " Sul sito le etichette compaiono in maiuscolo. Nel link puoi scrivere un indirizzo (https://…), una pagina del sito (es. modi.html), una mail o @nome per Instagram; se lo lasci vuoto il valore resta semplice testo."),
       box);
   }
 
   // ---------------------------------------------------------------- texts
+
+  // What is typed shows up in the preview at once (before saving), for the fields that name a "live" kind.
+  const mdInline = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/\*(.+?)\*/g, "<em>$1</em>")
+    .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a href="$2">$1</a>');
+  function livePreview(kind, value) {
+    let doc;
+    try { doc = $("#preview iframe").contentDocument; } catch (e) { return; }
+    if (!doc) return;
+    if (kind === "about-statement") {
+      const el = doc.querySelector(".about-statement");
+      if (el) el.innerHTML = mdInline(value.trim().replace(/\s+/g, " "));
+    } else if (kind === "about-bio") {
+      // same rules as tools/build_pages.py: a **title** alone starts a section, the paragraphs below are its text
+      const box = doc.querySelector(".about-text");
+      if (!box) return;
+      const blocks = [];
+      value.split(/\n\s*\n/).map((x) => x.trim().replace(/\n/g, " ")).filter(Boolean).forEach((chunk) => {
+        const m = chunk.match(/^\*\*(.+?)\*\*$/);
+        if (m) blocks.push([m[1], []]);
+        else if (!chunk.startsWith("[DA VERIFICARE") && blocks.length) blocks[blocks.length - 1][1].push(chunk);
+      });
+      box.querySelectorAll(".about-block").forEach((b) => b.remove());
+      blocks.forEach(([title, paras]) => {
+        const d = doc.createElement("div");
+        d.className = "about-block";
+        d.innerHTML = `<h2 class="label">${mdInline(title)}</h2>` + paras.map((x) => `<p>${mdInline(x)}</p>`).join("");
+        box.append(d);
+      });
+    }
+  }
 
   async function textPanel(node) {
     const panel = h("section", { class: "panel" }, h("h2", {}, "Testi"));
@@ -1195,7 +1234,8 @@ Fotografie e testo: Simone Carducci · ${year}
           : h("input", { id, type: "text" });
         input.value = value;
         if (f.meta) input.dataset.meta = f.meta;
-        input.addEventListener("input", () => { draft.texts[file + "\u0000" + (f.meta || f.section) + "\u0000" + (f.in || "")] = { f, value: input.value }; markDirty(); });
+        if (spec.live) input.dataset.live = spec.live;
+        input.addEventListener("input", () => { draft.texts[file + "\u0000" + (f.meta || f.section) + "\u0000" + (f.in || "")] = { f, value: input.value }; markDirty(); if (spec.live) livePreview(spec.live, input.value); });
         panel.append(h("label", { class: "field", for: id, "data-hide-meta": f.hideIf ? f.hideIf[0] : null, "data-hide-re": f.hideIf ? f.hideIf[1].source : null }, h("span", {}, f.label), input,
           /\[DA VERIFICARE/.test(value) ? h("small", { class: "verify" }, "Contiene una nota [DA VERIFICARE], evidenziata sul sito finché non la togli.") : null));
       }
@@ -2241,7 +2281,11 @@ Fotografie e testo: Simone Carducci · ${year}
   }
 
   $("#logout").addEventListener("click", () => { localStorage.removeItem(KEY); location.reload(); });
-  $("#preview iframe").addEventListener("load", () => { try { linkPreview(); } catch (e) { /* preview of another site */ } });
+  $("#preview iframe").addEventListener("load", () => {
+    // the online page can be older than the panel (just saved, or not saved yet): show what the fields say
+    try { $("#main").querySelectorAll("[data-live]").forEach((el) => livePreview(el.dataset.live, el.value)); } catch (e) { /* not ready */ }
+    try { linkPreview(); } catch (e) { /* preview of another site */ }
+  });
   $("#toggle-preview").addEventListener("click", () => document.body.classList.toggle("no-preview"));
   window.addEventListener("beforeunload", (e) => { if (draft && draft.dirty) { e.preventDefault(); e.returnValue = ""; } });
   window.addEventListener("hashchange", () => {
