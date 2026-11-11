@@ -290,6 +290,20 @@ def footer():
 </footer>"""
 
 
+def band_color():
+    next_btn = chev("button", ' type="button" data-band-next aria-label="Un\'altra foto a caso"')
+    return f"""  <section class="band band-color">
+    <div class="media has-photo" data-random-photo data-keep><img src="img/home/pellicole.jpg" alt="Fotografia a colori su pellicola di Simone Carducci" loading="lazy"></div>
+    <a class="band-link" href="{LOMO}" target="_blank" rel="noopener" aria-label="Tutte le mie pellicole su Lomography"></a>
+    <ul class="band-list">
+      <li><a href="archivio.html">Tutto ciò che mi sta intorno</a></li>
+      <li><a href="{LOMO}" target="_blank" rel="noopener">Tutte le mie pellicole</a></li>
+      <li><a href="archivio.html">Tutta la mia vita</a></li>
+    </ul>
+    {next_btn}
+  </section>"""
+
+
 def band_archive():
     # The whole photo band is one link to the archive.
     return f"""  <a class="band band-bw" href="archivio.html">
@@ -512,7 +526,6 @@ def build_home():
             tiles += f'<a class="tile" href="{sl}.html">{img(f"img/{sl}/cover.jpg", title).replace("<div ", f"<div{st} ", 1)}{cap}</a>'
         else:
             tiles += f'<div class="tile is-soon"><div{st} class="media soon"><span class="ph">foto in arrivo</span></div>{cap}</div>'
-    next_btn = chev("button", ' type="button" data-band-next aria-label="Un\'altra foto a caso"')
     parts = []
     if on("hero") and hero:
         parts.append(f"""  <section class="hero hero-full bw" id="cultura" aria-label="Progetti culturali">
@@ -524,16 +537,7 @@ def build_home():
         parts.append('  <h1 class="sr-only">Simone Carducci, creative development</h1>')
     sec = {}
     if on("pellicole"):
-        sec["pellicole"] = (f"""  <section class="band band-color">
-    <div class="media has-photo" data-random-photo data-keep><img src="img/home/pellicole.jpg" alt="Fotografia a colori su pellicola di Simone Carducci" loading="lazy"></div>
-    <a class="band-link" href="{LOMO}" target="_blank" rel="noopener" aria-label="Tutte le mie pellicole su Lomography"></a>
-    <ul class="band-list">
-      <li><a href="archivio.html">Tutto ciò che mi sta intorno</a></li>
-      <li><a href="{LOMO}" target="_blank" rel="noopener">Tutte le mie pellicole</a></li>
-      <li><a href="archivio.html">Tutta la mia vita</a></li>
-    </ul>
-    {next_btn}
-  </section>""")
+        sec["pellicole"] = band_color()
     if on("ricerca-visiva") and tiles:
         sec["ricerca-visiva"] = (f"""  <section class="research zigzag-wrap" id="ricerca-visiva">
     <h2 class="research-title">Ricerca visiva</h2>
@@ -653,6 +657,123 @@ def build_about():
     page(file="about.html", title="About", description=plain(field(c, "Description About") or bio_short), body=body, current="about", main_class="flush", body_class="about-page")
 
 
+# ---------------------------------------------------------------- pages made of blocks (/admin "Pagine")
+# content/pagine/<slug>.json = {"titolo", "descrizione", "blocchi": [{"tipo": ..., ...}]}; photos in img/<slug>/.
+# The blocks are the components of the Figma page "Componenti" (docs/COMPONENTI.md).
+
+def free_pages():
+    out = []
+    for f in sorted((ROOT / "content" / "pagine").glob("*.json")):
+        try:
+            d = __import__("json").loads(f.read_text(encoding="utf-8"))
+        except ValueError:
+            print("skip (not valid JSON):", f.name)
+            continue
+        if isinstance(d, dict) and re.fullmatch(r"[a-z0-9][a-z0-9-]*", f.stem):
+            out.append({"slug": f.stem, "title": str(d.get("titolo") or f.stem), **d})
+    return out
+
+
+FREE = free_pages()
+
+
+def page_targets():
+    """Pages a "Progetto successivo" block can point to: slug -> title."""
+    t = {p["slug"]: p["title"] for p in PHOTO + CULTURE + [a for a in AI if a["slug"]] + FREE}
+    t.update({"index": "Home", "about": "About", "archivio": "Archivio", "ai": "Progetti con l'AI"})
+    return t
+
+
+def _str(v):
+    return v.strip() if isinstance(v, str) else ""
+
+
+def _photo(src, slug):
+    return isinstance(src, str) and src.startswith(f"img/{slug}/") and src.endswith(".jpg") and "/../" not in src
+
+
+def paras(text):
+    return "\n".join(f"<p>{inline(x.strip())}</p>" for x in re.split(r"\n\s*\n", text) if x.strip())
+
+
+def block_html(b, p, i):
+    s, kind = p["slug"], b.get("tipo")
+    if kind == "titolo":
+        t, y = _str(b.get("titolo")) or p["title"], _str(b.get("anno"))
+        tag = "h1" if i == p["_h1"] else "h2"
+        sup = f'<sup class="yr">{html.escape(y)}</sup>' if y else ""
+        return f'  <div class="p-title-row page-head"><{tag} class="p-title">{html.escape(t)}{sup}</{tag}></div>'
+    if kind == "foto":
+        src = b.get("foto")
+        if not _photo(src, s):
+            return ""
+        alt = _str(b.get("alt")) or p["title"]
+        if b.get("piena"):
+            return f'  <section class="p-hero">\n    {img(src, alt, eager=i == 0)}\n  </section>'
+        return f'  <div class="photo-first">{img(src, alt, eager=i < 2)}</div>'
+    if kind == "testo":
+        t, nota = _str(b.get("testo")), _str(b.get("nota"))
+        if not t and not nota:
+            return ""
+        note = f'\n    <p class="meta label">{inline(nota)}</p>' if nota else ""
+        return f'  <section class="photo-text block-text">\n    {paras(t)}{note}\n  </section>'
+    if kind == "citazione":
+        t, a = _str(b.get("testo")), _str(b.get("autore"))
+        if not t:
+            return ""
+        return (f'  <figure class="quote"><blockquote><p>{inline(t)}</p></blockquote>'
+                f'{f"<figcaption>{inline(a)}</figcaption>" if a else ""}</figure>')
+    if kind == "scheda":
+        rows = [(_str(r[0]), _str(r[1])) for r in b.get("righe") or [] if isinstance(r, list) and len(r) == 2]
+        rows = [r for r in rows if r[0] or r[1]]
+        if not rows:
+            return ""
+        items = "".join(f'<div class="fact"><dt>{html.escape(k)}</dt><dd>{inline(v)}</dd></div>' for k, v in rows)
+        return f'  <div class="p-facts-wrap"><dl class="p-facts">{items}</dl></div>'
+    if kind == "sequenza":
+        photos = [f for f in b.get("foto") or [] if _photo(f, s)]
+        if not photos:
+            return ""
+        lay = b.get("layout")
+        schema = schema_of({"layout": lay, "schema": b.get("schema")}) if lay == "casuale" or lay not in LAYOUTS else None
+        spots = grid_places(schema, len(photos)) if schema else []
+        cls = "custom" if schema else (lay if lay in LAYOUTS else "colonna")
+        n = len(photos)
+        lis = "".join(f'<li{grid_spot(spots, k)}>{img(f, f"{p["title"]}, fotografia {k}")}<span class="count label">{k:02d}/{n:02d}</span></li>'
+                      for k, f in enumerate(photos, 1))
+        return f'  <ol class="photo-seq layout-{cls}" aria-label="Fotografie">{lis}</ol>'
+    if kind == "altri":
+        shown = {r["pagina"] for r in RESEARCH if r.get("visibile", True) and r.get("pagina")}
+        others = [q for q in PHOTO if q["slug"] != s and q["slug"] in shown][:3]
+        if not others:
+            return ""
+        tiles = "".join(
+            f'<a class="tile" href="{q["slug"]}.html">{img(f"img/{q["slug"]}/cover.jpg", q["title"], " ")}'
+            f'<span class="fig-cap"><span>{html.escape(q["title"])}</span><span>{html.escape(q["year"])}</span></span></a>'
+            for q in others)
+        return (f'  <section class="related" aria-label="Altri progetti">\n    <h2 class="small-title">Altri progetti</h2>\n'
+                f'    <div class="related-row">{tiles}</div>\n  </section>')
+    if kind == "successivo":
+        to, targets = _str(b.get("pagina")), page_targets()
+        if to not in targets or to == s:
+            return ""
+        label = _str(b.get("testo")) or "Progetto successivo"
+        return f'  <a class="next-project" href="{to}.html"><span>{html.escape(label)}</span><span>{html.escape(targets[to])} ›</span></a>'
+    if kind == "fascia":
+        return band_color() if b.get("variante") == "pellicole" else band_archive()
+    return ""
+
+
+def build_free(p):
+    blocks = [b for b in p.get("blocchi") or [] if isinstance(b, dict)]
+    p["_h1"] = next((i for i, b in enumerate(blocks) if b.get("tipo") == "titolo"), -1)
+    parts = [] if p["_h1"] >= 0 else [f'  <h1 class="sr-only">{html.escape(p["title"])}</h1>']
+    parts += [x for x in (block_html(b, p, i) for i, b in enumerate(blocks)) if x]
+    over = bool(blocks) and blocks[0].get("tipo") == "foto" and blocks[0].get("piena") and _photo(blocks[0].get("foto"), p["slug"])
+    page(file=f'{p["slug"]}.html', title=p["title"], description=plain(_str(p.get("descrizione"))),
+         body="\n".join(parts), header="overlay" if over else "", main_class="flush")
+
+
 def main():
     build_home()
     for i, p in enumerate(CULTURE):
@@ -665,6 +786,12 @@ def main():
         if p.get("doc"):
             build_ai_detail(p)
     build_about()
+    taken = {"index", "about", "archivio", "ai", "404"} | {p["slug"] for p in PHOTO + CULTURE + AI if p.get("slug")}
+    for p in FREE:
+        if p["slug"] in taken:
+            print("skip page (name already used):", p["slug"])
+            continue
+        build_free(p)
 
 
 if __name__ == "__main__":
