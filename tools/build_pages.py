@@ -238,12 +238,12 @@ def footer():
 
 
 def band_archive():
-    # Only the label and the chevron are links, not the whole photo band.
-    return f"""  <section class="band band-bw" aria-label="Archivio">
+    # The whole photo band is one link to the archive.
+    return f"""  <a class="band band-bw" href="archivio.html">
     <div class="media bw has-photo"><img src="img/home/archivio.jpg" alt="" loading="lazy"></div>
-    <a class="band-text" href="archivio.html">Archivio</a>
-    {chev("a", ' href="archivio.html" aria-label="Vai all\'archivio" tabindex="-1"')}
-  </section>"""
+    <span class="band-text">Archivio</span>
+    {chev()}
+  </a>"""
 
 
 def chev(tag="span", attrs=' aria-hidden="true"'):
@@ -455,6 +455,7 @@ def build_home():
     if on("pellicole"):
         parts.append(f"""  <section class="band band-color">
     <div class="media has-photo" data-random-photo data-keep><img src="img/home/pellicole.jpg" alt="Fotografia a colori su pellicola di Simone Carducci" loading="lazy"></div>
+    <a class="band-link" href="{LOMO}" target="_blank" rel="noopener" aria-label="Tutte le mie pellicole su Lomography"></a>
     <ul class="band-list">
       <li><a href="archivio.html">Tutto ciò che mi sta intorno</a></li>
       <li><a href="{LOMO}" target="_blank" rel="noopener">Tutte le mie pellicole</a></li>
