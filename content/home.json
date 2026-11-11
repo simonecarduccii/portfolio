@@ -10,18 +10,18 @@
   },
   "ricerca_visiva": [
     {
-      "id": "torino-17",
-      "titolo": "Torino 17",
-      "anno": "2026",
-      "pagina": "torino-17",
-      "visibile": true
-    },
-    {
       "id": "maghreb",
       "titolo": "Maghreb",
       "anno": "2026",
       "pagina": null,
       "visibile": false
+    },
+    {
+      "id": "torino-17",
+      "titolo": "Torino 17",
+      "anno": "2026",
+      "pagina": "torino-17",
+      "visibile": true
     },
     {
       "id": "faccioni",
