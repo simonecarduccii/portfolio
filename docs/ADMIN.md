@@ -60,6 +60,13 @@ Il triangolino ▸ / ▾ accanto a un ramo lo apre o lo chiude (il browser se lo
 - **Modifica sull'anteprima**: nell'anteprima a destra i testi che corrispondono a un campo si evidenziano al passaggio del mouse.
   Un clic su un paragrafo semplice lo modifica lì (Invio o Esc per finire) e il campo a sinistra segue; un testo con grassetto,
   corsivo o link porta al suo campo. Un clic su una foto la mostra nel pannello. Poi *Salva e pubblica* come sempre.
+- **Libreria foto** (nell'albero): tutte le foto del sito divise per cartella, con ricerca. Clic su una foto:
+  clic sull'immagine = **punto di fuoco** (il punto che resta in vista quando il sito taglia la foto: hero, griglia della home,
+  copertine in alto; *Centro* lo toglie); **Ritaglio** sceglie un formato (1:1, 4:5, 3:2…) e lo zoom, il riquadro si centra sul punto
+  di fuoco e *Ritaglia* taglia davvero il file (si annulla dalla Cronologia). Poi *Salva e pubblica*.
+  Per **riusare** una foto in un'altra pagina: accanto a ogni *Sostituisci* / *+ Aggiungi foto* (anche nei blocchi delle Pagine)
+  c'è *Dalla libreria*: la foto viene copiata nella pagina senza ricaricarla, con il suo punto di fuoco.
+  I punti di fuoco sono in `content/fuochi.json` (`{"img/x/01.jpg": [x%, y%]}`) e seguono le foto quando cambi l'ordine.
 - **Cronologia**: in fondo a ogni elemento, *Mostra le versioni precedenti* elenca i salvataggi (data e cosa è cambiato).
   *Torna a questa versione* riporta testi, foto e layout di quell'elemento com'erano dopo quel salvataggio; *Annulla questo salvataggio*
   (sulla versione attuale) torna a prima dell'ultimo. Il resto del sito non cambia: i testi in file condivisi (es. `docs/CONTENUTI.md`)

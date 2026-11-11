@@ -342,6 +342,7 @@
     if (node.facts) body.append(await factsPanel(node));
     if (node.texts) body.append(await textPanel(node));
     if (node.settings) body.append(await settingsPanel());
+    if (node.library) body.append(await libraryPanel());
     if (node.pagesList) body.append(await pagesPanel());
     if (node.freePage) body.append(await builderPanel(node));
     if (node.id === "home") body.append(await orderPanel());
@@ -359,7 +360,7 @@
       h("button", { id: "save", type: "button", class: "primary", disabled: true, onclick: save }, "Salva e pubblica"));
     const hist = historyTargets(node);
     if (hist.whole.length || hist.prefixes.length || hist.fields.length) body.append(historyPanel(node, hist));
-    const editable = node.photos || node.facts || node.texts || node.homeList || node.settings || node.freePage || pageSlug(node) || node.switchKey || (node.children || []).some((c) => c.switchKey);
+    const editable = node.library || node.photos || node.facts || node.texts || node.homeList || node.settings || node.freePage || pageSlug(node) || node.switchKey || (node.children || []).some((c) => c.switchKey);
     return h("div", {}, head, body, editable ? bar : null);
   }
 
@@ -689,7 +690,8 @@ Fotografie e testo: Simone Carducci · ${year}
         case "foto": {
           const src = photoSrc(b.foto);
           const box = h("div", { class: "block-photo" }, src ? h("img", { src, alt: "" }) : h("span", { class: "ph" }, "nessuna foto"),
-            picker(false, async ([f]) => { const p = f && await newPhoto(f, MAX_SIDE); if (p) { b.foto = p; changed(); draw(); } }));
+            h("div", { class: "photo-btns" }, picker(false, async ([f]) => { const p = f && await newPhoto(f, MAX_SIDE); if (p) { b.foto = p; changed(); draw(); } }),
+              libButton(false, ([p]) => { b.foto = p; changed(); draw(); })));
           dropZone(box, async ([f]) => { const p = f && isImage(f) && await newPhoto(f, MAX_SIDE); if (p) { b.foto = p; changed(); draw(); } });
           return [box, h("div", { class: "head-switch" }, toggle(!!b.piena, (v) => { b.piena = v; changed(); }), h("span", {}, "A tutta pagina (in cima alla pagina, sotto il menu)")),
             field("Descrizione della foto (per chi non vede)", b.alt, (v) => { b.alt = v; })];
@@ -725,7 +727,8 @@ Fotografie e testo: Simone Carducci · ${year}
               h("button", { type: "button", title: "Togli", onclick: () => { b.foto.splice(i, 1); changed(); draw(); } }, "×")))));
           const add = async (files) => { for (const f of files) { const p = isImage(f) && await newPhoto(f, MAX_SIDE); if (p) b.foto.push(p); } changed(); draw(); };
           dropZone(grid, add);
-          return [select("Layout", b.layout, opts, (v) => { b.layout = v; }), grid, picker(true, add),
+          return [select("Layout", b.layout, opts, (v) => { b.layout = v; }), grid,
+            h("div", { class: "photo-btns" }, picker(true, add), libButton(true, (list) => { b.foto.push(...list); changed(); draw(); })),
             h("small", { class: "hint" }, "Per una coppia di foto affiancate: layout Griglia con 2 foto.")];
         }
         case "altri": return [h("p", { class: "hint" }, "Si riempie da solo con i progetti di Ricerca visiva accesi in home (al massimo 3).")];
@@ -777,9 +780,11 @@ Fotografie e testo: Simone Carducci · ${year}
   async function builderChanges(out) {
     const { state, file, extra, node } = draft.builder;
     const slug = node.freePage;
+    const copies = [];
     const put = async (f, b) => {
       if (!f || typeof f !== "object") return f;
       if (!f.path) f.path = `img/${slug}/${b.id}-${newId()}.jpg`;
+      if (f.from) copies.push({ from: f.from, to: f.path });
       if (!f.sha) f.sha = await blobFrom({ blob: f.blob });
       out[f.path] = f.sha;
       return f.path;
@@ -792,6 +797,7 @@ Fotografie e testo: Simone Carducci · ${year}
       if (b.tipo === "scheda") c.righe = (b.righe || []).filter((r) => (r[0] || "").trim() || (r[1] || "").trim());
       blocchi.push(c);
     }
+    if (copies.length) await fociFollow(out, copies, null);
     const used = new Set(blocchi.flatMap((b) => (b.tipo === "foto" ? [b.foto] : b.tipo === "sequenza" ? b.foto : [])).filter(Boolean));
     Object.keys(tree).forEach((p) => { if (p.startsWith(`img/${slug}/`) && p.endsWith(".jpg") && !used.has(p) && !(p in out)) out[p] = null; });
     const json = asJson({ ...extra, titolo: state.titolo.trim() || slug, descrizione: state.descrizione.trim(), blocchi });
@@ -1008,7 +1014,8 @@ Fotografie e testo: Simone Carducci · ${year}
         h("input", { type: "file", accept: "image/*", hidden: true, onchange: async (e) => {
           const f = e.target.files[0]; if (!f) return;
           const p = await newPhoto(f, MAX_SIDE); if (p) { state.cover = p; drawCover(); markDirty(); }
-        } })));
+        } })),
+      libButton(false, ([p]) => { state.cover = p; drawCover(); markDirty(); }));
     drawCover();
     dropZone(coverBox, async (files) => { const p = await newPhoto(files[0], MAX_SIDE); if (p) { state.cover = p; drawCover(); markDirty(); } });
     panel.append(h("h3", {}, ph.cover || "Foto"), coverBox);
@@ -1068,6 +1075,7 @@ Fotografie e testo: Simone Carducci · ${year}
           return drag(li);
         }), h("li", { class: "add", style: schema ? `grid-row: ${maxRow + 1}` : null }, h("label", {}, "+ Aggiungi foto",
           h("input", { type: "file", accept: "image/*", multiple: true, hidden: true, onchange: (e) => addFiles(e.target.files) })),
+          libButton(true, (list) => { state.seq.push(...list); draw(); markDirty(); }),
           ph.layout ? h("button", { type: "button", class: "add-text", onclick: () => { state.seq.push({ text: true, testo: "" }); draw(); markDirty();
             const tas = grid.querySelectorAll("li.text textarea"); if (tas.length) tas[tas.length - 1].focus(); } }, "+ Aggiungi testo") : null));
       };
@@ -1316,6 +1324,7 @@ Fotografie e testo: Simone Carducci · ${year}
           if (text !== before) out[file] = await blobFrom({ text });
         }
         if (draft.builder) await builderChanges(out);
+        if (draft.foci) await libraryChanges(out);
         // facts at the top of the page
         if (draft.facts && draft.facts.dirty) {
           const righe = draft.facts.rows.map((r) => ({ etichetta: r.etichetta.trim(), valore: r.valore.trim(), link: r.link.trim() }))
@@ -1377,6 +1386,11 @@ Fotografie e testo: Simone Carducci · ${year}
               if (m && parseInt(m[1], 10) > seqPhotos.length) out[p] = null;
             });
           }
+          // focal points follow the photos
+          const pairs = n.photos.kind === "serie"
+            ? seqPhotos.map((it, i) => ({ from: it.orig || it.from, to: `${n.photos.dir}/${String(i + 1).padStart(2, "0")}.jpg` })) : [];
+          if (state.cover) pairs.push({ from: state.cover.orig || state.cover.from, to: coverPath });
+          if (pairs.some((x) => x.from !== x.to)) await fociFollow(out, pairs, n.photos.kind === "serie" ? n.photos.dir : null);
           if (draft.photos.layout) {
             const fresh = JSON.parse(await readText(n.photos.layout, true) || "{}");
             const { foto, ...rest } = fresh; // "foto" = per-photo sizes of the first version, no longer used
@@ -1447,6 +1461,164 @@ Fotografie e testo: Simone Carducci · ${year}
     setPreview(node.page, true);
     await open(node);
     if (st()) st().textContent = "Online ✓ (se non vedi la modifica, ricarica la pagina)";
+  }
+
+  // ---------------------------------------------------------------- photo library
+  // Every photo of the site, by folder. A photo can be reused in another page ("Dalla libreria" next to each
+  // upload button: the file is copied, nothing is uploaded again), cropped, and given a focal point:
+  // content/fuochi.json = {"img/x/01.jpg": [x%, y%]}, the point that stays in view when the site crops the photo.
+
+  const FOCI_FILE = "content/fuochi.json";
+  let FOCI = {};
+  async function loadFoci() {
+    try { FOCI = JSON.parse(await readText(FOCI_FILE, true) || "{}") || {}; } catch (e) { FOCI = {}; }
+  }
+  const libPhotos = () => Object.keys(tree).filter((p) => /^img\/.+\.(jpe?g|png|webp)$/i.test(p) && !p.includes("/thumbs/")).sort();
+  const folderOf = (p) => p.split("/").slice(1, -1).join("/") || "(sito)";
+  const thumbOf = (p) => { const t = p.replace(/^img\/archivio\//, "img/archivio/thumbs/"); return siteUrl(tree[t] ? t : p); };
+  const byFolder = (paths) => { const g = {}; paths.forEach((p) => { (g[folderOf(p)] = g[folderOf(p)] || []).push(p); }); return g; };
+
+  function libraryGrid(onPick, selected) {
+    const search = h("input", { type: "search", class: "lib-search", placeholder: "Cerca una cartella (es. torino, archivio)…", "aria-label": "Cerca una cartella" });
+    const groups = h("div", { class: "lib-groups" });
+    const draw = () => {
+      const q = norm(search.value.trim());
+      const g = byFolder(libPhotos());
+      groups.replaceChildren(...Object.entries(g).filter(([f]) => !q || norm(f).includes(q)).map(([f, ps]) => h("section", { class: "lib-group" },
+        h("h3", {}, f, h("small", {}, ` ${ps.length} foto`)),
+        h("ol", { class: "lib-grid" }, ps.map((p) => h("li", { class: selected && selected.has(p) ? "on" : null },
+          h("button", { type: "button", title: p, onclick: (e) => onPick(p, e.currentTarget.parentNode) },
+            h("img", { src: thumbOf(p), alt: "", loading: "lazy" }),
+            FOCI[p] ? h("span", { class: "dot", style: `left:${FOCI[p][0]}%;top:${FOCI[p][1]}%` }) : null)))))));
+    };
+    search.addEventListener("input", draw);
+    draw();
+    return { el: h("div", { class: "lib" }, search, groups), redraw: draw };
+  }
+
+  // Modal picker: resolves to [{sha, url, from}] (empty if closed)
+  function libraryPick(multiple) {
+    return new Promise((resolve) => {
+      const chosen = new Set();
+      const done = (list) => { overlay.remove(); document.removeEventListener("keydown", esc); resolve(list); };
+      const esc = (e) => { if (e.key === "Escape") done([]); };
+      const use = h("button", { type: "button", class: "primary", disabled: true, onclick: () => done([...chosen].map((p) => ({ sha: tree[p], url: siteUrl(p), from: p }))) }, "Usa");
+      const grid = libraryGrid((p, li) => {
+        if (!multiple) { done([{ sha: tree[p], url: siteUrl(p), from: p }]); return; }
+        if (chosen.has(p)) chosen.delete(p); else chosen.add(p);
+        li.classList.toggle("on", chosen.has(p));
+        use.disabled = !chosen.size;
+        use.textContent = chosen.size ? `Usa ${chosen.size} foto` : "Usa";
+      }, chosen);
+      const overlay = h("div", { class: "lib-modal", role: "dialog", "aria-modal": "true", "aria-label": "Libreria foto" },
+        h("div", { class: "lib-box" },
+          h("header", {}, h("h2", {}, "Libreria foto"), h("span", { class: "muted" }, multiple ? "scegli una o più foto" : "scegli una foto"),
+            h("button", { type: "button", class: "close", "aria-label": "Chiudi", onclick: () => done([]) }, "×")),
+          grid.el,
+          multiple ? h("footer", {}, use) : null));
+      overlay.addEventListener("click", (e) => { if (e.target === overlay) done([]); });
+      document.addEventListener("keydown", esc);
+      document.body.append(overlay);
+      overlay.querySelector(".lib-search").focus();
+    });
+  }
+
+  const libButton = (multiple, onPicked) => h("button", { type: "button", class: "btn small lib-btn",
+    onclick: async () => { const list = await libraryPick(multiple); if (list.length) onPicked(list); } }, "Dalla libreria");
+
+  const RATIOS = [["", "Nessun ritaglio"], ["1:1", "1:1"], ["4:5", "4:5"], ["3:2", "3:2"], ["2:3", "2:3"], ["4:3", "4:3"], ["16:9", "16:9"]];
+
+  function cropBox(w, hh, ratio, zoom, f) {
+    const [a, b] = ratio.split(":").map(Number);
+    const r = a / b;
+    let cw = Math.min(w, hh * r) / zoom, ch = cw / r;
+    let x = f[0] / 100 * w - cw / 2, y = f[1] / 100 * hh - ch / 2;
+    x = Math.max(0, Math.min(w - cw, x)); y = Math.max(0, Math.min(hh - ch, y));
+    return { x, y, cw, ch };
+  }
+
+  async function libraryPanel() {
+    await loadFoci();
+    draft.foci = { ...FOCI };
+    draft.crops = {};
+    const editor = h("div", { class: "lib-editor" }, h("p", { class: "muted" }, "Scegli una foto qui sotto per il punto di fuoco o per ritagliarla."));
+    let grid;
+    const edit = (p) => {
+      const f = draft.foci[p] || [50, 50];
+      let ratio = "", zoom = 1;
+      const im = h("img", { src: draft.crops[p] ? draft.crops[p].url : siteUrl(p), alt: "" });
+      const dot = h("span", { class: "focus-dot" });
+      const box = h("span", { class: "crop-box" });
+      const stage = h("div", { class: "focus-stage" }, im, box, dot);
+      const sync = () => {
+        dot.style.left = f[0] + "%"; dot.style.top = f[1] + "%";
+        if (!ratio || !im.naturalWidth) { box.hidden = true; return; }
+        const w = im.naturalWidth, hh = im.naturalHeight, c = cropBox(w, hh, ratio, zoom, f);
+        Object.assign(box.style, { left: c.x / w * 100 + "%", top: c.y / hh * 100 + "%", width: c.cw / w * 100 + "%", height: c.ch / hh * 100 + "%" });
+        box.hidden = false;
+      };
+      im.addEventListener("load", sync);
+      stage.addEventListener("click", (e) => {
+        const r = im.getBoundingClientRect();
+        f[0] = Math.round(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * 100);
+        f[1] = Math.round(Math.max(0, Math.min(1, (e.clientY - r.top) / r.height)) * 100);
+        draft.foci[p] = [f[0], f[1]];
+        markDirty(); sync(); grid.redraw();
+      });
+      const ratioSel = h("select", { "aria-label": "Formato del ritaglio" }, RATIOS.map(([v, t]) => h("option", { value: v }, t)));
+      const zoomIn = h("input", { type: "range", min: "1", max: "3", step: "0.05", value: "1", "aria-label": "Zoom del ritaglio" });
+      const apply = h("button", { type: "button", class: "btn small", disabled: true }, "Ritaglia");
+      ratioSel.addEventListener("change", () => { ratio = ratioSel.value; apply.disabled = !ratio; sync(); });
+      zoomIn.addEventListener("input", () => { zoom = parseFloat(zoomIn.value); sync(); });
+      apply.addEventListener("click", async () => {
+        const w = im.naturalWidth, hh = im.naturalHeight, c = cropBox(w, hh, ratio, zoom, f);
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(c.cw); canvas.height = Math.round(c.ch);
+        const src = new Image();
+        src.crossOrigin = "anonymous";
+        src.src = im.src;
+        await src.decode();
+        canvas.getContext("2d").drawImage(src, c.x, c.y, c.cw, c.ch, 0, 0, canvas.width, canvas.height);
+        const blob = await new Promise((r) => canvas.toBlob(r, "image/jpeg", 0.9));
+        draft.crops[p] = { blob, url: URL.createObjectURL(blob) };
+        // the focal point stays on the same spot of the photo
+        draft.foci[p] = [Math.round((f[0] / 100 * w - c.x) / c.cw * 100), Math.round((f[1] / 100 * hh - c.y) / c.ch * 100)];
+        f[0] = draft.foci[p][0]; f[1] = draft.foci[p][1];
+        ratio = ""; ratioSel.value = ""; zoom = 1; zoomIn.value = "1"; apply.disabled = true;
+        im.src = draft.crops[p].url;
+        markDirty();
+      });
+      const reset = h("button", { type: "button", class: "btn small", onclick: () => { f[0] = 50; f[1] = 50; delete draft.foci[p]; markDirty(); sync(); grid.redraw(); } }, "Centro");
+      editor.replaceChildren(
+        h("h3", {}, p, h("a", { href: SITE + p, target: "_blank", rel: "noopener", class: "muted" }, " apri ↗")),
+        stage,
+        h("p", { class: "hint" }, "Clic sulla foto: punto di fuoco (il punto che resta in vista quando il sito taglia la foto, es. in home o in alto nelle pagine). Il ritaglio taglia davvero la foto, intorno al punto di fuoco; si può annullare dalla Cronologia."),
+        h("div", { class: "lib-tools" }, reset, h("label", {}, "Ritaglio ", ratioSel), h("label", {}, "Zoom ", zoomIn), apply));
+      sync();
+      editor.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+    grid = libraryGrid((p) => edit(p));
+    return h("section", { class: "panel" }, h("h2", {}, "Tutte le foto del sito"),
+      h("p", { class: "hint" }, "Le foto restano nelle loro cartelle. Per usarne una in un'altra pagina, nella pagina premi “Dalla libreria”. Il pallino segna il punto di fuoco."),
+      editor, grid.el);
+  }
+
+  async function libraryChanges(out) {
+    for (const [p, c] of Object.entries(draft.crops || {})) out[p] = await blobFrom({ blob: c.blob });
+    const json = JSON.stringify(Object.fromEntries(Object.entries(draft.foci).filter(([p]) => tree[p] || out[p]).sort()), null, 2) + "\n";
+    if (json !== (texts[FOCI_FILE] || "{}\n")) out[FOCI_FILE] = await blobFrom({ text: json });
+  }
+
+  // when photos of a page move (01 -> 03) or come from the library, their focal point goes with them.
+  // pairs: [{from, to}] for every photo of the page (from = where the photo was, or the library photo)
+  async function fociFollow(out, pairs, dir) {
+    await loadFoci();
+    const next = { ...FOCI };
+    Object.keys(next).forEach((p) => { if (dir && p.startsWith(dir + "/") && /\/\d{2,}\.jpg$/.test(p)) delete next[p]; });
+    pairs.forEach(({ to }) => { delete next[to]; });
+    pairs.forEach(({ from, to }) => { if (from && FOCI[from]) next[to] = FOCI[from]; });
+    const json = JSON.stringify(Object.fromEntries(Object.entries(next).sort()), null, 2) + "\n";
+    if (json !== (texts[FOCI_FILE] || "{}\n") && (Object.keys(next).length || tree[FOCI_FILE])) out[FOCI_FILE] = await blobFrom({ text: json });
   }
 
   // ---------------------------------------------------------------- history
