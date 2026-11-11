@@ -115,7 +115,7 @@ Sono al terzo anno di Beni culturali all'Università di Torino, indirizzo storic
 | Competenze | Direzione artistica ed editoriale, art direction, organizzazione di eventi, comunicazione e social media, scrittura ed editing, UX design, progettazione di strumenti digitali con l'AI |
 | Strumenti | Figma, Adobe Photoshop, Lightroom e InDesign, Final Cut Pro, Meta Business Suite, Claude Code, Pacchetto Office |
 | Lingue | Italiano, inglese, francese, spagnolo |
-| Formazione | Beni culturali: Università di Torino; Universidad de Granada; Université Paris Cité - Google UX Design Certificate (2024) - WSET Level 2 (2023) |
+| Formazione | Beni culturali: Università di Torino; Universidad de Granada; Université Paris Cité (2024-2027) - Google UX Design Certificate (2024) - WSET Level 2 (2023) |
 
 - **Link:** Scarica il CV · Scrivimi
 
