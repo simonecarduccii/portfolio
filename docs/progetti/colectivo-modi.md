@@ -1,6 +1,6 @@
 # Colectivo modì
 
-- **Anno:** 2026 (gennaio – agosto, dal CV)
+- **Anno:** 2025-2026
 - **Ruolo:** Direzione creativa; riprese e montaggio
 - **Ambito:** Eventi, produzione audiovideo
 - **Formati:** DJ set filmati, podcast, video promo
@@ -16,10 +16,10 @@ Un collettivo che organizza serate, filma i DJ set e li pubblica, perché una se
 ## Testo pagina (mockup: 3–4 paragrafi da 60–90 parole, senza titoletti)
 
 Scheda (etichette in inglese come nei mockup):
-YEAR 2026 · CREATIVE DIRECTION Simone Carducci · VIDEO & EDITING Simone Carducci · FORMAT Filmed DJ sets, podcast, promo videos · WHERE @colectivomodi
+YEAR 2025-2026 · CREATIVE DIRECTION Simone Carducci · VIDEO & EDITING Simone Carducci · FORMAT Filmed DJ sets, podcast, promo videos · WHERE @colectivomodi
 (Niente IDEATED BY: dal CV Simone non risulta fondatore. Se c'è un nome da mettere, lo aggiunge lui.)
 
-modì è un collettivo che tiene insieme musica, serate e video. Organizza DJ set, li filma e li pubblica come serie, così che una serata non finisca quando si spengono le luci. Accanto alle serate c'è un podcast, che dà voce alle persone che la scena la costruiscono davvero. Nel 2026, da gennaio ad agosto, ne ho curato la direzione creativa, con l'obiettivo di dare al collettivo un'immagine riconoscibile, dentro e fuori dalla pista.
+modì è un collettivo che tiene insieme musica, serate e video. Organizza DJ set, li filma e li pubblica come serie, così che una serata non finisca quando si spengono le luci. Accanto alle serate c'è un podcast, che dà voce alle persone che la scena la costruiscono davvero. Tra il 2025 e il 2026 ne ho curato la direzione creativa, con l'obiettivo di dare al collettivo un'immagine riconoscibile, dentro e fuori dalla pista.
 
 Il mio lavoro partiva dall'identità: la strategia creativa, il tono della comunicazione, l'aspetto di ogni contenuto, dalla fotografia ai formati editoriali alle campagne digitali. Da lì seguivo tutto il flusso, dalla ricerca al concept fino alla consegna, coordinando collaboratori e fornitori quando serviva. Ho girato e montato io stesso i set in Final Cut Pro, con riprese multicamera sincronizzate sull'audio.
 
