@@ -2,7 +2,7 @@
 
 Testi segnaposto (lorem ipsum): servono a fissare struttura e lunghezze. Simone scriverà i testi veri più avanti.
 
-- **Anno:** 2025 – in corso
+- **Anno:** 2025 - in corso
 - **Fotografia:** Simone Carducci
 - **Supporto:** Pellicola
 - **Fotocamera:** Leica CL, Chinon Auto 3001
