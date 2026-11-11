@@ -34,19 +34,46 @@
 
   // ------------------------------------------------------------------ GitHub
 
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  // One GitHub API call. Network errors, 5xx and rate limits (403/429) are retried a few times with a pause.
   async function gh(method, path, body) {
-    const res = await fetch(API + path, {
-      method,
-      headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" },
-      body: body ? JSON.stringify(body) : undefined,
-      cache: "no-store",
-    });
-    if (!res.ok) {
-      const err = new Error(`GitHub ${res.status}: ${(await res.text()).slice(0, 200)}`);
+    for (let attempt = 0; ; attempt++) {
+      let res;
+      try {
+        res = await fetch(API + path, {
+          method,
+          headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" },
+          body: body ? JSON.stringify(body) : undefined,
+          cache: "no-store",
+        });
+      } catch (e) {
+        if (attempt < 3) { await sleep(2000 * (attempt + 1)); continue; }
+        const err = new Error("connessione a GitHub non riuscita (" + e.message + ")");
+        err.status = 0;
+        throw err;
+      }
+      if (res.ok) return res.status === 204 ? null : res.json();
+      const text = (await res.text()).slice(0, 200);
+      const limited = res.status === 429 || (res.status === 403 && /rate limit/i.test(text));
+      if ((res.status >= 500 || limited) && attempt < 3) {
+        const wait = Number(res.headers.get("retry-after")) * 1000 || 3000 * (attempt + 1);
+        await sleep(Math.min(wait, 20000));
+        continue;
+      }
+      const err = new Error(`GitHub ${res.status}: ${text}`);
       err.status = res.status;
       throw err;
     }
-    return res.status === 204 ? null : res.json();
+  }
+
+  // Plain-language reason for a failed save
+  function why(e) {
+    if (e.status === 401) return "il token non funziona più (scaduto o revocato): esci e rientra con un token nuovo.";
+    if (e.status === 403 || e.status === 404) return "il token non ha il permesso di scrivere sul repository (serve Contents: Read and write).";
+    if (e.status === 422) return "il sito è stato aggiornato più volte mentre salvavi. Le tue modifiche sono ancora qui: riprova tra qualche secondo.";
+    if (e.status === 0) return "connessione assente o instabile. Le tue modifiche sono ancora qui: riprova appena torna la rete.";
+    return e.message;
   }
 
   async function loadTree() {
@@ -77,7 +104,10 @@
 
   // changes: async (freshReader) => {path: sha | null}. Retried on a fresh head if someone pushed meanwhile.
   async function commit(message, build) {
-    for (let attempt = 0; attempt < 3; attempt++) {
+    // the Action commits the rebuilt pages a few seconds after each save: if it lands between our read and our
+    // write, GitHub answers 422 and we start again on the new head (photo blobs are kept, not uploaded twice)
+    for (let attempt = 0; attempt < 6; attempt++) {
+      if (attempt) await sleep(1500 * attempt);
       const head = await loadTree();
       const changes = await build();
       const entries = Object.entries(changes).map(([path, sha]) => ({ path, mode: "100644", type: "blob", sha }));
@@ -90,7 +120,7 @@
         await loadTree();
         return c.sha;
       } catch (e) {
-        if (e.status !== 422 || attempt === 2) throw e;
+        if (e.status !== 422 || attempt === 5) throw e;
       }
     }
   }
@@ -589,7 +619,7 @@ Fotografie e testo: Simone Carducci · ${year}
     const photoSrc = (f) => (f && typeof f === "object" ? f.url : f && tree[f] ? siteUrl(f) : null);
     const picker = (multiple, onFiles) => {
       const input = h("input", { type: "file", accept: "image/*", multiple: multiple ? "" : null, hidden: "" });
-      input.addEventListener("change", async () => { await onFiles([...input.files].filter((f) => f.type.startsWith("image/"))); input.value = ""; });
+      input.addEventListener("change", async () => { await onFiles([...input.files].filter(isImage)); input.value = ""; });
       return h("label", { class: "btn small" }, input, multiple ? "+ Aggiungi foto" : "Scegli foto");
     };
 
@@ -599,8 +629,8 @@ Fotografie e testo: Simone Carducci · ${year}
         case "foto": {
           const src = photoSrc(b.foto);
           const box = h("div", { class: "block-photo" }, src ? h("img", { src, alt: "" }) : h("span", { class: "ph" }, "nessuna foto"),
-            picker(false, async ([f]) => { if (f) { b.foto = await newPhoto(f, MAX_SIDE); changed(); draw(); } }));
-          dropZone(box, async ([f]) => { if (f && f.type.startsWith("image/")) { b.foto = await newPhoto(f, MAX_SIDE); changed(); draw(); } });
+            picker(false, async ([f]) => { const p = f && await newPhoto(f, MAX_SIDE); if (p) { b.foto = p; changed(); draw(); } }));
+          dropZone(box, async ([f]) => { const p = f && isImage(f) && await newPhoto(f, MAX_SIDE); if (p) { b.foto = p; changed(); draw(); } });
           return [box, h("div", { class: "head-switch" }, toggle(!!b.piena, (v) => { b.piena = v; changed(); }), h("span", {}, "A tutta pagina (in cima alla pagina, sotto il menu)")),
             field("Descrizione della foto (per chi non vede)", b.alt, (v) => { b.alt = v; })];
         }
@@ -631,7 +661,7 @@ Fotografie e testo: Simone Carducci · ${year}
               h("button", { type: "button", title: "Prima", onclick: () => { if (i) { b.foto.splice(i - 1, 0, b.foto.splice(i, 1)[0]); changed(); draw(); } } }, "←"),
               h("button", { type: "button", title: "Dopo", onclick: () => { if (i < b.foto.length - 1) { b.foto.splice(i + 1, 0, b.foto.splice(i, 1)[0]); changed(); draw(); } } }, "→"),
               h("button", { type: "button", title: "Togli", onclick: () => { b.foto.splice(i, 1); changed(); draw(); } }, "×")))));
-          const add = async (files) => { for (const f of files) if (f.type.startsWith("image/")) b.foto.push(await newPhoto(f, MAX_SIDE)); changed(); draw(); };
+          const add = async (files) => { for (const f of files) { const p = isImage(f) && await newPhoto(f, MAX_SIDE); if (p) b.foto.push(p); } changed(); draw(); };
           dropZone(grid, add);
           return [select("Layout", b.layout, opts, (v) => { b.layout = v; }), grid, picker(true, add),
             h("small", { class: "hint" }, "Per una coppia di foto affiancate: layout Griglia con 2 foto.")];
@@ -810,13 +840,13 @@ Fotografie e testo: Simone Carducci · ${year}
 
     const coverPath = ph.kind === "serie" ? `${ph.dir}/cover.jpg` : ph.file;
     const state = {
-      cover: tree[coverPath] ? { sha: tree[coverPath], url: siteUrl(coverPath) } : null,
+      cover: tree[coverPath] ? { orig: coverPath, url: siteUrl(coverPath) } : null,
       seq: [],
       removed: [],
     };
     if (ph.kind === "serie") {
       Object.keys(tree).filter((p) => p.startsWith(ph.dir + "/") && /^\d{2,}\.jpg$/.test(p.slice(ph.dir.length + 1)))
-        .sort().forEach((p) => state.seq.push({ sha: tree[p], url: siteUrl(p) }));
+        .sort().forEach((p) => state.seq.push({ orig: p, url: siteUrl(p) }));
     }
     // Page layout (photo projects): big cover on/off and one of the standard layouts (LAYOUTS)
     let layout = null;
@@ -836,10 +866,10 @@ Fotografie e testo: Simone Carducci · ${year}
       h("label", { class: "btn" }, state.cover ? "Sostituisci" : "Carica",
         h("input", { type: "file", accept: "image/*", hidden: true, onchange: async (e) => {
           const f = e.target.files[0]; if (!f) return;
-          state.cover = await newPhoto(f, MAX_SIDE); drawCover(); markDirty();
+          const p = await newPhoto(f, MAX_SIDE); if (p) { state.cover = p; drawCover(); markDirty(); }
         } })));
     drawCover();
-    dropZone(coverBox, async (files) => { state.cover = await newPhoto(files[0], MAX_SIDE); drawCover(); markDirty(); });
+    dropZone(coverBox, async (files) => { const p = await newPhoto(files[0], MAX_SIDE); if (p) { state.cover = p; drawCover(); markDirty(); } });
     panel.append(h("h3", {}, ph.cover || "Foto"), coverBox);
     if (ph.layout) panel.append(h("div", { class: "head-switch cover-switch" },
       toggle(state.coverBig, (v) => { state.coverBig = v; markDirty(); }),
@@ -881,7 +911,7 @@ Fotografie e testo: Simone Carducci · ${year}
         const [it] = state.seq.splice(a, 1); state.seq.splice(b, 0, it); draw(); markDirty();
       };
       const addFiles = async (files) => {
-        for (const f of files) if (f.type.startsWith("image/")) state.seq.push(await newPhoto(f, MAX_SIDE));
+        for (const f of files) { const p = isImage(f) && await newPhoto(f, MAX_SIDE); if (p) state.seq.push(p); }
         draw(); markDirty();
       };
       dropZone(grid, addFiles);
@@ -1004,9 +1034,38 @@ Fotografie e testo: Simone Carducci · ${year}
     return h("div", {}, h("h3", {}, "Layout delle foto", h("small", {}, " vale per tutta la sequenza; sul telefono sempre una foto per riga")), wrap, tools);
   }
 
+  // Upload new photos 4 at a time, showing the progress; each keeps its blob sha so a retry does not resend it
+  async function uploadAll(items) {
+    const todo = items.filter((it) => !it.sha);
+    let done = 0;
+    const st = () => $("#save-state");
+    const show = () => { if (st() && todo.length) st().textContent = `Carico le foto: ${done}/${todo.length}…`; };
+    show();
+    const queue = [...todo];
+    await Promise.all(Array.from({ length: Math.min(4, queue.length) }, async () => {
+      while (queue.length) {
+        const it = queue.shift();
+        it.sha = await blobFrom({ blob: it.blob });
+        done++; show();
+      }
+    }));
+    if (st() && todo.length) st().textContent = "Pubblico…";
+  }
+
+  // Files from the Finder sometimes come without a type (HEIC): look at the name too
+  const isImage = (f) => f.type.startsWith("image/") || /\.(jpe?g|png|heic|heif|webp|tiff?|avif)$/i.test(f.name);
+
   async function newPhoto(file, side) {
-    const blob = await toJpeg(file, side);
-    return { blob, url: URL.createObjectURL(blob), name: file.name };
+    try {
+      const blob = await toJpeg(file, side);
+      if (!blob) throw new Error("conversione non riuscita");
+      return { blob, url: URL.createObjectURL(blob), name: file.name };
+    } catch (e) {
+      alert(`Non riesco a leggere “${file.name}”` + (/\.hei[cf]$/i.test(file.name)
+        ? ": è una foto HEIC, che questo browser non apre. Aprila con Safari, oppure esportala in JPEG (Anteprima → Esporta) e riprova."
+        : ": esportala in JPEG e riprova."));
+      return null;
+    }
   }
 
   function dropZone(el, onFiles) {
@@ -1121,14 +1180,20 @@ Fotografie e testo: Simone Carducci · ${year}
         // photos of a page: cover + 01, 02 ... rebuilt from existing blobs and new uploads
         if (draft.photos) {
           const { node: n, state, coverPath } = draft.photos;
-          const shaOf = async (it) => it.sha || (it.sha = await blobFrom({ blob: it.blob }));
-          if (state.cover && state.cover.sha !== tree[coverPath]) out[coverPath] = await shaOf(state.cover);
+          // a photo already online that stays in its place is left alone (the Action may have optimised it meanwhile);
+          // a moved one takes the current file of its old place; a new one is uploaded once
+          const fresh = [state.cover, ...state.seq].filter((it) => it && it.blob && !it.sha);
+          await uploadAll(fresh);
+          const shaOf = (it) => (it.orig && tree[it.orig]) || it.sha;
+          if (state.cover && state.cover.orig !== coverPath && shaOf(state.cover)) out[coverPath] = shaOf(state.cover);
           if (n.photos.kind === "serie") {
             const dir = n.photos.dir;
             for (let i = 0; i < state.seq.length; i++) {
               const p = `${dir}/${String(i + 1).padStart(2, "0")}.jpg`;
-              const s = await shaOf(state.seq[i]);
-              if (tree[p] !== s) out[p] = s;
+              const it = state.seq[i];
+              if (it.orig === p) continue;
+              const s = shaOf(it);
+              if (s && tree[p] !== s) out[p] = s;
             }
             Object.keys(tree).forEach((p) => {
               const m = p.startsWith(dir + "/") && p.slice(dir.length + 1).match(/^(\d{2,})\.jpg$/);
@@ -1164,6 +1229,11 @@ Fotografie e testo: Simone Carducci · ${year}
         return out;
       });
       draft.dirty = false;
+      if (draft.photos) { // what was saved is now the online version
+        const { state, coverPath, node: n } = draft.photos;
+        if (state.cover) state.cover.orig = coverPath;
+        state.seq.forEach((it, i) => { it.orig = `${n.photos.dir}/${String(i + 1).padStart(2, "0")}.jpg`; });
+      }
       if (draft.home || Object.keys(draft.switches).length) { await applyHome(); renderNav(); }
       if (draft.builder) { await applyPages(); renderNav(); }
       if (!sha) { st.textContent = "Niente da salvare"; return; }
@@ -1171,8 +1241,8 @@ Fotografie e testo: Simone Carducci · ${year}
       waitPublished(sha, node);
     } catch (e) {
       btn.disabled = false;
-      st.textContent = "";
-      alert("Salvataggio non riuscito: " + e.message);
+      st.textContent = "Non salvato: " + why(e);
+      alert("Salvataggio non riuscito: " + why(e));
     }
   }
 
@@ -1189,9 +1259,11 @@ Fotografie e testo: Simone Carducci · ${year}
       } catch (e) { break; }
     }
     await new Promise((r) => setTimeout(r, 45000));
-    if (current === node && st()) st().textContent = "Online ✓ (se non vedi la modifica, ricarica la pagina)";
+    if (current !== node) return setPreview(node.page, true);
+    if (draft && draft.dirty) { if (st()) st().textContent = "Online ✓ · hai altre modifiche da salvare"; return; }
     setPreview(node.page, true);
-    if (current === node) open(node);
+    await open(node);
+    if (st()) st().textContent = "Online ✓ (se non vedi la modifica, ricarica la pagina)";
   }
 
   // ---------------------------------------------------------------- preview
