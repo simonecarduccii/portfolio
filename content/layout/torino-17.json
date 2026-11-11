@@ -1,4 +1,21 @@
 {
   "copertina": true,
-  "layout": "colonna"
+  "layout": "casuale",
+  "schema": [
+    [
+      [2, 3],
+      [7, 3]
+    ],
+    [
+      [2, 5],
+      [8, 5]
+    ],
+    [
+      [3, 3],
+      [7, 6]
+    ],
+    [
+      [2, 9]
+    ]
+  ]
 }
