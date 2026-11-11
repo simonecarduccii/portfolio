@@ -1,8 +1,15 @@
 name: Check site
 
+# Pushes from /admin or the Mac folder sync (docs/, content/, img/) commit raw photos first;
+# "Update site" then optimises them and runs this same check on the result. Checking the raw
+# commit here only produced false "All jobs have failed" emails, so those paths are skipped.
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "content/**"
+      - "img/**"
   pull_request:
 
 jobs:
