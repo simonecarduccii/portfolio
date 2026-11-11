@@ -543,17 +543,13 @@ def fact_rows_html(rows):
     for k, v, link in rows:
         if not (k or v):
             continue
-        val = inline(v)
-        href = fact_href(link)
-        if href:
-            ext = "" if href.endswith(".html") or ".html#" in href or href.startswith(("/", "#", "mailto:", "tel:")) else ' target="_blank" rel="noopener"'
-            val = f'<a href="{html.escape(href)}"{ext}>{val or html.escape(link)}</a>'
-        items.append(f'<div class="fact"><dt>{html.escape(k)}</dt><dd>{val}</dd></div>')
+        items.append(f'<div class="fact"><dt>{html.escape(k)}</dt><dd>{fact_value_html(v, link)}</dd></div>')
     return '<dl class="p-facts">' + "".join(items) + "</dl>" if items else ""
 
 
-def sheet_override(slug):
-    """Facts at the top of a page as edited in /admin (content/schede/<slug>.json), or None."""
+def sheet_rows(slug):
+    """Rows [(label, value, link)] of the facts at the top of a page as edited in /admin
+    (content/schede/<slug>.json), or None if the page has never been edited there."""
     f = ROOT / "content" / "schede" / f"{slug}.json"
     if not f.is_file():
         return None
@@ -561,9 +557,23 @@ def sheet_override(slug):
         data = json.loads(f.read_text(encoding="utf-8"))
     except ValueError:
         return None
-    rows = [(_str(r.get("etichetta")), _str(r.get("valore")), _str(r.get("link")))
+    return [(_str(r.get("etichetta")), _str(r.get("valore")), _str(r.get("link")))
             for r in data.get("righe") or [] if isinstance(r, dict)]
-    return fact_rows_html(rows)
+
+
+def sheet_override(slug):
+    """Facts at the top of a page as edited in /admin, as HTML, or None."""
+    rows = sheet_rows(slug)
+    return None if rows is None else fact_rows_html(rows)
+
+
+def fact_value_html(v, link):
+    val = inline(v)
+    href = fact_href(link)
+    if href:
+        ext = "" if href.endswith(".html") or ".html#" in href or href.startswith(("/", "#", "mailto:", "tel:")) else ' target="_blank" rel="noopener"'
+        val = f'<a href="{html.escape(href)}"{ext}>{val or html.escape(link)}</a>'
+    return val
 
 
 VIDEO_FILE = re.compile(r"media/[a-z0-9][a-z0-9-]*/[\w.-]+\.(mp4|webm|mov|m4v)")
@@ -917,22 +927,26 @@ def build_about():
         elif blocks:
             blocks[-1][1].append(chunk)
     html_blocks = []
-    for n, (title, paras) in enumerate(blocks):
-        cls = ' class="lead"' if n == len(blocks) - 1 else ""
+    # every section in the same body text, whatever its position (the last one used to be bigger)
+    for title, paras in blocks:
         html_blocks.append(f'<div class="about-block"><h2 class="label">{inline(title)}</h2>'
-                           + "".join(f"<p{cls}>{inline(x)}</p>" for x in paras) + "</div>")
+                           + "".join(f"<p>{inline(x)}</p>" for x in paras) + "</div>")
     rows = re.findall(r"^\| (Ambiti|Competenze|Strumenti|Lingue|Formazione) \| (.+?) \|$", a, re.M)
     rows = [(k, "<br>".join(inline(x) for x in v.split(" · ")) if k == "Formazione" else inline(v)) for k, v in rows]
     langs = dict(rows).get("Lingue", "").lower()
     portrait = img("img/about/ritratto.jpg", "Ritratto di Simone Carducci", "Ritratto in arrivo", eager=True)
+    # the details next to the portrait: edited in /admin -> About (content/schede/about.json), these until then
+    fact_rows = sheet_rows("about")
+    if fact_rows is None:
+        fact_rows = [("Base", "Torino", ""), ("Ambiti", "editoria, eventi, progetti culturali, fotografia analogica", ""),
+                     ("Contatti", EMAIL, f"mailto:{EMAIL}"), ("Lingue", langs, "")]
+    facts = "\n".join(f"      <div><dt>{html.escape(k)}</dt><dd>{fact_value_html(v, link)}</dd></div>"
+                      for k, v, link in fact_rows if k or v)
     body = f"""  <h1 class="sr-only">Simone Carducci</h1>
   <section class="about-intro">
     <div class="about-portrait">{portrait.replace('class="media', 'class="media soon', 1)}</div>
     <dl class="about-facts">
-      <div><dt>Base</dt><dd>Torino</dd></div>
-      <div><dt>Ambiti</dt><dd>editoria, eventi, progetti culturali, fotografia analogica</dd></div>
-      <div><dt>Contatti</dt><dd><a href="mailto:{EMAIL}">{EMAIL}</a></dd></div>
-      <div><dt>Lingue</dt><dd>{langs}</dd></div>
+{facts}
     </dl>
   </section>
   <section class="about-text">

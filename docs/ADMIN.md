@@ -153,3 +153,5 @@ Quando il Mac invia delle foto compare una notifica "Portfolio".
 - Le pagine fotografiche mostrano tante foto quante sono in `img/<pagina>/` (12 segnaposto finché non ce n'è nessuna).
 
 **Foto sostituite.** Quando cambi una foto che mantiene lo stesso nome (es. il ritratto dell'About), il pannello per 15 minuti la mostra direttamente da GitHub, così la vedi subito anche se il sito non è ancora aggiornato. Le pagine del sito chiamano ogni foto con un codice della sua versione (`ritratto.jpg?v=…`): appena il sito si aggiorna, il browser scarica la foto nuova invece di mostrare quella vecchia salvata in memoria.
+
+**About.** "Dati accanto al ritratto" modifica le voci accanto alla foto (Base, Ambiti, Contatti, Lingue…): testo, link, voci nuove, da togliere o da spostare (`content/schede/about.json`). Mentre scrivi la frase d'apertura e la bio, l'anteprima a destra si aggiorna subito, prima ancora di salvare. Tutte le sezioni della bio hanno lo stesso stile di testo, in qualunque posizione si trovino.

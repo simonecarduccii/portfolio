@@ -95,9 +95,11 @@ window.STRUTTURA = [
   {
     id: "about", title: "About", page: "about.html", cartella: "about",
     photos: { kind: "singola", file: "img/about/ritratto.jpg", cover: "Ritratto" },
+    facts: { slug: "about", fromPage: "about.html", title: "Dati accanto al ritratto",
+      intro: "Le voci accanto alla foto (Base, Ambiti, Contatti, Lingue…): puoi cambiarle, aggiungerne, toglierle e riordinarle." },
     texts: [
-      { label: "Frase d'apertura (grande)", file: C, section: "### Frase d'apertura", rows: 3 },
-      { label: "Bio (i titoletti tra **asterischi** diventano le sezioni)", file: C, section: "### Bio estesa", rows: 22 },
+      { label: "Frase d'apertura (grande)", file: C, section: "### Frase d'apertura", rows: 3, live: "about-statement" },
+      { label: "Bio (i titoletti tra **asterischi** diventano le sezioni)", file: C, section: "### Bio estesa", rows: 22, live: "about-bio" },
       { label: "Ambiti, competenze, strumenti, lingue, formazione (tabella: una riga per voce)", file: C, section: "### Ambiti, competenze", rows: 9 },
       { label: "Descrizione per Google", file: C, meta: "Description About", rows: 2 },
     ],
