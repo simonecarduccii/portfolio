@@ -81,8 +81,10 @@
     const ref = await gh("GET", `/repos/${REPO}/git/ref/heads/${BRANCH}`);
     const commit = await gh("GET", `/repos/${REPO}/git/commits/${ref.object.sha}`);
     const t = await gh("GET", `/repos/${REPO}/git/trees/${commit.tree.sha}?recursive=1`);
+    const before = Object.keys(tree).length ? tree : null;
     tree = {};
     t.tree.forEach((e) => { if (e.type === "blob") tree[e.path] = e.sha; });
+    noteChanges(before, ref.object.sha);
     return ref.object.sha;
   }
 
@@ -213,7 +215,25 @@
     return new Promise((ok) => c.toBlob(ok, "image/jpeg", QUALITY));
   }
 
-  const siteUrl = (path) => SITE + path + (tree[path] ? "?v=" + tree[path].slice(0, 8) : "");
+  // A file replaced by a save (same name, new content) is on GitHub minutes before the site has it: until then the
+  // site would still send the old photo, and the browser would keep it. For 15 minutes after the change the panel
+  // shows it from GitHub at the exact commit instead. Remembered across reloads of the panel.
+  const FRESH_KEY = "adm-fresh", FRESH_MS = 15 * 60000;
+  let fresh = {};
+  try { fresh = JSON.parse(localStorage.getItem(FRESH_KEY) || "{}") || {}; } catch (e) { fresh = {}; }
+  function noteChanges(before, head) {
+    const now = Date.now();
+    Object.keys(fresh).forEach((p) => { if (now - fresh[p].t > FRESH_MS) delete fresh[p]; });
+    if (before) Object.keys(tree).forEach((p) => {
+      if (before[p] && before[p] !== tree[p] && /\.(jpe?g|png|webp|gif|svg)$/i.test(p)) fresh[p] = { sha: tree[p], c: head, t: now };
+    });
+    try { localStorage.setItem(FRESH_KEY, JSON.stringify(fresh)); } catch (e) { /* private mode */ }
+  }
+  const siteUrl = (path) => {
+    const f = fresh[path];
+    if (f && f.sha === tree[path] && Date.now() - f.t < FRESH_MS) return `https://raw.githubusercontent.com/${REPO}/${f.c}/${path}`;
+    return SITE + path + (tree[path] ? "?v=" + tree[path].slice(0, 8) : "");
+  };
 
   // A photo just saved is on GitHub before the site has it (publishing takes 1-2 minutes): when a site image
   // fails to load, show it straight from GitHub instead of a broken image.
@@ -2119,7 +2139,8 @@ Fotografie e testo: Simone Carducci · ${year}
       doc.head.append(st);
     }
     const adminImgs = [...$("#main").querySelectorAll("img")];
-    const strip = (u) => u.replace(/[?#].*$/, "");
+    // compared by site path: the panel may show a photo from GitHub (just saved) and the preview from the site
+    const strip = (u) => { const x = u.replace(/[?#].*$/, ""); return (x.match(/(?:^|\/)((?:img|media)\/.+)$/) || [, x])[1]; };
     doc.querySelectorAll("img").forEach((im) => { if (adminImgs.some((a) => strip(a.src) === strip(im.src))) im.classList.add("adm-photo"); });
     doc.__admLinks = links;
     if (doc.__admBound) return;

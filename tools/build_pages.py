@@ -292,6 +292,22 @@ def asset_version(name):
     return hashlib.sha1(data).hexdigest()[:8]
 
 
+_MEDIA_V = {}
+MEDIA_REF = re.compile(r'="((?:img|media)/[^"?#]+\.(?:jpe?g|png|webp|gif|svg|mp4|webm|mov|m4v))"', re.I)
+
+
+def version_media(markup):
+    """Photos keep their file name when they are replaced (img/about/ritratto.jpg): a content hash in the URL
+    makes browsers fetch the new photo instead of showing the old one from their cache."""
+    def add(m):
+        path = m.group(1)
+        if path not in _MEDIA_V:
+            f = ROOT / path
+            _MEDIA_V[path] = hashlib.sha1(f.read_bytes()).hexdigest()[:8] if f.is_file() else None
+        return f'="{path}?v={_MEDIA_V[path]}"' if _MEDIA_V[path] else m.group(0)
+    return MEDIA_REF.sub(add, markup)
+
+
 def building(title):
     return f"""  <p class="eyebrow">Pagina in costruzione</p>
   <h1 class="p-title">{html.escape(title)}</h1>
@@ -406,7 +422,7 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 </body>
 </html>
 """
-    (ROOT / file).write_text(drop_empty(out), encoding="utf-8")
+    (ROOT / file).write_text(version_media(drop_empty(out)), encoding="utf-8")
     print("wrote", file)
 
 
