@@ -5,6 +5,7 @@
 - **Supporto:** Digitale
 - **Fotocamera:** Sony A7C
 - **Pellicola:** –
+- **Lente:** Voigtlander 15mm f/4.5
 - **Luogo:** Torino
 
 ## Intro in testata (max 40 parole)
