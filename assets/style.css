@@ -104,7 +104,7 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 }
 .site-header.overlay { position: fixed; left: 0; right: 0; background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; color: var(--on-photo); }
 .site-header.overlay.scrolled { background: color-mix(in srgb, var(--paper) 92%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); color: var(--ink); }
-.brand { font-weight: 400; letter-spacing: .05em; }
+.brand { font-weight: 700; letter-spacing: .05em; }
 .site-header .tag { font-size: var(--fs-tag); font-style: italic; letter-spacing: .05em; }
 .nav { margin-left: auto; display: flex; gap: 24px; }
 .nav a:hover, .brand:hover { text-decoration: underline; text-underline-offset: 3px; }
