@@ -2,10 +2,10 @@
 
 - **Anno:** 2026
 - **Fotografia:** Simone Carducci
-- **Supporto:** Pellicola
-- **Fotocamera:** –
+- **Supporto:** Digitale
+- **Fotocamera:** Sony A7C
 - **Pellicola:** –
-- **Luogo:** –
+- **Luogo:** Torino
 
 ## Intro in testata (max 40 parole)
 
