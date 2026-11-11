@@ -249,3 +249,33 @@ body.no-preview .preview { display: none; }
 /* edit on the preview: the field or photo clicked in the preview */
 .flash { animation: flash 1.6s ease-out; }
 @keyframes flash { 0%, 30% { box-shadow: 0 0 0 3px #2a6df4; } 100% { box-shadow: 0 0 0 3px transparent; } }
+
+/* photo library */
+.lib-search { width: 100%; padding: 8px 10px; border: 1px solid var(--rule); border-radius: 8px; font: inherit; margin-bottom: 12px; }
+.lib-group h3 { font-size: 14px; margin: 18px 0 8px; } .lib-group h3 small { color: var(--ink-2); font-weight: 400; }
+.lib-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 6px; }
+.lib-grid li button { position: relative; display: block; width: 100%; aspect-ratio: 1; padding: 0; border: 2px solid transparent; border-radius: 6px; overflow: hidden; cursor: pointer; background: var(--ph); }
+.lib-grid li button img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.lib-grid li.on button { border-color: #2a6df4; box-shadow: 0 0 0 2px #2a6df4; }
+.lib-grid .dot { position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px #2a6df4; }
+.lib-modal { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.45); display: grid; place-items: center; padding: 24px; }
+.lib-box { background: var(--paper); border-radius: 12px; width: min(980px, 100%); max-height: calc(100vh - 48px); display: flex; flex-direction: column; overflow: hidden; }
+.lib-box header { display: flex; align-items: baseline; gap: 12px; padding: 16px 20px 8px; }
+.lib-box header h2 { margin: 0; font-size: 18px; }
+.lib-box header .close { margin-left: auto; border: 0; background: none; font-size: 24px; cursor: pointer; }
+.lib-box .lib { overflow: auto; padding: 0 20px 20px; }
+.lib-box footer { padding: 12px 20px; border-top: 1px solid var(--rule); display: flex; justify-content: flex-end; }
+.lib-btn { margin-left: 6px; }
+.photo-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.cover-slot .lib-btn { position: absolute; right: 120px; bottom: 12px; }
+.seq li.add .lib-btn { margin: 6px 0 0; }
+.lib-editor { margin-bottom: 18px; }
+.lib-editor h3 { font-size: 14px; margin: 0 0 8px; word-break: break-all; }
+.focus-stage { position: relative; display: inline-block; max-width: 100%; cursor: crosshair; line-height: 0; }
+.focus-stage img { max-width: 100%; max-height: 60vh; display: block; }
+.focus-dot { position: absolute; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 2px #2a6df4, 0 0 8px rgba(0,0,0,.5); pointer-events: none; }
+.crop-box { position: absolute; border: 2px solid #fff; box-shadow: 0 0 0 100vmax rgba(0,0,0,.5); pointer-events: none; z-index: 1; }
+.focus-dot { z-index: 2; }
+.focus-stage { overflow: hidden; }
+.lib-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.lib-tools label { display: flex; align-items: center; gap: 6px; font-size: 14px; }

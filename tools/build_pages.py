@@ -307,7 +307,7 @@ def footer():
 def band_color():
     next_btn = chev("button", ' type="button" data-band-next aria-label="Un\'altra foto a caso"')
     return f"""  <section class="band band-color">
-    <div class="media has-photo" data-random-photo data-keep><img src="img/home/pellicole.jpg" alt="Fotografia a colori su pellicola di Simone Carducci" loading="lazy"></div>
+    <div class="media has-photo" data-random-photo data-keep><img src="img/home/pellicole.jpg" alt="Fotografia a colori su pellicola di Simone Carducci" loading="lazy"{focus("img/home/pellicole.jpg")}></div>
     <a class="band-link" href="{LOMO}" target="_blank" rel="noopener" aria-label="Tutte le mie pellicole su Lomography"></a>
     <ul class="band-list">
       <li><a href="archivio.html">Tutto ciò che mi sta intorno</a></li>
@@ -321,7 +321,7 @@ def band_color():
 def band_archive():
     # The whole photo band is one link to the archive.
     return f"""  <a class="band band-bw" href="archivio.html">
-    <div class="media bw has-photo"><img src="img/home/archivio.jpg" alt="" loading="lazy"></div>
+    <div class="media bw has-photo"><img src="img/home/archivio.jpg" alt="" loading="lazy"{focus("img/home/archivio.jpg")}></div>
     <span class="band-text">Archivio</span>
     {chev()}
   </a>"""
@@ -341,6 +341,28 @@ def exists(src):
     return "://" in src or (ROOT / src).is_file()
 
 
+def _load_foci():
+    f = ROOT / "content" / "fuochi.json"
+    try:
+        data = json.loads(f.read_text(encoding="utf-8")) if f.is_file() else {}
+    except ValueError:
+        data = {}
+    out = {}
+    for k, v in data.items():
+        if isinstance(v, list) and len(v) == 2 and all(isinstance(x, (int, float)) for x in v):
+            out[k] = (max(0, min(100, round(v[0]))), max(0, min(100, round(v[1]))))
+    return out
+
+
+FOCI = _load_foci()  # photo -> focal point in %, set in /admin -> Libreria foto
+
+
+def focus(src):
+    """' style="object-position: x% y%"' for a photo with a focal point (where a cropped photo stays centred)."""
+    p = FOCI.get(src)
+    return f' style="object-position: {p[0]}% {p[1]}%"' if p and p != (50, 50) else ""
+
+
 def img(src, alt, label=None, eager=False):
     # No photo yet: leave the space blank, no placeholder texture or label (Simone, 2026-11-11).
     if not exists(src):
@@ -350,7 +372,7 @@ def img(src, alt, label=None, eager=False):
     film = _FILM[_film_i[0] % 4]
     _film_i[0] += 1
     return (f'<div class="media{film}"><span class="ph">{html.escape(label)}</span>'
-            f'<img src="{src}" alt="{html.escape(alt)}"{loading} onerror="this.remove()"></div>')
+            f'<img src="{src}" alt="{html.escape(alt)}"{loading}{focus(src)} onerror="this.remove()"></div>')
 
 
 def facts(meta, skip=()):
@@ -603,7 +625,7 @@ def build_home():
     desc = field(c, "Description home")
     hero = [(p["slug"], p["title"], p["home_year"]) for p in CULTURE if on(p["slug"])]
     hero_items = "".join(
-        f'<li><a href="{sl}.html" data-cover="img/{sl}/cover.jpg">{html.escape(t)}<sup class="yr">{html.escape(y)}</sup></a></li>'
+        f'<li><a href="{sl}.html" data-cover="img/{sl}/cover.jpg"{focus(f"img/{sl}/cover.jpg").replace(" style=", " data-pos=").replace("object-position: ", "")}>{html.escape(t)}<sup class="yr">{html.escape(y)}</sup></a></li>'
         for sl, t, y in hero)
     # Figma "Portfolio · v2": six cards; the ones without a page or photo yet are placeholders.
     cards = [(r["titolo"], r["anno"], r.get("pagina"), fmt_style(r.get("formato"))) for r in RESEARCH if r.get("visibile", True)]
@@ -617,7 +639,7 @@ def build_home():
     parts = []
     if on("hero") and hero:
         parts.append(f"""  <section class="hero hero-full bw" id="cultura" aria-label="Progetti culturali">
-    <div class="media bw has-photo"><img src="img/{hero[0][0]}/cover.jpg" alt=""></div>
+    <div class="media bw has-photo"><img src="img/{hero[0][0]}/cover.jpg" alt=""{focus(f"img/{hero[0][0]}/cover.jpg")}></div>
     <h1 class="sr-only">Simone Carducci, creative development</h1>
     <ul class="hero-list">{hero_items}</ul>
   </section>""")

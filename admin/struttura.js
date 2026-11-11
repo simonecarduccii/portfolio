@@ -102,6 +102,8 @@ window.STRUTTURA = [
       { label: "Descrizione per Google", file: C, meta: "Description About", rows: 2 },
     ],
   },
+  { id: "libreria", title: "Libreria foto", library: true,
+    note: "Tutte le foto del sito: punto di fuoco, ritaglio, e da qui si riusano nelle pagine (bottone “Dalla libreria”)." },
   {
     id: "archivio", title: "Archivio", page: "archivio.html", cartella: "archivio",
     photos: { kind: "archivio" },

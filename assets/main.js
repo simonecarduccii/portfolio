@@ -155,6 +155,7 @@
       img.className = 'hero-cover';
       img.alt = '';
       img.src = src;
+      if (a.getAttribute('data-pos')) img.style.objectPosition = a.getAttribute('data-pos');
       hero.insertBefore(img, hero.querySelector('.hero-list'));
       layers[src] = img;
     };
