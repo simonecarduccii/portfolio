@@ -9,11 +9,7 @@
 
 ## Intro in testata (max 40 parole)
 
-Testo da scrivere.
-
 ## Testo in fondo, dopo le foto (80–150 parole)
-
-Testo da scrivere.
 
 ## Crediti
 
