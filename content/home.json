@@ -10,13 +10,6 @@
   },
   "ricerca_visiva": [
     {
-      "id": "maghreb",
-      "titolo": "Maghreb",
-      "anno": "2026",
-      "pagina": null,
-      "visibile": false
-    },
-    {
       "id": "torino-17",
       "titolo": "Torino 17",
       "anno": "2026",
