@@ -356,6 +356,8 @@
     const bar = h("div", { class: "savebar" },
       h("span", { id: "save-state", class: "muted" }, "Nessuna modifica"),
       h("button", { id: "save", type: "button", class: "primary", disabled: true, onclick: save }, "Salva e pubblica"));
+    const hist = historyTargets(node);
+    if (hist.whole.length || hist.prefixes.length || hist.fields.length) body.append(historyPanel(node, hist));
     const editable = node.photos || node.facts || node.texts || node.homeList || node.settings || node.freePage || pageSlug(node) || node.switchKey || (node.children || []).some((c) => c.switchKey);
     return h("div", {}, head, body, editable ? bar : null);
   }
@@ -1444,6 +1446,114 @@ Fotografie e testo: Simone Carducci · ${year}
     setPreview(node.page, true);
     await open(node);
     if (st()) st().textContent = "Online ✓ (se non vedi la modifica, ricarica la pagina)";
+  }
+
+  // ---------------------------------------------------------------- history
+  // Every save is a commit, so any earlier version of an element can come back: the files of the element
+  // (its photos folder, layout, page JSON...) are set as they were after that commit, and the text fields it
+  // shares with other elements (e.g. docs/CONTENUTI.md) are put back one by one, so the rest of the file stays.
+
+  function historyTargets(node) {
+    const whole = new Set(), prefixes = new Set(), fields = [];
+    for (const spec of node.texts || []) {
+      if (spec.sections) whole.add(spec.sections);
+      else if (spec.file) fields.push(spec);
+    }
+    const ph = node.photos;
+    if (ph && ph.kind === "serie") { prefixes.add(ph.dir + "/"); if (ph.layout) whole.add(ph.layout); }
+    if (ph && ph.kind === "singola") whole.add(ph.file);
+    if (ph && ph.kind === "archivio") prefixes.add("img/archivio/");
+    if (node.facts) whole.add(`content/schede/${node.facts.slug}.json`);
+    if (node.freePage) { whole.add(`${PAGE_DIR}${node.freePage}.json`); prefixes.add(`img/${node.freePage}/`); }
+    if (node.settings) whole.add(SITO_FILE);
+    if (node.id === "home" || node.homeList) whole.add("content/home.json");
+    return { whole: [...whole], prefixes: [...prefixes], fields };
+  }
+
+  const isBot = (c) => /\[bot\]$/.test((c.author && c.author.login) || "") || /github-actions/.test(c.commit.author.name || "");
+
+  async function versions(hist) {
+    const paths = [...hist.whole, ...hist.prefixes.map((p) => p.replace(/\/$/, "")), ...new Set(hist.fields.map((f) => f.file))];
+    const lists = await Promise.all(paths.map((p) => gh("GET", `/repos/${REPO}/commits?sha=${BRANCH}&per_page=30&path=${encodeURIComponent(p)}`).catch(() => [])));
+    const seen = new Map();
+    lists.flat().forEach((c) => { if (!isBot(c)) seen.set(c.sha, c); });
+    return [...seen.values()].sort((a, b) => new Date(b.commit.committer.date) - new Date(a.commit.committer.date)).slice(0, 30);
+  }
+
+  const when = (iso) => new Date(iso).toLocaleString("it-IT", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+
+  function historyPanel(node, hist) {
+    const list = h("ol", { class: "history" });
+    const panel = h("section", { class: "panel history-panel" }, h("h2", {}, "Cronologia"),
+      h("p", { class: "hint" }, "Ogni salvataggio resta in memoria. Scegli una versione per riportare questo elemento (testi, foto, layout) com'era subito dopo quel salvataggio: il resto del sito non cambia, e anche il ripristino si può annullare da qui."),
+      h("button", { type: "button", class: "btn small", onclick: async (e) => {
+        e.target.disabled = true; e.target.textContent = "Carico le versioni…";
+        try {
+          const vs = await versions(hist);
+          e.target.remove();
+          if (!vs.length) { list.replaceWith(h("p", { class: "muted" }, "Nessuna versione precedente.")); return; }
+          list.replaceChildren(...vs.map((c, i) => h("li", {},
+            h("div", {}, h("strong", {}, when(c.commit.committer.date)), " ", h("span", { class: "muted" }, i === 0 ? "· versione attuale" : ""),
+              h("small", {}, c.commit.message.split("\n")[0])),
+            i === 0
+              ? (c.parents && c.parents.length ? h("button", { type: "button", class: "btn small", title: "Torna a com'era prima di questo salvataggio", onclick: () => restore(node, hist, c.parents[0].sha, "prima del " + when(c.commit.committer.date)) }, "Annulla questo salvataggio") : null)
+              // the version = everything up to the next save, so photos the site re-optimised after this save are kept
+              : h("button", { type: "button", class: "btn small", onclick: () => restore(node, hist, vs[i - 1].parents[0].sha, when(c.commit.committer.date)) }, "Torna a questa versione"))));
+        } catch (err) { e.target.disabled = false; e.target.textContent = "Riprova"; alert("Non riesco a leggere la cronologia: " + why(err)); }
+      } }, "Mostra le versioni precedenti"),
+      list);
+    return panel;
+  }
+
+  async function treeAt(sha) {
+    const c = await gh("GET", `/repos/${REPO}/git/commits/${sha}`);
+    const t = await gh("GET", `/repos/${REPO}/git/trees/${c.tree.sha}?recursive=1`);
+    const out = {};
+    t.tree.forEach((e) => { if (e.type === "blob") out[e.path] = e.sha; });
+    return out;
+  }
+
+  async function restore(node, hist, sha, label) {
+    if (draft && draft.dirty && !confirm("Hai modifiche non salvate: il ripristino le scarta. Continuare?")) return;
+    if (!confirm(`Riporto “${node.title}” alla versione ${label}? Il sito si aggiorna in 1-2 minuti.`)) return;
+    const st = $("#save-state");
+    if (st) st.textContent = "Ripristino…";
+    try {
+      const old = await treeAt(sha);
+      const blobText = async (s) => b64ToText((await gh("GET", `/repos/${REPO}/git/blobs/${s}`)).content);
+      const done = await commit(`Restore ${node.title} to the version of ${label} from admin`, async () => {
+        const out = {};
+        for (const p of hist.whole) {
+          if (old[p] && old[p] !== tree[p]) out[p] = old[p];
+          else if (!old[p] && tree[p]) out[p] = null;
+        }
+        for (const pre of hist.prefixes) {
+          Object.keys(old).filter((p) => p.startsWith(pre) && old[p] !== tree[p]).forEach((p) => { out[p] = old[p]; });
+          Object.keys(tree).filter((p) => p.startsWith(pre) && !old[p]).forEach((p) => { out[p] = null; });
+        }
+        const byFile = {};
+        hist.fields.forEach((f) => { (byFile[f.file] = byFile[f.file] || []).push(f); });
+        for (const [file, fs] of Object.entries(byFile)) {
+          if (!old[file] || old[file] === tree[file]) continue;
+          const before = await blobText(old[file]);
+          let text = await readText(file, true);
+          const now = text;
+          fs.forEach((f) => { const v = getField(before, f); if (v != null) text = setField(text, f, v); });
+          if (text !== now) out[file] = await blobFrom({ text });
+        }
+        return out;
+      });
+      if (draft) draft.dirty = false;
+      if (!done) { alert("Questa versione è uguale a quella attuale: niente da ripristinare."); if (st) st.textContent = "Nessuna modifica"; return; }
+      Object.keys(texts).forEach((k) => delete texts[k]); // read everything again from the restored files
+      await applyHome(); await applyPages(); await loadBuilding(); renderNav();
+      if (st) st.textContent = "Ripristinato. Il sito si aggiorna in 1-2 minuti…";
+      await open(node);
+      waitPublished(done, node);
+    } catch (e) {
+      if (st) st.textContent = "Non ripristinato: " + why(e);
+      alert("Ripristino non riuscito: " + why(e));
+    }
   }
 
   // ---------------------------------------------------------------- preview

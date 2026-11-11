@@ -239,3 +239,9 @@ body.no-preview .preview { display: none; }
 .sheet-row .row-tools { display: flex; gap: 2px; }
 .sheet-row .row-tools button { border: 1px solid var(--rule); background: #fff; border-radius: 6px; width: 30px; height: 34px; cursor: pointer; }
 .sheet-row .row-tools button:disabled { opacity: .35; cursor: default; }
+
+/* history */
+.history { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 0; }
+.history li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--rule); }
+.history li small { display: block; color: var(--ink-2); font-size: 12px; margin-top: 2px; }
+.history li .btn { flex: none; }
