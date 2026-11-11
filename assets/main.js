@@ -147,6 +147,7 @@
   if (!hero) return;
   var links = hero.querySelectorAll('.hero-list a[data-cover]');
   var layers = {};
+  if (links[0]) links[0].parentNode.classList.add('is-active');
   links.forEach(function (a) {
     var src = a.getAttribute('data-cover');
     var probe = new Image();
@@ -164,6 +165,8 @@
     var on = function () {
       if (!layers[src]) return;
       Object.keys(layers).forEach(function (k) { layers[k].classList.toggle('on', k === src); });
+      // The title of the photo on screen stays highlighted until another one is shown.
+      links.forEach(function (b) { b.parentNode.classList.toggle('is-active', b === a); });
     };
     a.addEventListener('mouseenter', on);
     a.addEventListener('focus', on);
