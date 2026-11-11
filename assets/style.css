@@ -148,7 +148,8 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 @media (max-width: 640px) { .band-color { height: auto; aspect-ratio: 4 / 5; } .band-bw { height: 200px; } }
 .band-list { position: absolute; z-index: 3; left: clamp(32px, 6vw, 96px); top: 50%; transform: translateY(-50%); display: grid; gap: 2px; }
 .band-list a { font-weight: 500; font-size: var(--fs-band-link); line-height: 1.35; letter-spacing: .04em; text-transform: uppercase; }
-.band-list a:hover { text-decoration: underline; text-underline-offset: 3px; }
+/* Hovering the film band underlines all its labels together, like the archive band. */
+.band-color:hover .band-list a, .band-list a:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
 .band-text { position: absolute; z-index: 3; left: clamp(32px, 6vw, 96px); top: 50%; transform: translateY(-50%); font-weight: 500; font-size: var(--fs-section); }
 .chev { position: absolute; z-index: 3; top: 50%; transform: translateY(-50%); right: var(--pad); line-height: 0; padding: 8px; color: var(--on-photo); }
 .chev svg { display: block; width: 9px; height: 43px; }
