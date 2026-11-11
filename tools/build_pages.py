@@ -69,6 +69,31 @@ PHOTO_SLOTS = 12  # sequence slots per photo project; missing files are hidden b
 LAYOUTS = ("colonna", "alternato", "griglia", "grande", "ritmo")  # same list as admin/admin.js
 
 
+def mine():
+    """Layouts Simone generated in /admin and kept: content/layout/_layouts.json [{id, name, schema}]."""
+    f = ROOT / "content" / "layout" / "_layouts.json"
+    return {l["id"]: l for l in __import__("json").loads(f.read_text(encoding="utf-8"))} if f.exists() else {}
+
+
+def schema_of(lay):
+    """Rows of [start column, width] on 12 columns for a random or saved layout, else None."""
+    sc = lay.get("schema") if lay.get("layout") == "casuale" else mine().get(lay.get("layout"), {}).get("schema")
+    ok = isinstance(sc, list) and sc and all(isinstance(r, list) and r and all(
+        isinstance(c, list) and len(c) == 2 and all(isinstance(v, int) for v in c) and 1 <= c[0] and c[1] >= 1 and c[0] + c[1] <= 13
+        for c in r) for r in sc)
+    return sc if ok else None
+
+
+def grid_places(schema, n):
+    out, r = [], 0
+    while len(out) < n:
+        for s, w in schema[r % len(schema)]:
+            if len(out) < n:
+                out.append((s, w, r + 1))
+        r += 1
+    return out
+
+
 def layout(slug):
     """Layout chosen in /admin for a photo page, content/layout/<slug>.json:
     {"copertina": false} hides the big cover; "layout" is one of LAYOUTS (default: colonna)."""
@@ -352,6 +377,13 @@ def build_culture(i, p):
     page(file=f"{s}.html", title=p["title"], description=plain(lead), body=body, header="overlay", main_class="flush")
 
 
+def grid_spot(spots, n):
+    if not spots:
+        return ""
+    s, w, r = spots[n - 1]
+    return f' style="--c: {s} / span {w}; --r: {r}"'
+
+
 def build_photo(i, p):
     meta, notes, secs = parse_sheet(p["slug"])
     s = p["slug"]
@@ -364,8 +396,11 @@ def build_photo(i, p):
     tech = [f"{k}: {inline(v)}" for k, v in meta.items() if k in ("Supporto", "Fotocamera", "Pellicola")]
     total = slots(s, PHOTO_SLOTS)
     lay = layout(s)
+    schema = schema_of(lay)
+    spots = grid_places(schema, total) if schema else []
+    seq_class = "custom" if schema else (lay.get("layout") if lay.get("layout") in LAYOUTS else "colonna")
     seq = "".join(
-        f'<li data-src="img/{s}/{n:02d}.jpg">{img(f"img/{s}/{n:02d}.jpg", f"{p["title"]}, fotografia {n}")}<span class="count label">{n:02d}/{total:02d}</span></li>'
+        f'<li data-src="img/{s}/{n:02d}.jpg"{grid_spot(spots, n)}>{img(f"img/{s}/{n:02d}.jpg", f"{p["title"]}, fotografia {n}")}<span class="count label">{n:02d}/{total:02d}</span></li>'
         for n in range(1, total + 1))
     shown = {r["pagina"] for r in RESEARCH if r.get("visibile", True) and r.get("pagina")}
     others = [q for q in PHOTO if q["slug"] != s and q["slug"] in shown]
@@ -380,7 +415,7 @@ def build_photo(i, p):
     <p>{inline(intro)}</p>
     <p class="meta">{" · ".join(html.escape(x) for x in meta_lines)}</p>
   </div>
-{first}  <ol class="photo-seq layout-{lay.get("layout") if lay.get("layout") in LAYOUTS else "colonna"}" aria-label="Fotografie del progetto">{seq}</ol>
+{first}  <ol class="photo-seq layout-{seq_class}" aria-label="Fotografie del progetto">{seq}</ol>
   <section class="photo-text">
     {note}
     {render_blocks(long_text)}

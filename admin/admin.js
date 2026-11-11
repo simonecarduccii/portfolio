@@ -386,9 +386,12 @@
     // Page layout (photo projects): big cover on/off and one of the standard layouts (LAYOUTS)
     let layout = null;
     if (ph.layout) {
-      try { layout = JSON.parse(await readText(ph.layout) || "{}"); } catch (e) { layout = {}; }
+      try { layout = JSON.parse(await readText(ph.layout, true) || "{}"); } catch (e) { layout = {}; }
       state.coverBig = layout.copertina !== false;
-      state.layout = LAYOUTS.some((l) => l.id === layout.layout) ? layout.layout : LAYOUTS[0].id;
+      await loadMine();
+      state.schema = Array.isArray(layout.schema) ? layout.schema : null;
+      const known = LAYOUTS.some((l) => l.id === layout.layout) || MINE.some((l) => l.id === layout.layout) || (layout.layout === "casuale" && state.schema);
+      state.layout = known ? layout.layout : LAYOUTS[0].id;
     }
     draft.photos = { node, state, coverPath, layout };
 
@@ -412,10 +415,12 @@
     if (ph.kind === "serie") {
       // With a page layout the sequence is a small preview of the page: the photos sit as they will on the site
       const grid = h("ol", { class: ph.layout ? `seq lay lay-${state.layout}` : "seq" });
-      state.onLayout = (id) => { grid.className = `seq lay lay-${id}`; };
       const draw = () => {
+        const schema = ph.layout && schemaOf(state);
+        grid.className = !ph.layout ? "seq" : schema ? "seq lay lay-custom" : `seq lay lay-${state.layout}`;
+        const places = schema ? placeAll(schema, state.seq.length) : [];
         grid.replaceChildren(...state.seq.map((it, i) => {
-          const li = h("li", { draggable: "true" },
+          const li = h("li", { draggable: "true", style: places[i] ? `grid-column: ${places[i][0]} / span ${places[i][1]}; grid-row: ${places[i][2]}` : null },
             h("img", { src: it.url, alt: "" }),
             h("span", { class: "num" }, String(i + 1).padStart(2, "0")),
             h("span", { class: "tools" },
@@ -445,6 +450,7 @@
         draw(); markDirty();
       };
       dropZone(grid, addFiles);
+      state.onLayout = draw;
       draw();
       panel.append(h("h3", {}, ph.seq, h("small", {}, " trascina per riordinare, o trascina qui le foto dal Finder")), grid);
     }
@@ -461,12 +467,55 @@
     { id: "ritmo", name: "Ritmo", note: "una grande, poi due affiancate", boxes: [[3, 4, 34, 20], [3, 26, 16.5, 11], [20.5, 26, 16.5, 11], [3, 39, 34, 9]] },
   ];
 
+  // ---- layouts Simone generates at random and keeps: content/layout/_layouts.json
+  // A schema is a list of rows; each row a list of [start column, width] on a 12-column grid.
+  // The rows repeat down the page (tools/build_pages.py places the photos the same way).
+  const MINE_FILE = "content/layout/_layouts.json";
+  let MINE = [];
+  async function loadMine() {
+    try { MINE = JSON.parse(await readText(MINE_FILE, true) || "[]"); } catch (e) { MINE = []; }
+    if (!Array.isArray(MINE)) MINE = [];
+  }
+  const schemaOf = (state) => state.layout === "casuale" ? state.schema : (MINE.find((l) => l.id === state.layout) || {}).schema || null;
+  function placeAll(schema, n) {
+    const out = [];
+    for (let r = 0; out.length < n; r++) for (const [s, w] of schema[r % schema.length]) if (out.length < n) out.push([s, w, r + 1]);
+    return out;
+  }
+  function randomSchema() {
+    const any = (a) => a[Math.floor(Math.random() * a.length)];
+    const rows = [];
+    const count = 3 + Math.floor(Math.random() * 3);
+    for (let r = 0; r < count; r++) {
+      const k = Math.random();
+      if (k < 0.45) { const w = any([4, 5, 6, 7, 8, 9, 12]); rows.push([[1 + Math.floor(Math.random() * (13 - w)), w]]); }
+      else if (k < 0.85) {
+        const a = any([3, 4, 5, 6, 7]); const b = Math.min(any([3, 4, 5, 6]), 12 - a);
+        const gap = Math.floor(Math.random() * (13 - a - b)); const s = 1 + Math.floor(Math.random() * (13 - a - b - gap));
+        rows.push(Math.random() < 0.5 ? [[s, a], [s + a + gap, b]] : [[s, b], [s + b + gap, a]]);
+      } else rows.push([[1, 4], [5, 4], [9, 4]]);
+    }
+    return rows;
+  }
+  // mini drawing of a schema on the same 40 x 52 page as the built-in thumbnails
+  function schemaBoxes(schema) {
+    const boxes = []; let y = 0;
+    for (let i = 0; i < 8 && y < 60; i++) {
+      const row = schema[i % schema.length]; let hh = 0;
+      for (const [s, w] of row) { const bw = w * 34 / 12 - 0.6; boxes.push([3 + (s - 1) * 34 / 12, y, bw, bw * 2 / 3]); hh = Math.max(hh, bw * 2 / 3); }
+      y += hh + 1.6;
+    }
+    const k = Math.min(1, 44 / y);
+    return boxes.filter((b) => b[1] * k < 46).map(([x, by, w, hh]) => [20 + (x - 20) * k, 4 + by * k, w * k, hh * k]);
+  }
+  const layoutJson = (v) => JSON.stringify(v, null, 2).replace(/\[\s*(\d+),\s*(\d+)\s*\]/g, "[$1, $2]") + "\n";
+
   function layoutPicker(state) {
     const NS = "http://www.w3.org/2000/svg";
     const mini = (l) => {
       const svg = document.createElementNS(NS, "svg");
       svg.setAttribute("viewBox", "0 0 40 52"); svg.setAttribute("aria-hidden", "true");
-      l.boxes.forEach(([x, y, w, hh]) => {
+      (l.boxes || schemaBoxes(l.schema)).forEach(([x, y, w, hh]) => {
         const r = document.createElementNS(NS, "rect");
         Object.entries({ x, y, width: w, height: hh, rx: 0.8 }).forEach(([k, v]) => r.setAttribute(k, v));
         svg.append(r);
@@ -474,13 +523,50 @@
       return svg;
     };
     const wrap = h("div", { class: "layouts", role: "radiogroup", "aria-label": "Layout delle foto" });
-    LAYOUTS.forEach((l) => {
+    const pickLayout = (id) => { if (id === "casuale" && !state.schema) state.schema = randomSchema(); state.layout = id; if (state.onLayout) state.onLayout(); markDirty(); render(); };
+    const option = (l, extra) => {
       const input = h("input", { type: "radio", name: "layout", value: l.id });
       input.checked = state.layout === l.id;
-      input.addEventListener("change", () => { state.layout = l.id; if (state.onLayout) state.onLayout(l.id); markDirty(); });
-      wrap.append(h("label", { class: "layout-opt" }, input, mini(l), h("b", {}, l.name), h("small", {}, l.note)));
-    });
-    return h("div", {}, h("h3", {}, "Layout delle foto", h("small", {}, " vale per tutta la sequenza; sul telefono sempre una foto per riga")), wrap);
+      input.addEventListener("change", () => pickLayout(l.id));
+      return h("label", { class: "layout-opt" + (extra ? " " + extra : "") }, input, mini(l), h("b", {}, l.name), h("small", {}, l.note || ""));
+    };
+    const render = () => {
+      wrap.replaceChildren(
+        ...LAYOUTS.map((l) => option(l)),
+        ...MINE.map((l) => {
+          const opt = option({ ...l, note: "salvato da te" }, "mine");
+          opt.append(h("button", { type: "button", class: "del", title: "Togli dai miei layout", onclick: (e) => {
+            e.preventDefault();
+            if (!confirm(`Togliere "${l.name}" dai tuoi layout? Le pagine che lo usano torneranno a Colonna.`)) return;
+            MINE = MINE.filter((x) => x.id !== l.id); state.mineDirty = true;
+            if (state.layout === l.id) state.layout = LAYOUTS[0].id;
+            if (state.onLayout) state.onLayout(); markDirty(); render();
+          } }, "×"));
+          return opt;
+        }),
+        // random: every click draws a new layout; the photos below follow it at once
+        (() => {
+          const opt = option({ id: "casuale", name: "Casuale", note: state.layout === "casuale" ? "clicca per un altro" : "genera un layout a caso", schema: state.schema || [[[3, 8]], [[1, 5], [7, 6]]] }, "random");
+          opt.addEventListener("click", (e) => {
+            e.preventDefault();
+            state.schema = randomSchema(); pickLayout("casuale");
+          });
+          return opt;
+        })());
+      tools.replaceChildren(...(state.layout === "casuale" ? [
+        h("button", { type: "button", class: "btn", onclick: () => { state.schema = randomSchema(); pickLayout("casuale"); } }, "↻ Un altro"),
+        h("button", { type: "button", class: "btn", onclick: () => {
+          const name = (prompt("Nome del layout", `Mio ${MINE.length + 1}`) || "").trim();
+          if (!name) return;
+          const id = "mio-" + Date.now().toString(36);
+          MINE.push({ id, name, schema: state.schema }); state.mineDirty = true;
+          pickLayout(id);
+        } }, "♥ Salva tra i miei layout"),
+      ] : []));
+    };
+    const tools = h("div", { class: "layout-tools" });
+    render();
+    return h("div", {}, h("h3", {}, "Layout delle foto", h("small", {}, " vale per tutta la sequenza; sul telefono sempre una foto per riga")), wrap, tools);
   }
 
   async function newPhoto(file, side) {
@@ -608,8 +694,15 @@
           if (draft.photos.layout) {
             const fresh = JSON.parse(await readText(n.photos.layout, true) || "{}");
             const { foto, ...rest } = fresh; // "foto" = per-photo sizes of the first version, no longer used
-            const json = JSON.stringify({ ...rest, copertina: state.coverBig, layout: state.layout }, null, 2) + "\n";
+            delete rest.schema;
+            const page = { ...rest, copertina: state.coverBig, layout: state.layout };
+            if (state.layout === "casuale") page.schema = state.schema;
+            const json = layoutJson(page);
             if (json !== (texts[n.photos.layout] || "")) out[n.photos.layout] = await blobFrom({ text: json });
+            if (state.mineDirty) {
+              const mine = layoutJson(MINE);
+              if (mine !== (texts[MINE_FILE] || "")) out[MINE_FILE] = await blobFrom({ text: mine });
+            }
           }
         }
         // archive: new files, removed files, archivio.json
