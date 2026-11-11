@@ -288,12 +288,36 @@ def building(title):
   <p class="links"><a class="link-arrow" href="./">Torna alla home</a></p>"""
 
 
+# SEO and sharing from /admin (content/seo.json): {"<page>": {titolo, descrizione, immagine}}; empty = automatic.
+SITE_URL = "https://bohememag.it/simonecarducci/"
+_seo_f = ROOT / "content" / "seo.json"
+try:
+    SEO = json.loads(_seo_f.read_text(encoding="utf-8")) if _seo_f.is_file() else {}
+except ValueError:
+    SEO = {}
+
+
+def share_image(key):
+    """Photo shown when the page is shared: chosen in /admin, else the page cover, else the home hero."""
+    chosen = _str((SEO.get(key) or {}).get("immagine")) if isinstance(SEO.get(key), dict) else ""
+    for src in [chosen, f"img/{key}/cover.jpg", f"img/{CULTURE[0]['slug']}/cover.jpg"]:
+        if src and re.fullmatch(r"img/[\w./-]+\.(jpe?g|png|webp)", src) and "/../" not in src and exists(src):
+            return SITE_URL + src
+    return ""
+
+
 def page(*, file, title, description, body, current=None, header="", body_class="", main_class=""):
     robots = ""
+    key = file[:-5]
+    seo = SEO.get(key) if isinstance(SEO.get(key), dict) else {}
+    description = _str(seo.get("descrizione")) or description
+    image = share_image(key)
     if file[:-5] in BUILDING:
         body, header, main_class = building(title), "", "notfound"
         robots = '\n<meta name="robots" content="noindex">'
     full_title = f"{title} — {SITE}" if title != SITE else f"{SITE} — Editorial, Events & Cultural Projects"
+    full_title = _str(seo.get("titolo")) or full_title
+    url = SITE_URL + ("" if key == "index" else file)
     nav = "".join(
         f'<a href="{href}"{" aria-current=\"page\"" if key == current else ""}>{label}</a>'
         for label, href, key in NAV)
@@ -308,6 +332,10 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 <meta property="og:title" content="{html.escape(full_title)}">
 <meta property="og:description" content="{html.escape(description)}">
 <meta property="og:type" content="website">
+<meta property="og:url" content="{url}">
+<link rel="canonical" href="{url}">{f"""
+<meta property="og:image" content="{html.escape(image)}">
+<meta name="twitter:card" content="summary_large_image">""" if image else ""}
 <meta name="theme-color" content="{THEME}">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">

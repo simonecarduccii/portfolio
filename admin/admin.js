@@ -358,6 +358,7 @@
     const bar = h("div", { class: "savebar" },
       h("span", { id: "save-state", class: "muted" }, "Nessuna modifica"),
       h("button", { id: "save", type: "button", class: "primary", disabled: true, onclick: save }, "Salva e pubblica"));
+    if (seoKey(node)) body.append(await seoPanel(node));
     const hist = historyTargets(node);
     if (hist.whole.length || hist.prefixes.length || hist.fields.length) body.append(historyPanel(node, hist));
     const editable = node.library || node.photos || node.facts || node.texts || node.homeList || node.settings || node.freePage || pageSlug(node) || node.switchKey || (node.children || []).some((c) => c.switchKey);
@@ -1508,6 +1509,7 @@ Fotografie e testo: Simone Carducci · ${year}
         }
         if (draft.builder) await builderChanges(out);
         if (draft.foci) await libraryChanges(out);
+        if (draft.seo) await seoChanges(out);
         // facts at the top of the page
         if (draft.facts && draft.facts.dirty) {
           const righe = draft.facts.rows.map((r) => ({ etichetta: r.etichetta.trim(), valore: r.valore.trim(), link: r.link.trim() }))
@@ -1817,6 +1819,87 @@ Fotografie e testo: Simone Carducci · ${year}
     pairs.forEach(({ from, to }) => { if (from && FOCI[from]) next[to] = FOCI[from]; });
     const json = JSON.stringify(Object.fromEntries(Object.entries(next).sort()), null, 2) + "\n";
     if (json !== (texts[FOCI_FILE] || "{}\n") && (Object.keys(next).length || tree[FOCI_FILE])) out[FOCI_FILE] = await blobFrom({ text: json });
+  }
+
+  // ---------------------------------------------------------------- SEO and sharing
+  // content/seo.json = {"<page>": {titolo, descrizione, immagine}}: what Google shows and the card when the page
+  // is shared (WhatsApp, LinkedIn...). Empty fields = automatic (page title, page description, page cover).
+
+  const SEO_FILE = "content/seo.json";
+  const seoKey = (n) => (n && n.id === "home" ? "index" : pageSlug(n));
+
+  async function seoPanel(node) {
+    const key = seoKey(node);
+    let all = {};
+    try { all = JSON.parse(await readText(SEO_FILE, true) || "{}") || {}; } catch (e) { all = {}; }
+    const entry = { titolo: "", descrizione: "", immagine: "", ...(all[key] || {}) };
+    // what the page has today, read from the published HTML, shown as placeholder and in the preview
+    const doc = new DOMParser().parseFromString(await readText(`${key}.html`) || "", "text/html");
+    const meta = (sel) => (doc.querySelector(sel) || {}).content || "";
+    const auto = {
+      titolo: (doc.querySelector("title") || {}).textContent || node.title,
+      descrizione: meta('meta[name="description"]'),
+      immagine: (meta('meta[property="og:image"]').match(/simonecarducci\/(img\/.+)$/) || [])[1] || "",
+    };
+    if (entry.titolo === auto.titolo) entry.titolo = "";
+    draft.seo = { key, entry, upload: null };
+    const changed = () => { render(); markDirty(); };
+    const counter = (input, max) => {
+      const c = h("small", { class: "count" });
+      const upd = () => { const n = (input.value || input.placeholder).length; c.textContent = `${n} / ${max}`; c.classList.toggle("over", n > max); };
+      input.addEventListener("input", upd); upd();
+      return c;
+    };
+    const t = h("input", { type: "text", id: "seo-t", placeholder: auto.titolo });
+    t.value = entry.titolo;
+    t.addEventListener("input", () => { entry.titolo = t.value.trim(); changed(); });
+    const d = h("textarea", { id: "seo-d", rows: 3, placeholder: auto.descrizione });
+    d.value = entry.descrizione;
+    d.addEventListener("input", () => { entry.descrizione = d.value.replace(/\s+/g, " ").trim(); changed(); });
+    const imgBox = h("div", { class: "seo-img" });
+    const imgUrl = () => (draft.seo.upload ? draft.seo.upload.url : entry.immagine ? siteUrl(entry.immagine) : auto.immagine ? siteUrl(auto.immagine) : null);
+    const google = h("div", { class: "seo-google" });
+    const card = h("div", { class: "seo-card" });
+    const render = () => {
+      const title = entry.titolo || auto.titolo, desc = entry.descrizione || auto.descrizione, src = imgUrl();
+      google.replaceChildren(h("small", {}, "bohememag.it › simonecarducci" + (key === "index" ? "" : ` › ${key}`)),
+        h("strong", {}, title.length > 62 ? title.slice(0, 60) + "…" : title),
+        h("p", {}, desc.length > 160 ? desc.slice(0, 157) + "…" : desc));
+      card.replaceChildren(src ? h("img", { src, alt: "" }) : h("div", { class: "ph" }, "nessuna immagine"),
+        h("div", {}, h("small", {}, "bohememag.it"), h("strong", {}, title), h("p", {}, desc)));
+      imgBox.replaceChildren(
+        h("span", { class: "muted" }, draft.seo.upload ? "Foto nuova (si carica al salvataggio)" : entry.immagine ? entry.immagine : auto.immagine ? `Automatica: ${auto.immagine}` : "Nessuna"),
+        h("div", { class: "photo-btns" },
+          libButton(false, ([p]) => { entry.immagine = p.from; draft.seo.upload = null; changed(); }),
+          (() => {
+            const inp = h("input", { type: "file", accept: "image/*", hidden: "" });
+            inp.addEventListener("change", async () => { const f = inp.files[0]; const p = f && isImage(f) && await newPhoto(f, MAX_SIDE); if (p) { draft.seo.upload = p; changed(); } });
+            return h("label", { class: "btn small" }, inp, "Carica una foto");
+          })(),
+          entry.immagine || draft.seo.upload ? h("button", { type: "button", class: "btn small", onclick: () => { entry.immagine = ""; draft.seo.upload = null; changed(); } }, "Automatica") : null));
+    };
+    render();
+    return h("section", { class: "panel" }, h("h2", {}, "Google e condivisione"),
+      h("p", { class: "hint" }, "Come appare la pagina su Google e quando la condividi (WhatsApp, LinkedIn, Instagram…). Lascia vuoto per usare titolo, descrizione e copertina della pagina."),
+      h("label", { class: "field", for: "seo-t" }, h("span", {}, "Titolo (fino a 60 caratteri)"), t, counter(t, 60)),
+      h("label", { class: "field", for: "seo-d" }, h("span", {}, "Descrizione (fino a 155 caratteri)"), d, counter(d, 155)),
+      h("div", { class: "field" }, h("span", {}, "Immagine di anteprima (ideale 1200 × 630, orizzontale)"), imgBox),
+      h("div", { class: "seo-previews" }, h("div", {}, h("h3", {}, "Su Google"), google), h("div", {}, h("h3", {}, "Condivisa"), card)));
+  }
+
+  async function seoChanges(out) {
+    const { key, entry, upload } = draft.seo;
+    if (upload) {
+      const path = `img/seo/${key}.jpg`;
+      if (!upload.sha) upload.sha = await blobFrom({ blob: upload.blob });
+      out[path] = upload.sha;
+      entry.immagine = path;
+    }
+    const all = JSON.parse(await readText(SEO_FILE, true) || "{}") || {};
+    const clean = Object.fromEntries(Object.entries(entry).filter(([, v]) => v));
+    if (Object.keys(clean).length) all[key] = clean; else delete all[key];
+    const json = JSON.stringify(Object.fromEntries(Object.entries(all).sort()), null, 2) + "\n";
+    if (json !== (texts[SEO_FILE] || "{}\n") && (Object.keys(all).length || tree[SEO_FILE])) out[SEO_FILE] = await blobFrom({ text: json });
   }
 
   // ---------------------------------------------------------------- history

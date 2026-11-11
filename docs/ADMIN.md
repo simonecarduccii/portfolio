@@ -72,6 +72,11 @@ Il triangolino ▸ / ▾ accanto a un ramo lo apre o lo chiude (il browser se lo
   Per **riusare** una foto in un'altra pagina: accanto a ogni *Sostituisci* / *+ Aggiungi foto* (anche nei blocchi delle Pagine)
   c'è *Dalla libreria*: la foto viene copiata nella pagina senza ricaricarla, con il suo punto di fuoco.
   I punti di fuoco sono in `content/fuochi.json` (`{"img/x/01.jpg": [x%, y%]}`) e seguono le foto quando cambi l'ordine.
+- **Google e condivisione**: in ogni pagina (Home, progetti, Bohème, modì, AI, About, Archivio, Pagine) puoi scrivere il titolo
+  (fino a 60 caratteri) e la descrizione (fino a 155) che Google mostra, e scegliere l'immagine dell'anteprima quando la pagina
+  viene condivisa (*Dalla libreria* o *Carica una foto*, ideale orizzontale 1200 × 630). Vuoto = automatico: titolo e descrizione
+  della pagina, copertina come immagine. Le anteprime "Su Google" e "Condivisa" si aggiornano mentre scrivi.
+  È `content/seo.json`; le foto caricate qui vanno in `img/seo/`.
 - **Cronologia**: in fondo a ogni elemento, *Mostra le versioni precedenti* elenca i salvataggi (data e cosa è cambiato).
   *Torna a questa versione* riporta testi, foto e layout di quell'elemento com'erano dopo quel salvataggio; *Annulla questo salvataggio*
   (sulla versione attuale) torna a prima dell'ultimo. Il resto del sito non cambia: i testi in file condivisi (es. `docs/CONTENUTI.md`)
