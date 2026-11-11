@@ -22,6 +22,7 @@
       else if (k === "html") el.innerHTML = v;
       else el.setAttribute(k, v === true ? "" : v);
     }
+    if (tag === "img") el.addEventListener("error", (e) => imgFallback(e));
     for (const kid of kids.flat()) if (kid != null && kid !== false) el.append(kid);
     return el;
   };
@@ -202,6 +203,24 @@
   }
 
   const siteUrl = (path) => SITE + path + (tree[path] ? "?v=" + tree[path].slice(0, 8) : "");
+
+  // A photo just saved is on GitHub before the site has it (publishing takes 1-2 minutes): when a site image
+  // fails to load, show it straight from GitHub instead of a broken image.
+  const SITE_BASE = new URL(SITE, location.href).pathname;
+  // (attached by h() to every image: the error of an image not yet in the page does not reach the document)
+  async function imgFallback(e) {
+    const img = e.target;
+    if (!(img instanceof HTMLImageElement) || img.dataset.fromGithub || !img.src.startsWith("http")) return;
+    const u = new URL(img.src, location.href);
+    if (!u.pathname.startsWith(SITE_BASE)) return;
+    const path = decodeURIComponent(u.pathname.slice(SITE_BASE.length));
+    if (!tree[path]) return;
+    img.dataset.fromGithub = "1";
+    try {
+      const blob = await gh("GET", `/repos/${REPO}/git/blobs/${tree[path]}`);
+      img.src = "data:image/jpeg;base64," + blob.content.replace(/\n/g, "");
+    } catch (err) { /* leave it */ }
+  }
 
   // ------------------------------------------------------------------ sidebar
 
