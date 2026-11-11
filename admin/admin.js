@@ -369,6 +369,7 @@
     if (node.texts) body.append(await textPanel(node));
     if (node.settings) body.append(await settingsPanel());
     if (node.headerFooter) body.append(await headerFooterPanel());
+    if (node.instagram) body.append(await instagramPanel(node));
     if (node.library) body.append(await libraryPanel());
     if (node.pagesList) body.append(await pagesPanel());
     if (node.freePage) body.append(await builderPanel(node));
@@ -388,7 +389,7 @@
     if (seoKey(node)) body.append(await seoPanel(node));
     const hist = historyTargets(node);
     if (hist.whole.length || hist.prefixes.length || hist.fields.length) body.append(historyPanel(node, hist));
-    const editable = node.headerFooter || node.library || node.photos || node.facts || node.texts || node.homeList || node.settings || node.freePage || pageSlug(node) || node.switchKey || (node.children || []).some((c) => c.switchKey);
+    const editable = node.instagram || node.headerFooter || node.library || node.photos || node.facts || node.texts || node.homeList || node.settings || node.freePage || pageSlug(node) || node.switchKey || (node.children || []).some((c) => c.switchKey);
     return h("div", {}, head, body, editable ? bar : null);
   }
 
@@ -1239,6 +1240,85 @@ Fotografie e testo: Simone Carducci · ${year}
     };
   }
 
+  // ---------------------------------------------------------------- Instagram posts (Bohème, modì)
+  // content/instagram/<slug>.json = {titolo, post: [{url, immagine?, testo?, visibile}]}. A post with an image is a
+  // tile linking to Instagram; without one the site uses Instagram's own embed. An empty list hides the section.
+
+  const igCode = (url) => ((url.match(/instagram\.com\/(?:[\w.]+\/)?(?:p|reel|tv)\/([\w-]+)/) || [])[1] || "").replace(/[^\w-]/g, "");
+  async function instagramPanel(node) {
+    const slug = node.instagram;
+    const path = `content/instagram/${slug}.json`;
+    let data = {};
+    try { data = JSON.parse(await readText(path, true) || "{}") || {}; } catch (e) { data = {}; }
+    const ig = {
+      path, slug, dirty: false,
+      titolo: typeof data.titolo === "string" ? data.titolo : "Su Instagram",
+      post: (Array.isArray(data.post) ? data.post : []).filter((x) => x && typeof x === "object").map((x) => ({
+        url: x.url || "", testo: x.testo || "", visibile: x.visibile !== false,
+        img: x.immagine && tree[x.immagine] ? { orig: x.immagine, url: siteUrl(x.immagine) } : null,
+      })),
+    };
+    draft.ig = ig;
+    const changed = () => { ig.dirty = true; markDirty(); };
+    const title = h("input", { id: "ig-title", type: "text", placeholder: "Su Instagram" });
+    title.value = ig.titolo;
+    title.addEventListener("input", () => { ig.titolo = title.value; changed(); });
+    const list = h("div", { class: "ig-list" });
+    const draw = () => list.replaceChildren(...ig.post.map((pst, i) => {
+      const url = h("input", { type: "url", placeholder: "Link del post (https://www.instagram.com/p/…)", "aria-label": "Link del post" });
+      url.value = pst.url;
+      url.addEventListener("input", () => { pst.url = url.value.trim(); changed(); });
+      const cap = h("input", { type: "text", placeholder: "Didascalia (facoltativa)", "aria-label": "Didascalia" });
+      cap.value = pst.testo;
+      cap.addEventListener("input", () => { pst.testo = cap.value; changed(); });
+      const file = h("input", { type: "file", accept: "image/*", hidden: "" });
+      file.addEventListener("change", async () => { const f = file.files[0]; const ph = f && isImage(f) && await newPhoto(f, MAX_SIDE); if (ph) { pst.img = ph; draw(); changed(); } });
+      const move = (d) => { const j = i + d; if (j < 0 || j >= ig.post.length) return; [ig.post[i], ig.post[j]] = [ig.post[j], ig.post[i]]; draw(); changed(); };
+      return h("div", { class: "ig-item" + (pst.visibile ? "" : " off") },
+        h("div", { class: "ig-thumb" }, pst.img ? h("img", { src: pst.img.url, alt: "" }) : h("span", { class: "ph" }, "senza foto: si vede il post di Instagram")),
+        h("div", { class: "ig-fields" }, url, cap,
+          h("div", { class: "photo-btns" },
+            h("label", { class: "btn small" }, file, pst.img ? "Cambia foto" : "Carica una foto"),
+            libButton(false, ([p]) => { pst.img = p; draw(); changed(); }),
+            pst.img ? h("button", { type: "button", class: "btn small", onclick: () => { pst.img = null; draw(); changed(); } }, "Togli la foto") : null,
+            h("span", { class: "head-switch" }, toggle(pst.visibile, (v) => { pst.visibile = v; changed(); draw(); }), h("small", {}, "Visibile")))),
+        h("div", { class: "row-tools" },
+          h("button", { type: "button", title: "Sposta su", disabled: i === 0 ? true : null, onclick: () => move(-1) }, "↑"),
+          h("button", { type: "button", title: "Sposta giù", disabled: i === ig.post.length - 1 ? true : null, onclick: () => move(1) }, "↓"),
+          h("button", { type: "button", title: "Togli il post", onclick: () => { ig.post.splice(i, 1); draw(); changed(); } }, "×")));
+    }), h("button", { type: "button", class: "btn small", onclick: () => { ig.post.push({ url: "", testo: "", visibile: true, img: null }); draw(); changed(); list.querySelector(".ig-item:last-of-type input").focus(); } }, "+ Aggiungi un post"));
+    draw();
+    return h("section", { class: "panel" }, h("h2", {}, "Post di Instagram"),
+      h("p", { class: "hint" }, "Incolla il link di ogni post (su Instagram: ··· → Copia link). Con una foto il post diventa un riquadro che porta a Instagram; senza foto il sito mostra il post di Instagram. Senza post la sezione non compare."),
+      h("label", { class: "field", for: "ig-title" }, h("span", {}, "Titolo della sezione"), title),
+      list);
+  }
+
+  async function instagramChanges(out) {
+    const ig = draft.ig;
+    if (!ig || !ig.dirty) return;
+    const used = new Set();
+    const post = [];
+    for (const [i, pst] of ig.post.entries()) {
+      if (!pst.url) continue;
+      const item = { url: pst.url };
+      if (pst.img) {
+        const target = `img/${ig.slug}/ig-${igCode(pst.url) || String(i + 1).padStart(2, "0")}.jpg`;
+        const sha = (pst.img.orig && tree[pst.img.orig]) || pst.img.sha || (pst.img.sha = await blobFrom({ blob: pst.img.blob }));
+        if (tree[target] !== sha) out[target] = sha;
+        used.add(target);
+        item.immagine = target;
+      }
+      if (pst.testo.trim()) item.testo = pst.testo.trim();
+      item.visibile = pst.visibile;
+      post.push(item);
+    }
+    // photos of posts that were removed or lost their photo
+    Object.keys(tree).forEach((p) => { if (p.startsWith(`img/${ig.slug}/ig-`) && !used.has(p) && !(p in out)) out[p] = null; });
+    const json = JSON.stringify({ titolo: ig.titolo.trim() || "Su Instagram", post }, null, 2) + "\n";
+    if (json !== (texts[ig.path] || "")) out[ig.path] = await blobFrom({ text: json });
+  }
+
   // ---------------------------------------------------------------- facts at the top of a page
   // content/schede/<slug>.json = {righe: [{etichetta, valore, link}]}; until it exists the rows are read
   // from the project sheet the way tools/build_pages.py does, so the first save keeps what the page shows today.
@@ -1738,6 +1818,7 @@ Fotografie e testo: Simone Carducci · ${year}
           if (draft.icona.remove) { if (tree[ICON_FILE]) out[ICON_FILE] = null; }
           else out[ICON_FILE] = draft.icona.sha || (draft.icona.sha = await blobFrom({ blob: draft.icona.blob }));
         }
+        await instagramChanges(out);
         // facts at the top of the page
         if (draft.facts && draft.facts.dirty) {
           const righe = draft.facts.rows.map((r) => ({ etichetta: r.etichetta.trim(), valore: r.valore.trim(), link: r.link.trim() }))
@@ -2149,6 +2230,7 @@ Fotografie e testo: Simone Carducci · ${year}
     if (node.facts) whole.add(`content/schede/${node.facts.slug}.json`);
     if (node.freePage) { whole.add(`${PAGE_DIR}${node.freePage}.json`); prefixes.add(`img/${node.freePage}/`); }
     if (node.settings || node.headerFooter) whole.add(SITO_FILE);
+    if (node.instagram) whole.add(`content/instagram/${node.instagram}.json`);
     if (node.id === "home" || node.homeList) whole.add("content/home.json");
     return { whole: [...whole], prefixes: [...prefixes], fields };
   }

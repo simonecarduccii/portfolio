@@ -165,3 +165,7 @@ Quando il Mac invia delle foto compare una notifica "Portfolio".
 Tutto viene salvato in `content/sito.json` (`testata` e `footer`). Prima del primo salvataggio il pannello mostra quello che c'è oggi sul sito.
 
 Una volta salvate, le colonne del footer non seguono più da sole i cambi fatti in Impostazioni → Contatti e link. Se cambi email o profili, aggiornali anche qui.
+
+**Post di Instagram** (Bohème e modì, riquadro "Post di Instagram"). Incolla il link di ogni post e, se vuoi, aggiungi una foto (caricata o presa dalla libreria) e una didascalia. Puoi riordinare i post, nasconderli con l'interruttore "Visibile" e toglierli. Con la foto il post diventa un riquadro che porta a Instagram; senza foto il sito mostra il post di Instagram. Senza post la sezione non compare. Dove sono salvati:
+- la lista dei post: `content/instagram/<pagina>.json`;
+- le foto: `img/<pagina>/ig-<codice del post>.jpg`.

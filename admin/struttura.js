@@ -33,7 +33,7 @@ const photoProject = (slug, doc, title, folderHint) => ({
 });
 
 const culture = (slug, doc, title) => ({
-  id: slug, title, page: `${slug}.html`, cartella: slug, facts: { slug, doc: P(doc) },
+  id: slug, title, page: `${slug}.html`, cartella: slug, facts: { slug, doc: P(doc) }, instagram: slug,
   photos: { kind: "serie", dir: `img/${slug}`, cover: "Copertina: sfondo in home e in alto nella pagina", seq: "Foto della pagina" },
   texts: [
     { label: "In breve (anteprima nei link)", file: P(doc), section: "## In breve", rows: 3 },
