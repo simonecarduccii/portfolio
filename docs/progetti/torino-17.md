@@ -20,4 +20,4 @@ Poi ci sono i cordoni, i caschi, le visiere, il fumo. Il bianco e nero, duro e c
 
 ## Crediti
 
-Fotografie e testo: Simone Carducci · 2026
+Fotografie e testo: Simone Carducci · 2026 · © 2026 Simone Carducci. Tutti i diritti riservati.
