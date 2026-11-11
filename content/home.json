@@ -24,10 +24,10 @@
       "visibile": false
     },
     {
-      "id": "place-of-freedom",
-      "titolo": "Ghei",
-      "anno": "2025",
-      "pagina": "place-of-freedom",
+      "id": "faccioni",
+      "titolo": "Faccini",
+      "anno": "2025 - attuale",
+      "pagina": "faccioni",
       "visibile": true
     },
     {
@@ -38,10 +38,10 @@
       "visibile": true
     },
     {
-      "id": "faccioni",
-      "titolo": "Faccini",
-      "anno": "2025 - attuale",
-      "pagina": "faccioni",
+      "id": "place-of-freedom",
+      "titolo": "Ghei",
+      "anno": "2025",
+      "pagina": "place-of-freedom",
       "visibile": true
     },
     {
