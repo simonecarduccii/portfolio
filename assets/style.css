@@ -408,7 +408,9 @@ a.ig-post:hover .ig-caption { color: var(--ink); text-decoration: underline; tex
 .footer-cols ul { display: grid; gap: 14px; font-weight: 500; text-transform: uppercase; }
 .footer-cols .lower { text-transform: none; letter-spacing: 0; overflow-wrap: anywhere; }
 .footer-cols .ig { color: var(--accent-ig); }
-.footer-cta:hover, .footer-email:hover, .footer-cols a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.footer-cols a:hover { text-decoration: underline; text-underline-offset: 3px; }
+/* Hovering the big "Scrivimi" or the line under it underlines both. */
+.site-footer:has(.footer-cta:hover, .footer-email:hover) :is(.footer-cta, .footer-email) { text-decoration: underline; text-underline-offset: .12em; text-decoration-thickness: from-font; }
 .footer-legal { margin-top: clamp(48px, 6.37vw, 87px); display: flex; justify-content: space-between; gap: 8px 24px; flex-wrap: wrap; font-size: var(--fs-footer-legal); letter-spacing: .08em; text-transform: uppercase; color: var(--footer-ink-2); }
 @media (max-width: 900px) { .footer-cols { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 480px) { .footer-cols { grid-template-columns: 1fr; } .footer-legal { flex-direction: column; } }
