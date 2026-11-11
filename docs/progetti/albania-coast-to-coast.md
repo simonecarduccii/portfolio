@@ -2,10 +2,10 @@
 
 - **Anno:** 2024
 - **Fotografia:** Simone Carducci
-- **Supporto:** Pellicola
-- **Fotocamera:** –
+- **Supporto:** Digitale
+- **Fotocamera:** Fujifilm XF10
 - **Pellicola:** –
-- **Luogo:** –
+- **Luogo:** Albania
 
 ## Intro in testata (max 40 parole)
 
