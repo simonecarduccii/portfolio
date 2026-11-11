@@ -694,6 +694,44 @@ def parse_facts_line(line):
     return '<dl class="p-facts">' + "".join(items) + "</dl>"
 
 
+_IG = re.compile(r"https?://(?:www\.)?instagram\.com/(?:[\w.]+/)?(p|reel|tv)/([\w-]+)")
+
+
+def instagram_posts(slug):
+    """Instagram posts under a culture page: content/instagram/<slug>.json
+    {"titolo": "Su Instagram", "post": [{"url": "https://www.instagram.com/p/…/", "immagine": "img/<slug>/ig-01.jpg", "testo": ""}]}.
+    A post with its own image is a tile linking to Instagram; without one it is Instagram's embed of the post."""
+    f = ROOT / "content" / "instagram" / f"{slug}.json"
+    if not f.is_file():
+        return ""
+    try:
+        data = json.loads(f.read_text(encoding="utf-8"))
+    except ValueError:
+        return ""
+    items = []
+    for post in data.get("post", []):
+        url = str(post.get("url", "")).strip()
+        m = _IG.match(url)
+        if not m or post.get("visibile") is False:
+            continue
+        kind, code = m.groups()
+        link = f"https://www.instagram.com/{kind}/{code}/"
+        text = str(post.get("testo", "")).strip()
+        pic = str(post.get("immagine", "")).strip()
+        if pic and exists(pic):
+            items.append(f'<a class="ig-post" href="{link}" target="_blank" rel="noopener">'
+                         f'<div class="media"><img src="{pic}" alt="{html.escape(text or "Post su Instagram")}" loading="lazy"{focus(pic)}></div>'
+                         f'<span class="ig-caption">{html.escape(text) or "Apri su Instagram"} &#8599;</span></a>')
+        else:
+            items.append(f'<div class="ig-post ig-embed"><iframe src="https://www.instagram.com/{kind}/{code}/embed/" title="{html.escape(text or "Post su Instagram")}" loading="lazy" scrolling="no" allowtransparency="true"></iframe>'
+                         + (f'<span class="ig-caption">{html.escape(text)}</span>' if text else "") + '</div>')
+    if not items:
+        return ""
+    title = str(data.get("titolo", "")).strip() or "Su Instagram"
+    return (f'<section class="ig-posts" aria-label="{html.escape(title)}"><h2 class="small-title">{html.escape(title)}</h2>'
+            f'<div class="ig-grid">{"".join(items)}</div></section>')
+
+
 def build_culture(i, p):
     meta, notes, secs = parse_sheet(p["doc"])
     nxt = CULTURE[(i + 1) % len(CULTURE)]
@@ -717,6 +755,7 @@ def build_culture(i, p):
     </div>
     <div class="gallery col" aria-label="Immagini del progetto">{"".join(img(f"img/{s}/{n:02d}.jpg", f"{p['title']}, immagine {n}") for n in range(1, slots(s, 6) + 1) if exists(f"img/{s}/{n:02d}.jpg"))}</div>
   </section>
+  {instagram_posts(s)}
   <a class="next-project" href="{nxt["slug"]}.html"><span>Progetto successivo</span><span>{html.escape(nxt["title"])} ›</span></a>
 {band_archive()}"""
     page(file=f"{s}.html", title=p["title"], description=plain(lead), body=body, header="overlay", main_class="flush")

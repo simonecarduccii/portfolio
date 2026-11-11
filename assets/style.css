@@ -325,6 +325,17 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 .related-row .media { aspect-ratio: 4 / 3; }
 @media (max-width: 640px) { .related-row { grid-auto-columns: calc((100% - var(--gutter)) / 2); } }
 
+/* Instagram posts under a culture page: three per row (one on phones), a tile with its own image or Instagram's embed. */
+.ig-posts { padding: clamp(56px, 7vw, 104px) var(--pad) var(--space-section); }
+.ig-posts .small-title { margin-bottom: 16px; }
+.ig-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gutter); align-items: start; }
+.ig-post { display: block; }
+.ig-post .media { aspect-ratio: 4 / 5; }
+.ig-caption { display: block; margin-top: 8px; font-size: 13px; color: var(--ink-2); }
+a.ig-post:hover .ig-caption { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.ig-embed iframe { display: block; width: 100%; aspect-ratio: 4 / 6; border: 0; background: transparent; }
+@media (max-width: 640px) { .ig-grid { grid-template-columns: 1fr; } }
+
 /* ---------- Archive (mockup: full-screen photo with the index) ---------- */
 .archive-cover { height: 100svh; min-height: 520px; }
 .archive-cover::after { background: rgba(0,0,0,.25); }
