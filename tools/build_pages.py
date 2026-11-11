@@ -336,6 +336,23 @@ def icon_links(prefix=""):
             f'<link rel="apple-touch-icon" href="{prefix}assets/apple-touch-icon.png?v={asset_version('apple-touch-icon.png')}">')
 
 
+# Characters people type to "leave a field empty" in /admin (Hangul filler, zero-width, braille blank, nbsp).
+_INVISIBLE = "\u3164\u115f\u1160\u200b\u200c\u200d\u2060\ufeff\u2800\u00a0"
+_EMPTY_TEXT = re.compile(r'<(p|h2|h3|figcaption|blockquote|dd|dt|span class="[^"]*")(?:\s[^>]*)?>[\s' + _INVISIBLE + r']*</(?:p|h2|h3|figcaption|blockquote|dd|dt|span)>')
+_EMPTY_BOX = re.compile(r'<(div|section|figure|dl) class="(?:photo-intro|photo-text[^"]*|prose|credits[^"]*|quote|p-facts-wrap|p-facts|fact)"[^>]*>\s*</(?:div|section|figure|dl)>')
+
+
+def drop_empty(out):
+    """Remove text blocks left empty in /admin, and the boxes around them, so no blank gap stays on the page."""
+    out = re.sub("[" + _INVISIBLE + "]+(?=\\s*<)", "", out)
+    prev = None
+    while prev != out:
+        prev = out
+        out = _EMPTY_TEXT.sub("", out)
+        out = _EMPTY_BOX.sub("", out)
+    return out
+
+
 def page(*, file, title, description, body, current=None, header="", body_class="", main_class=""):
     robots = ""
     key = file[:-5]
@@ -389,7 +406,7 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 </body>
 </html>
 """
-    (ROOT / file).write_text(out, encoding="utf-8")
+    (ROOT / file).write_text(drop_empty(out), encoding="utf-8")
     print("wrote", file)
 
 
