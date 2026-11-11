@@ -1,0 +1,24 @@
+{
+  "righe": [
+    {
+      "etichetta": "Base",
+      "valore": "Torino (TO)",
+      "link": ""
+    },
+    {
+      "etichetta": "Ambiti",
+      "valore": "progetti culturali, eventi, editoria e fotografia",
+      "link": ""
+    },
+    {
+      "etichetta": "Lingue",
+      "valore": "italiano, inglese, francese, spagnolo",
+      "link": ""
+    },
+    {
+      "etichetta": "Contatti",
+      "valore": "simone.carducci01@gmail.com",
+      "link": "mailto:simone.carducci01@gmail.com"
+    }
+  ]
+}
