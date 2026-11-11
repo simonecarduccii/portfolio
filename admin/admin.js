@@ -951,6 +951,88 @@ Fotografie e testo: Simone Carducci · ${year}
     ks.reduce((x, k) => (x[k] = x[k] && typeof x[k] === "object" ? x[k] : {}), o)[last] = v;
   };
 
+  // ---------------------------------------------------------------- global style
+  // content/sito.json "stile": {font, colori: {sfondo, testo, testo_secondario, linee, footer_sfondo}, testo: %, spazi: %}.
+  // Empty = the Figma design. Limits agreed with 1 · Designer: fonts with real italics and 400-700,
+  // text 85-125 %, spacing 75-150 %, colours that pass AA contrast (4.5:1).
+
+  const FONT_CHOICES = ["Hanken Grotesk", "Inter", "Work Sans", "DM Sans", "Instrument Sans", "Public Sans"];
+  const STYLE_COLORS = [
+    ["sfondo", "Sfondo (paper)", "#fbfbfb"], ["testo", "Testo (ink)", "#151515"], ["testo_secondario", "Testo secondario (ink-2)", "#585858"],
+    ["linee", "Linee (rule)", "#e4e4e4"], ["footer_sfondo", "Sfondo del footer", "#151515"],
+  ];
+  const lum = (hex) => {
+    const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  };
+  const contrast = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+
+  function styleProblems(st) {
+    const col = (k) => (st.colori && st.colori[k]) || STYLE_COLORS.find((c) => c[0] === k)[2];
+    const out = [];
+    const check = (fg, bg, what) => { const r = contrast(fg, bg); if (r < 4.5) out.push(`${what}: contrasto ${r.toFixed(1)}:1, serve almeno 4,5:1`); };
+    check(col("testo"), col("sfondo"), "Testo su sfondo");
+    check(col("testo_secondario"), col("sfondo"), "Testo secondario su sfondo");
+    check("#eeedea", col("footer_sfondo"), "Testo del footer su sfondo del footer");
+    check("#8e8c88", col("footer_sfondo"), "Testo secondario del footer su sfondo del footer");
+    return out;
+  }
+
+  function stylePanel(data) {
+    const st = JSON.parse(JSON.stringify(data.stile && typeof data.stile === "object" ? data.stile : {}));
+    st.colori = st.colori && typeof st.colori === "object" ? st.colori : {};
+    const warn = h("p", { class: "style-warn", role: "alert" });
+    const sample = h("div", { class: "style-sample" }, h("strong", {}, "Titolo di prova"), h("p", {}, "Un paragrafo di testo come nelle pagine del sito."),
+      h("small", {}, "Etichetta · didascalia"), h("div", { class: "style-foot" }, "Footer"));
+    const render = () => {
+      const probs = styleProblems(st);
+      warn.textContent = probs.length ? "Non salvo questi colori: " + probs.join("; ") + "." : "";
+      draft.stileBlocked = probs.length > 0;
+      const col = (k) => st.colori[k] || STYLE_COLORS.find((c) => c[0] === k)[2];
+      Object.assign(sample.style, { background: col("sfondo"), color: col("testo"), fontFamily: `"${st.font || "Hanken Grotesk"}", sans-serif`, fontSize: (st.testo || 100) / 100 * 16 + "px", padding: (st.spazi || 100) / 100 * 16 + "px", borderColor: col("linee") });
+      sample.querySelector("small").style.color = col("testo_secondario");
+      sample.querySelector(".style-foot").style.background = col("footer_sfondo");
+    };
+    const changed = () => { draft.stile = st; render(); markDirty(); };
+    const fontSel = h("select", { id: "st-font" }, FONT_CHOICES.map((f) => h("option", { value: f }, f + (f === "Hanken Grotesk" ? " (Figma)" : ""))));
+    fontSel.value = st.font || "Hanken Grotesk";
+    fontSel.addEventListener("change", () => { st.font = fontSel.value === "Hanken Grotesk" ? "" : fontSel.value; loadFont(fontSel.value); changed(); });
+    const loadFont = (f) => {
+      if (document.querySelector(`link[data-font="${f}"]`)) return;
+      document.head.append(h("link", { rel: "stylesheet", "data-font": f, href: `https://fonts.googleapis.com/css2?family=${f.replace(/ /g, "+")}:ital,wght@0,400;0,600;1,400&display=swap` }));
+    };
+    if (st.font) loadFont(st.font);
+    const colorRows = STYLE_COLORS.map(([k, label, def]) => {
+      const pick = h("input", { type: "color", "aria-label": label });
+      const hex = h("input", { type: "text", maxlength: "7", "aria-label": label + " (esadecimale)", placeholder: def });
+      pick.value = st.colori[k] || def; hex.value = st.colori[k] || "";
+      const set = (v) => { if (!v || v.toLowerCase() === def) delete st.colori[k]; else st.colori[k] = v.toLowerCase(); changed(); };
+      pick.addEventListener("input", () => { hex.value = pick.value; set(pick.value); });
+      hex.addEventListener("input", () => { const v = hex.value.trim(); if (!v) { pick.value = def; set(""); } else if (/^#[0-9a-f]{6}$/i.test(v)) { pick.value = v; set(v); } });
+      return h("label", { class: "color-row" }, h("span", {}, label), pick, hex);
+    });
+    const range = (key, label, lo, hi) => {
+      const out = h("output", {}, (st[key] || 100) + "%");
+      const r = h("input", { type: "range", min: String(lo), max: String(hi), step: "5", value: String(st[key] || 100), "aria-label": label });
+      r.addEventListener("input", () => { const v = parseInt(r.value, 10); st[key] = v === 100 ? "" : v; out.textContent = v + "%"; changed(); });
+      return h("label", { class: "range-row" }, h("span", {}, label), r, out);
+    };
+    const reset = h("button", { type: "button", class: "btn small", onclick: () => {
+      Object.keys(st).forEach((k) => delete st[k]); st.colori = {};
+      draft.stile = {}; draft.stileBlocked = false;
+      panel.replaceWith(stylePanel({ stile: {} })); markDirty();
+    } }, "Torna allo stile di Figma");
+    const panel = h("section", { class: "panel" }, h("h2", {}, "Stile del sito"),
+      h("p", { class: "hint" }, "Font, colori e misure di tutto il sito. 100% e i colori vuoti = il design di Figma. I colori devono restare leggibili (contrasto AA): se non lo sono, non vengono salvati."),
+      h("label", { class: "field", for: "st-font" }, h("span", {}, "Font"), fontSel),
+      h("div", { class: "colors" }, colorRows),
+      range("testo", "Dimensione del testo", 85, 125),
+      range("spazi", "Spaziature", 75, 150),
+      warn, sample, reset);
+    render();
+    return panel;
+  }
+
   async function settingsPanel() {
     let data = {};
     try { data = JSON.parse(await readText(SITO_FILE, true) || "{}"); } catch (e) { data = {}; }
@@ -967,6 +1049,7 @@ Fotografie e testo: Simone Carducci · ${year}
       });
       wrap.append(panel);
     });
+    wrap.append(stylePanel(data));
     return wrap;
   }
 
@@ -1407,6 +1490,7 @@ Fotografie e testo: Simone Carducci · ${year}
 
   async function save() {
     const btn = $("#save"), st = $("#save-state");
+    if (draft.stileBlocked) { alert("Alcuni colori non sono abbastanza leggibili (vedi l'avviso in Stile del sito): correggili o torna allo stile di Figma."); return; }
     btn.disabled = true;
     st.textContent = "Salvo…";
     const node = current;
@@ -1431,9 +1515,18 @@ Fotografie e testo: Simone Carducci · ${year}
           out[draft.facts.path] = await blobFrom({ text: JSON.stringify({ righe }, null, 2) + "\n" });
         }
         // site settings (and the "in costruzione" switch of this page)
-        if ((draft.sito && Object.keys(draft.sito).length) || draft.building != null) {
+        if ((draft.sito && Object.keys(draft.sito).length) || draft.building != null || draft.stile) {
           const fresh = JSON.parse(await readText(SITO_FILE, true) || "{}");
           for (const [path, v] of Object.entries(draft.sito || {})) setPath(fresh, path, v);
+          if (draft.stile) {
+            const st = {};
+            if (draft.stile.font) st.font = draft.stile.font;
+            const col = Object.fromEntries(Object.entries(draft.stile.colori || {}).filter(([, v]) => v));
+            if (Object.keys(col).length) st.colori = col;
+            if (draft.stile.testo) st.testo = draft.stile.testo;
+            if (draft.stile.spazi) st.spazi = draft.stile.spazi;
+            if (Object.keys(st).length) fresh.stile = st; else delete fresh.stile;
+          }
           if (draft.building != null) {
             const list = new Set(Array.isArray(fresh.in_costruzione) ? fresh.in_costruzione : []);
             if (draft.building) list.add(pageSlug(node)); else list.delete(pageSlug(node));
