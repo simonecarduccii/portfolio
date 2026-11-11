@@ -245,3 +245,7 @@ body.no-preview .preview { display: none; }
 .history li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--rule); }
 .history li small { display: block; color: var(--ink-2); font-size: 12px; margin-top: 2px; }
 .history li .btn { flex: none; }
+
+/* edit on the preview: the field or photo clicked in the preview */
+.flash { animation: flash 1.6s ease-out; }
+@keyframes flash { 0%, 30% { box-shadow: 0 0 0 3px #2a6df4; } 100% { box-shadow: 0 0 0 3px transparent; } }

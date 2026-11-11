@@ -313,6 +313,7 @@
       const view = await renderElement(node);
       main.replaceChildren(view);
       setPreview(node.page);
+      linkPreview();
     } catch (e) {
       main.replaceChildren(h("p", { class: "error" }, "Non riesco a caricare: " + e.message));
     }
@@ -1556,6 +1557,98 @@ Fotografie e testo: Simone Carducci · ${year}
     }
   }
 
+  // ---------------------------------------------------------------- edit on the preview
+  // The preview is the online page, on the same site as /admin, so it can be read: each text of the page that
+  // matches a field of the panel is linked to it. A click on a plain paragraph edits it right there (the field
+  // follows); a click on formatted text, or on a photo, brings its field or photo into view in the panel.
+
+  const plainMd = (t) => t.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").replace(/\*\*(.+?)\*\*/g, "$1").replace(/(^|[^\w*])_(.+?)_(?!\w)/g, "$1$2");
+  const squash = (t) => t.replace(/\s+/g, " ").trim().toLowerCase();
+  const paraSplit = (v) => v.split(/\n\s*\n/);
+
+  function flash(el) {
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
+  }
+
+  function linkPreview() {
+    const frame = $("#preview iframe");
+    let doc;
+    try { doc = frame.contentDocument; } catch (e) { return; }
+    if (!doc || !doc.body || doc.location.href === "about:blank") return;
+    doc.querySelectorAll("[data-adm]").forEach((el) => { el.removeAttribute("data-adm"); el.removeAttribute("contenteditable"); });
+    // paragraph text -> [input, paragraph index, editable in place]
+    const want = new Map();
+    $("#main").querySelectorAll("textarea, input[type=text]").forEach((input) => {
+      if (input.closest(".savebar") || !input.value.trim()) return;
+      paraSplit(input.value).forEach((p, i) => {
+        const plain = plainMd(p);
+        const key = squash(plain);
+        if (key.length < 2) return;
+        if (!want.has(key)) want.set(key, []);
+        want.get(key).push({ input, i, plainOnly: plain === p && !/\n/.test(p.trim()) });
+      });
+    });
+    const links = new Map();
+    let n = 0;
+    doc.body.querySelectorAll("h1, h2, h3, p, li, dt, dd, blockquote, figcaption, span, a, div").forEach((el) => {
+      if (el.closest("header, footer, [data-adm]") || el.matches("header *, footer *")) return;
+      const key = squash(el.textContent);
+      const list = want.get(key);
+      if (!list || [...el.children].some((c) => squash(c.textContent) === key)) return;
+      const hit = list.length > 1 ? list.shift() : list[0]; // same text twice: in page order
+      const id = String(++n);
+      el.setAttribute("data-adm", id);
+      links.set(id, { ...hit, el, editable: hit.plainOnly && !el.querySelector("*:not(br)") });
+    });
+    if (!doc.getElementById("adm-style")) {
+      const st = doc.createElement("style");
+      st.id = "adm-style";
+      st.textContent = "[data-adm]{cursor:text;border-radius:2px}[data-adm]:hover{outline:2px dashed #2a6df4;outline-offset:3px}" +
+        "[data-adm][contenteditable]{outline:2px solid #2a6df4;outline-offset:3px;background:rgba(42,109,244,.06)}" +
+        "img.adm-photo{cursor:pointer}img.adm-photo:hover{outline:3px dashed #2a6df4;outline-offset:-3px}";
+      doc.head.append(st);
+    }
+    const adminImgs = [...$("#main").querySelectorAll("img")];
+    const strip = (u) => u.replace(/[?#].*$/, "");
+    doc.querySelectorAll("img").forEach((im) => { if (adminImgs.some((a) => strip(a.src) === strip(im.src))) im.classList.add("adm-photo"); });
+    doc.__admLinks = links;
+    if (doc.__admBound) return;
+    doc.__admBound = true;
+    doc.addEventListener("click", (e) => {
+      const map = doc.__admLinks;
+      const im = e.target.closest && e.target.closest("img.adm-photo");
+      if (im) {
+        const a = [...$("#main").querySelectorAll("img")].find((x) => strip(x.src) === strip(im.src));
+        if (a) { e.preventDefault(); e.stopPropagation(); flash(a.closest("li, .cover-slot, .block, figure") || a); }
+        return;
+      }
+      const el = e.target.closest && e.target.closest("[data-adm]");
+      const link = el && map.get(el.getAttribute("data-adm"));
+      if (!link || !link.input.isConnected) return;
+      e.preventDefault(); e.stopPropagation();
+      if (!link.editable) { flash(link.input.closest("label, .field, .block, .sheet-row") || link.input); link.input.focus({ preventScroll: true }); return; }
+      if (el.isContentEditable) return;
+      el.setAttribute("contenteditable", "plaintext-only");
+      if (!el.isContentEditable) el.setAttribute("contenteditable", "true");
+      el.focus();
+      flash(link.input.closest("label, .field, .block, .sheet-row") || link.input);
+      if (el.__admEdit) return;
+      el.__admEdit = true;
+      el.addEventListener("input", () => {
+        const link = doc.__admLinks.get(el.getAttribute("data-adm"));
+        if (!link) return;
+        const text = el.innerText.replace(/\s*\n\s*/g, " ").trim();
+        const parts = paraSplit(link.input.value);
+        parts[link.i] = (parts[link.i].match(/^\s*/)[0]) + text;
+        link.input.value = parts.join("\n\n");
+        link.input.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+      el.addEventListener("keydown", (k) => { if (k.key === "Enter" || k.key === "Escape") { k.preventDefault(); el.blur(); } });
+      el.addEventListener("blur", () => el.removeAttribute("contenteditable"));
+    }, true);
+  }
+
   // ---------------------------------------------------------------- preview
 
   function setPreview(page, reload) {
@@ -1618,6 +1711,7 @@ Fotografie e testo: Simone Carducci · ${year}
   }
 
   $("#logout").addEventListener("click", () => { localStorage.removeItem(KEY); location.reload(); });
+  $("#preview iframe").addEventListener("load", () => { try { linkPreview(); } catch (e) { /* preview of another site */ } });
   $("#toggle-preview").addEventListener("click", () => document.body.classList.toggle("no-preview"));
   window.addEventListener("beforeunload", (e) => { if (draft && draft.dirty) { e.preventDefault(); e.returnValue = ""; } });
   window.addEventListener("hashchange", () => {
