@@ -10,13 +10,13 @@
 
 ## Intro in testata (max 40 parole)
 
-17 ottobre 2026, corteo contro il carovita
+Il 17 ottobre 2026 Torino scende in piazza contro il carovita. Un corteo pacifico e non, attraversato con un 15mm, a distanza di braccio da chi marcia e da chi lo ferma.
 
 ## Testo in fondo, dopo le foto (80–150 parole)
 
-Torino 17 segue la giornata del corteo contro il carovita, tra momenti pacifici e scontri, con un 15mm che obbliga a stare dentro l’azione, a pochi passi dai corpi. Il grandangolo non concede distanza di sicurezza: avvicina e deforma, e porta lo sguardo del fotografo sullo stesso piano di chi marcia. Il bianco e nero, duro e contrastato, riduce la scena a un’opposizione di fondo. Da una parte ci sono volti scoperti, riconoscibili, che rivendicano di essere prima ancora che di apparire. Dall’altra ci sono caschi, visiere e scudi che cancellano l’individuo e lo sostituiscono con una funzione. 
+Torino 17 segue la giornata dall’interno, senza prendere la distanza che di solito protegge chi guarda. Il grandangolo analogico impone di avvicinarsi, e la prossimità fa entrare nell’inquadratura i cartelli e gli striscioni (“Basta carovita, vogliamo dignità”), le facce di una generazione che rivendica di essere prima ancora che di apparire, e i momenti di svago che il racconto di una manifestazione tende a cancellare, come il cerchio che si apre attorno a un balafon.
 
-Tra i due poli la serie si concede pause di festa, come il cerchio che si apre attorno al balafon, e momenti di vuoto, come la piazza spopolata davanti allo schieramento. Qui non si documenta solo un’azione di piazza: si osserva come una generazione risponde al disagio, e quanto resta largo lo spazio tra il cittadino e l’istituzione che lo fronteggia.
+Poi ci sono i cordoni, i caschi, le visiere, il fumo. Il bianco e nero, duro e contrastato, riduce la scena a un’opposizione di fondo: da una parte volti nudi e riconoscibili, dall’altra una funzione che ha perso il volto. Quando la risposta all’azione violenta si trasforma in una potenza sovrastante e oppressiva, la distanza tra cittadino e istituzione diventa il vero soggetto delle immagini. Più che documentare un evento, la serie osserva come una generazione risponde al disagio, e quanto resta aperto lo spazio che la separa da chi dovrebbe ascoltarla.
 
 ## Crediti
 
