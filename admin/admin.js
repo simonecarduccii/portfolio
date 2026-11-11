@@ -88,11 +88,16 @@
 
   const b64ToText = (b64) => new TextDecoder().decode(Uint8Array.from(atob(b64.replace(/\n/g, "")), (c) => c.charCodeAt(0)));
 
+  // cached by blob: after a save (or a change made elsewhere) the file has a new sha and is read again,
+  // otherwise a page reopened after saving would show the text from before the save
+  const textSha = {};
   async function readText(path, fresh) {
-    if (!fresh && texts[path] != null) return texts[path];
+    if (!fresh && texts[path] != null && textSha[path] === tree[path]) return texts[path];
     if (!tree[path]) return "";
-    const blob = await gh("GET", `/repos/${REPO}/git/blobs/${tree[path]}`);
+    const sha = tree[path];
+    const blob = await gh("GET", `/repos/${REPO}/git/blobs/${sha}`);
     texts[path] = b64ToText(blob.content);
+    textSha[path] = sha;
     return texts[path];
   }
 
