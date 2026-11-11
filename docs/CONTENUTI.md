@@ -12,7 +12,7 @@ Tono: prima persona, frasi brevi, fatti prima degli aggettivi. Niente "passione"
 
 - **Title home:** Simone Carducci — Editorial, Events & Cultural Projects
 - **Description home (max 155 caratteri):** Simone Carducci progetta e porta al pubblico progetti culturali: un magazine sull'arte emergente, un collettivo audiovisivo, fotografia su pellicola e non.
-- **Description About:** Chi è Simone Carducci: progetti culturali tra editoria, eventi, immagine e strumenti digitali.
+- **Description About:** Chi è Simone Carducci: progetti creativi e culturali editoria, eventi, immagine e strumenti digitali.
 
 ## Hero (home)
 
@@ -87,7 +87,7 @@ Mi occupo di sviluppo creativo: ideo progetti culturali e li porto dalla prima i
 
 ### Frase d'apertura About (grande, stile statement, come nei portfolio di riferimento)
 
-Curo progetti culturali dall'idea al pubblico: un magazine, un collettivo, un archivio su pellicola.
+Curo progetti creativi e culturali, dall'idea al pubblico.
 
 ### Bio estesa (pagina About, testo narrativo)
 
@@ -101,7 +101,7 @@ Poi ho passato anni dietro un bancone, tra Bologna, i resort Club Med in Svizzer
 
 **Quello che faccio oggi**
 
-Nel luglio 2024 ho fondato **Bohème Magazine**, di cui curo la direzione artistica ed editoriale: un magazine indipendente sull'arte emergente e sulle opportunità per artisti, che in 26 mesi ha raccolto da zero oltre 5.000 persone e 1,47 milioni di visualizzazioni. Per tenerlo aggiornato ho progettato **Vedetta**, un sistema che legge e verifica i bandi di oltre 75 enti culturali. Nel 2026 ho curato la direzione creativa del **Colectivo modì**: identità visiva, comunicazione, serate e DJ set filmati, un podcast.
+Nel luglio 2024 ho fondato Bohème Magazine, di cui curo la direzione artistica ed editoriale: un magazine indipendente sull'arte emergente e sulle opportunità per artisti, che in 26 mesi ha raccolto da zero oltre 5.000 persone e 1,47 milioni di visualizzazioni. Per tenerlo aggiornato ho progettato Vedetta, un sistema che legge e verifica i bandi di centinaia enti culturali, il progetto è tutt'ora in fase di sviluppo. Nel 2026 ho curato la direzione creativa del Colectivo modì: identità visiva, comunicazione, serate e DJ set filmati, nonché di un podcast.
 
 **Cosa studio**
 
@@ -111,8 +111,6 @@ Sono al terzo anno di Beni culturali all'Università di Torino, indirizzo storic
 
 Un posto dove il progetto culturale e il progetto di design si parlino, e dove mettere insieme quello che so fare: curare un'idea, darle una forma, trovarle un pubblico.
 
-[DA VERIFICARE: "cresciuto a Roma" è dedotto da liceo e primo lavoro a Roma. Ultimo paragrafo pensato per la candidatura al Circolo del Design.]
-
 ### Ambiti, competenze, strumenti
 
 | Voce | Testo |
@@ -121,7 +119,11 @@ Un posto dove il progetto culturale e il progetto di design si parlino, e dove m
 | Competenze | Direzione artistica ed editoriale, art direction, organizzazione di eventi, comunicazione e social media, scrittura ed editing, UX design, progettazione di strumenti digitali con l'AI |
 | Strumenti | Figma, Adobe Photoshop, Lightroom e InDesign, Final Cut Pro, Meta Business Suite, Claude Code, Pacchetto Office |
 | Lingue | Italiano, inglese, francese, spagnolo |
-| Formazione | Beni culturali: Università di Torino - Universidad de Granada - Université Paris Cité · Google UX Design Certificate (2024) - WSET Level 2 (2023) |
+| Formazione | Beni culturali
+Università di Torino
+Universidad de Granada
+Université Paris Cité · Google UX Design Certificate (2024)
+WSET Level 2 (2023) |
 
 - **Link:** Scarica il CV · Scrivimi
 
