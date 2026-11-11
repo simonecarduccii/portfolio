@@ -1,5 +1,5 @@
 {
-  "copertina": true,
+  "copertina": false,
   "foto": [
     {"dim":"media","pos":"sinistra"},
     {"dim":"media","pos":"destra"},
