@@ -427,6 +427,32 @@ def sheet_override(slug):
     return fact_rows_html(rows)
 
 
+VIDEO_FILE = re.compile(r"media/[a-z0-9][a-z0-9-]*/[\w.-]+\.(mp4|webm|mov|m4v)")
+
+
+def video_embed(src):
+    """YouTube / Vimeo link -> embeddable player URL (YouTube without cookies), else None."""
+    m = re.search(r"(?:youtube\.com/(?:watch\?(?:.*&)?v=|shorts/|embed/|live/)|youtu\.be/)([\w-]{6,})", src)
+    if m:
+        return f"https://www.youtube-nocookie.com/embed/{m.group(1)}"
+    m = re.search(r"vimeo\.com/(?:video/|channels/[\w-]+/)?(\d+)", src)
+    if m:
+        return f"https://player.vimeo.com/video/{m.group(1)}"
+    return None
+
+
+def video_html(src, title):
+    """A video set in /admin: a YouTube/Vimeo link or a file uploaded to media/<page>/; "" if neither."""
+    src = (src or "").strip() if isinstance(src, str) else ""
+    e = video_embed(src)
+    if e:
+        return (f'<div class="video"><iframe src="{html.escape(e)}" title="{html.escape(title)}" loading="lazy" '
+                f'allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen></iframe></div>')
+    if VIDEO_FILE.fullmatch(src) and exists(src):
+        return f'<div class="video file"><video src="{src}" controls playsinline preload="metadata" aria-label="{html.escape(title)}"></video></div>'
+    return ""
+
+
 def draft_note(text="Bozza: le parti evidenziate vanno verificate con Simone prima della pubblicazione."):
     return f'<p class="draft-note">{text}</p>'
 
@@ -517,14 +543,25 @@ def build_photo(i, p):
     seq_class = "custom" if schema else (lay.get("layout") if lay.get("layout") in LAYOUTS else "colonna")
     have = [n for n in range(1, total + 1) if exists(f"img/{s}/{n:02d}.jpg")]
     # texts between the photos (/admin): {"dopo": photos before it, "testo"}; each run of photos starts the layout again
+    # (and videos: {"dopo", "video": YouTube/Vimeo link or media/<page>/file.mp4})
     between = {}
     for t in lay.get("testi") or []:
-        if isinstance(t, dict) and isinstance(t.get("testo"), str) and t["testo"].strip():
-            try:
-                at = max(0, min(len(have), int(t.get("dopo", 0))))
-            except (TypeError, ValueError):
-                continue
-            between.setdefault(at, []).append(t["testo"].strip())
+        if not isinstance(t, dict):
+            continue
+        if isinstance(t.get("video"), str):
+            part = video_html(t["video"], f'{p["title"]}, video')
+            part = f'  <div class="seq-video">{part}</div>' if part else ""
+        elif isinstance(t.get("testo"), str) and t["testo"].strip():
+            part = f'  <div class="seq-text">{paras(t["testo"].strip())}</div>'
+        else:
+            continue
+        if not part:
+            continue
+        try:
+            at = max(0, min(len(have), int(t.get("dopo", 0))))
+        except (TypeError, ValueError):
+            continue
+        between.setdefault(at, []).append(part)
     parts, start = [], 0
     for cut in sorted(set(between) | {len(have)}):
         run = list(enumerate(have, 1))[start:cut]
@@ -534,7 +571,7 @@ def build_photo(i, p):
                 f'<li data-src="img/{s}/{n:02d}.jpg"{grid_spot(spots, j)}>{img(f"img/{s}/{n:02d}.jpg", f"{p["title"]}, fotografia {k}")}<span class="count label">{k:02d}/{len(have):02d}</span></li>'
                 for j, (k, n) in enumerate(run, 1))
             parts.append(f'  <ol class="photo-seq layout-{seq_class}" aria-label="Fotografie del progetto">{lis}</ol>')
-        parts += [f'  <div class="seq-text">{paras(t)}</div>' for t in between.get(cut, [])]
+        parts += between.get(cut, [])
         start = cut
     seq = "\n".join(parts) + "\n" if parts else ""
     shown = {r["pagina"] for r in RESEARCH if r.get("visibile", True) and r.get("pagina")}
@@ -838,8 +875,15 @@ def block_html(b, p, i):
                 for r in b.get("righe") or [] if isinstance(r, list) and len(r) >= 2]
         dl = fact_rows_html(rows)
         return f'  <div class="p-facts-wrap">{dl}</div>' if dl else ""
+    if kind == "video":
+        v = video_html(b.get("video"), plain(_str(b.get("didascalia"))) or p["title"])
+        if not v:
+            return ""
+        cap = _str(b.get("didascalia"))
+        return (f'  <figure class="block-video{" wide" if b.get("larga") else ""}">{v}'
+                f'{f"<figcaption>{inline(cap)}</figcaption>" if cap else ""}</figure>')
     if kind == "sequenza":
-        photos = [f for f in b.get("foto") or [] if _photo(f, s) and exists(f)]
+        photos = [f for f in b.get("foto") or [] if (_photo(f, s) and exists(f)) or (isinstance(f, str) and video_html(f, ""))]
         if not photos:
             return ""
         lay = b.get("layout")
@@ -847,7 +891,8 @@ def block_html(b, p, i):
         spots = grid_places(schema, len(photos)) if schema else []
         cls = "custom" if schema else (lay if lay in LAYOUTS else "colonna")
         n = len(photos)
-        lis = "".join(f'<li{grid_spot(spots, k)}>{img(f, f"{p["title"]}, fotografia {k}")}<span class="count label">{k:02d}/{n:02d}</span></li>'
+        lis = "".join(f'<li{grid_spot(spots, k)}>{video_html(f, f"{p["title"]}, video {k}") or img(f, f"{p["title"]}, fotografia {k}")}'
+                      f'<span class="count label">{k:02d}/{n:02d}</span></li>'
                       for k, f in enumerate(photos, 1))
         return f'  <ol class="photo-seq layout-{cls}" aria-label="Fotografie">{lis}</ol>'
     if kind == "altri":

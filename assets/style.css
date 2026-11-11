@@ -420,3 +420,13 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 .media.empty, .zigzag .media.empty, .bw .media.empty { background: none; box-shadow: none; }
 .media.empty::after { display: none; }
 .gallery:empty, .photo-seq:empty { display: none; }
+
+/* videos (/admin): YouTube/Vimeo players and uploaded files */
+.video { position: relative; aspect-ratio: 16 / 9; background: #000; }
+.video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video.file { aspect-ratio: auto; }
+.video video { display: block; width: 100%; height: auto; max-height: 90svh; background: #000; }
+.seq-video, .block-video { max-width: 1100px; margin: clamp(32px, 5vw, 72px) auto; padding: 0 var(--pad); }
+.block-video.wide { max-width: none; }
+.block-video figcaption { margin-top: 10px; font-size: 13px; color: var(--ink-2, #555); }
+.photo-seq li > .video { width: 100%; }

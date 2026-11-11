@@ -60,6 +60,11 @@ Il triangolino ▸ / ▾ accanto a un ramo lo apre o lo chiude (il browser se lo
 - **Modifica sull'anteprima**: nell'anteprima a destra i testi che corrispondono a un campo si evidenziano al passaggio del mouse.
   Un clic su un paragrafo semplice lo modifica lì (Invio o Esc per finire) e il campo a sinistra segue; un testo con grassetto,
   corsivo o link porta al suo campo. Un clic su una foto la mostra nel pannello. Poi *Salva e pubblica* come sempre.
+- **Video**: nelle Pagine c'è il blocco **Video** (link YouTube o Vimeo, oppure *Carica un file* mp4/webm/mov fino a 50 MB, con didascalia
+  e opzione a tutta larghezza) e nella **Sequenza foto** *+ Video (link)* / *+ Video (file)* aggiungono un video tra le foto.
+  Nei progetti fotografici, sotto la sequenza, *+ Aggiungi video* mette un video tra le foto (come *+ Aggiungi testo*: si sposta con ↑ ↓
+  o trascinandolo). I file finiscono in `media/<pagina>/` (tolti quando nessun blocco li usa più); YouTube si apre senza cookie.
+  Per video lunghi meglio YouTube o Vimeo: il file pesa sul sito.
 - **Libreria foto** (nell'albero): tutte le foto del sito divise per cartella, con ricerca. Clic su una foto:
   clic sull'immagine = **punto di fuoco** (il punto che resta in vista quando il sito taglia la foto: hero, griglia della home,
   copertine in alto; *Centro* lo toglie); **Ritaglio** sceglie un formato (1:1, 4:5, 3:2…) e lo zoom, il riquadro si centra sul punto
