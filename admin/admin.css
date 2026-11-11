@@ -89,6 +89,19 @@ body.no-preview .preview { display: none; }
 .layout-opt:has(input:checked) { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
 .layout-opt:has(input:checked) rect { fill: var(--ink); }
 .layout-opt:has(input:focus-visible) { outline: 2px solid var(--ink); outline-offset: 2px; }
+/* sequence as a page preview, following the chosen layout (same rules as .photo-seq.layout-* on the site) */
+.seq.lay { grid-template-columns: 1fr; max-width: 280px; gap: 5px; padding: 12px 10px; background: #fff; border: 1px solid var(--rule); border-radius: 10px; }
+.seq.lay li { aspect-ratio: 3 / 2; width: 42%; justify-self: center; border-radius: 3px; }
+.seq.lay-alternato li { width: 50%; justify-self: start; }
+.seq.lay-alternato li:nth-child(even) { justify-self: end; }
+.seq.lay-griglia, .seq.lay-ritmo { grid-template-columns: 1fr 1fr; }
+.seq.lay-griglia li, .seq.lay-grande li, .seq.lay-ritmo li { width: 100%; }
+.seq.lay-ritmo li:nth-child(3n + 1) { grid-column: 1 / -1; }
+.seq.lay li.add { grid-column: 1 / -1; width: 100%; aspect-ratio: auto; justify-self: stretch; }
+.seq.lay li.add label { padding: 10px; }
+.seq.lay .num { font-size: 10px; left: 4px; top: 4px; }
+.seq.lay .tools { padding: 2px; }
+.seq.lay .tools button { width: 22px; height: 20px; font-size: 11px; }
 .seq li.add, .arc.add { display: grid; place-items: center; border: 1px dashed #bbb; background: none; cursor: pointer; color: var(--ink-2); text-align: center; }
 .seq li.add label { cursor: pointer; padding: 20px; }
 .archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }

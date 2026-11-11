@@ -410,7 +410,9 @@
     if (ph.layout) panel.append(layoutPicker(state));
 
     if (ph.kind === "serie") {
-      const grid = h("ol", { class: "seq" });
+      // With a page layout the sequence is a small preview of the page: the photos sit as they will on the site
+      const grid = h("ol", { class: ph.layout ? `seq lay lay-${state.layout}` : "seq" });
+      state.onLayout = (id) => { grid.className = `seq lay lay-${id}`; };
       const draw = () => {
         grid.replaceChildren(...state.seq.map((it, i) => {
           const li = h("li", { draggable: "true" },
@@ -475,7 +477,7 @@
     LAYOUTS.forEach((l) => {
       const input = h("input", { type: "radio", name: "layout", value: l.id });
       input.checked = state.layout === l.id;
-      input.addEventListener("change", () => { state.layout = l.id; markDirty(); });
+      input.addEventListener("change", () => { state.layout = l.id; if (state.onLayout) state.onLayout(l.id); markDirty(); });
       wrap.append(h("label", { class: "layout-opt" }, input, mini(l), h("b", {}, l.name), h("small", {}, l.note)));
     });
     return h("div", {}, h("h3", {}, "Layout delle foto", h("small", {}, " vale per tutta la sequenza; sul telefono sempre una foto per riga")), wrap);
