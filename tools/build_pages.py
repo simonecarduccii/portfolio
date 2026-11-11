@@ -306,6 +306,25 @@ def share_image(key):
     return ""
 
 
+# Browser tab (/admin -> Impostazioni -> Scheda del browser): home title in content/sito.json "scheda.titolo",
+# icon uploaded as content/icona/icona.png (square PNG); without it the black SC monogram in assets/.
+_tab = SITO.get("scheda") if isinstance(SITO.get("scheda"), dict) else {}
+HOME_TITLE = (_tab.get("titolo") or "").strip() if isinstance(_tab.get("titolo"), str) else ""
+HOME_TITLE = HOME_TITLE or f"{SITE} — Creative Development"
+
+
+def icon_links(prefix=""):
+    custom = ROOT / "content" / "icona" / "icona.png"
+    if custom.is_file():
+        v = hashlib.sha1(custom.read_bytes()).hexdigest()[:8]
+        src = f"{prefix}content/icona/icona.png?v={v}"
+        return (f'<link rel="icon" href="{src}" type="image/png">\n'
+                f'<link rel="apple-touch-icon" href="{src}">')
+    return (f'<link rel="icon" href="{prefix}assets/favicon.svg?v={asset_version('favicon.svg')}" type="image/svg+xml">\n'
+            f'<link rel="icon" href="{prefix}assets/favicon-32.png?v={asset_version('favicon-32.png')}" type="image/png" sizes="32x32">\n'
+            f'<link rel="apple-touch-icon" href="{prefix}assets/apple-touch-icon.png?v={asset_version('apple-touch-icon.png')}">')
+
+
 def page(*, file, title, description, body, current=None, header="", body_class="", main_class=""):
     robots = ""
     key = file[:-5]
@@ -315,7 +334,7 @@ def page(*, file, title, description, body, current=None, header="", body_class=
     if file[:-5] in BUILDING:
         body, header, main_class = building(title), "", "notfound"
         robots = '\n<meta name="robots" content="noindex">'
-    full_title = f"{title} — {SITE}" if title != SITE else f"{SITE} — Editorial, Events & Cultural Projects"
+    full_title = f"{title} — {SITE}" if title != SITE else HOME_TITLE
     full_title = _str(seo.get("titolo")) or full_title
     url = SITE_URL + ("" if key == "index" else file)
     nav = "".join(
@@ -337,7 +356,7 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 <meta property="og:image" content="{html.escape(image)}">
 <meta name="twitter:card" content="summary_large_image">""" if image else ""}
 <meta name="theme-color" content="{THEME}">
-<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+{icon_links()}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="{FONTS}" rel="stylesheet">
@@ -1013,6 +1032,8 @@ def version_admin():
     s = f.read_text(encoding="utf-8")
     for name in ("admin.css", "struttura.js", "admin.js"):
         s = re.sub(rf'(["\']){re.escape(name)}(\?v=[0-9a-f]+)?\1', rf'\g<1>{name}?v={git_blob_sha(ROOT / "admin" / name)[:12]}\1', s)
+    # the tab icon of the site, also for the admin
+    s = re.sub(r'(<link rel="(?:icon|apple-touch-icon)"[^>]*>\n)+', lambda m: icon_links("../") + "\n", s, count=1)
     f.write_text(s, encoding="utf-8")
 
 
