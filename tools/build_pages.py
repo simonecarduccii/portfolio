@@ -644,7 +644,7 @@ def build_photo(i, p):
     long_text = section(secs, "Testo")
     credits = first_text(section(secs, "Crediti"))
     place = strip_verify(meta.get("Luogo", ""))
-    year = meta.get("Anno", p["year"]).replace(" – ", " — ")
+    year = re.sub(r"\s*[–—]\s*", " - ", meta.get("Anno", p["year"]))  # short hyphen, as typed in /admin
     meta_lines = [x for x in [place, f"Progetto: {year}"] if x]
     blank = lambda v: not strip_verify(v).strip(" –—-")  # noqa: E731  an empty field or "–" is not shown
     digital = "digital" in meta.get("Supporto", "").lower()
