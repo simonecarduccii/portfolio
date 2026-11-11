@@ -38,7 +38,8 @@
       "titolo": "Maghreb",
       "anno": "2026",
       "pagina": "maghreb-2",
-      "visibile": false
+      "visibile": false,
+      "formato": "16:9"
     },
     {
       "id": "siculo",
