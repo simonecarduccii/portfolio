@@ -1293,6 +1293,19 @@ Fotografie e testo: Simone Carducci · ${year}
     $("#preview a").href = SITE + page;
   }
 
+  // ---------------------------------------------------------------- panel version
+  // index.html loads admin.js?v=<first 12 chars of its git blob sha> (written by tools/build_pages.py).
+  // If GitHub has a newer admin.js, the browser is showing an old copy of the panel: say so.
+  const MY_VERSION = ((document.querySelector('script[src*="admin.js"]') || {}).src || "").split("v=")[1] || "";
+  function checkVersion() {
+    const online = (tree["admin/admin.js"] || "").slice(0, 12);
+    if (!online || online === MY_VERSION || $("#old-version")) return;
+    document.body.prepend(h("div", { id: "old-version", class: "old-version" },
+      "Stai usando una versione vecchia del pannello. ",
+      h("button", { type: "button", onclick: () => { location.href = location.pathname + "?r=" + Date.now() + location.hash; } }, "Aggiorna il pannello"),
+      " (prima salva le modifiche aperte)"));
+  }
+
   // ---------------------------------------------------------------- login
 
   async function start() {
@@ -1303,6 +1316,7 @@ Fotografie e testo: Simone Carducci · ${year}
     } catch (e) {
       return showLogin(e.status === 401 ? "Il token non funziona più: creane uno nuovo." : "Non riesco a collegarmi a GitHub: " + e.message);
     }
+    checkVersion();
     await applyHome();
     await applyPages();
     await loadBuilding();

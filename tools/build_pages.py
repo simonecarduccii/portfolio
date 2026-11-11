@@ -787,7 +787,23 @@ def build_free(p):
          body="\n".join(parts), header="overlay" if over else "", main_class="flush")
 
 
+def git_blob_sha(path):
+    data = path.read_bytes()
+    return hashlib.sha1(b"blob %d\0" % len(data) + data).hexdigest()
+
+
+def version_admin():
+    """admin/index.html loads its files as ?v=<git blob sha>, so a browser never keeps an old panel:
+    admin.js compares that version with the one on GitHub and offers a reload when they differ."""
+    f = ROOT / "admin" / "index.html"
+    s = f.read_text(encoding="utf-8")
+    for name in ("admin.css", "struttura.js", "admin.js"):
+        s = re.sub(rf'(["\']){re.escape(name)}(\?v=[0-9a-f]+)?\1', rf'\g<1>{name}?v={git_blob_sha(ROOT / "admin" / name)[:12]}\1', s)
+    f.write_text(s, encoding="utf-8")
+
+
 def main():
+    version_admin()
     build_home()
     for i, p in enumerate(CULTURE):
         build_culture(i, p)
