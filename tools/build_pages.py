@@ -281,6 +281,16 @@ def field(text, label):
 # ---------------------------------------------------------------- layout
 
 NAV = [("about", "about.html", "about")]
+
+
+def header_parts():
+    """Name, subtitle and menu of the header, as edited in /admin -> Header e footer ("testata" in sito.json)."""
+    t = SITO.get("testata") if isinstance(SITO.get("testata"), dict) else {}
+    menu = _rows(t.get("menu"))
+    menu = [(_str(r.get("testo")), _str(r.get("link"))) for r in menu if _str(r.get("testo"))] if menu is not None \
+        else [(label, href) for label, href, _ in NAV]
+    tag = t.get("sottotitolo") if isinstance(t.get("sottotitolo"), str) else "Creative development"
+    return _str(t.get("nome")) or "Simone Carducci", tag.strip(), menu
 # kept for the footer of older layouts
 SECTIONS = [("Cultura", "index.html#cultura"), ("Archivio", "archivio.html"), ("Ricerca visiva", "index.html#ricerca-visiva"),
             ("AI", "ai.html"), ("About", "about.html")]
@@ -381,9 +391,10 @@ def page(*, file, title, description, body, current=None, header="", body_class=
     full_title = f"{title} — {SITE}" if title != SITE else HOME_TITLE
     full_title = _str(seo.get("titolo")) or full_title
     url = SITE_URL + ("" if key == "index" else file)
+    header_name, header_tag, header_menu = header_parts()
     nav = "".join(
-        f'<a href="{href}"{" aria-current=\"page\"" if key == current else ""}>{label}</a>'
-        for label, href, key in NAV)
+        f'<a{_link_attrs(href)}{" aria-current=\"page\"" if href.replace(".html", "") == current else ""}>{html.escape(label)}</a>'
+        for label, href in header_menu)
     hc = " ".join(c for c in ["site-header", header] if c)
     out = f"""<!doctype html>
 <html lang="it">
@@ -409,8 +420,8 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 <body{f' class="{body_class}"' if body_class else ""}>
 <a class="skip" href="#main">Vai al contenuto</a>
 <header class="{hc}">
-  <a class="brand" href="index.html">Simone Carducci</a>
-  <span class="tag">Creative development</span>
+  <a class="brand" href="index.html">{html.escape(header_name)}</a>
+  {f'<span class="tag">{html.escape(header_tag)}</span>' if header_tag else ""}
   <nav class="nav" aria-label="Menu principale">{nav}</nav>
 </header>
 
@@ -426,16 +437,53 @@ def page(*, file, title, description, body, current=None, header="", body_class=
     print("wrote", file)
 
 
+def _link_attrs(link):
+    """href (+ new tab for other sites) of a link typed in /admin: https://..., a page, a mail, @name."""
+    href = fact_href(link)
+    if not href:
+        return ""
+    local = href.endswith(".html") or ".html#" in href or href.startswith(("/", "#", "mailto:", "tel:", "assets/"))
+    blank = "" if local and not href.endswith(".pdf") else ' target="_blank"' + ("" if href.endswith(".pdf") else ' rel="noopener"')
+    return f' href="{html.escape(href)}"{blank}'
+
+
+def _link(text, link, cls=""):
+    c = f' class="{cls}"' if cls else ""
+    attrs = _link_attrs(link)
+    return f"<a{c}{attrs}>{html.escape(text)}</a>" if attrs else f"<span{c}>{html.escape(text)}</span>"
+
+
+# /admin -> Header e footer (content/sito.json "testata" and "footer"): missing = the design below.
+def _rows(v):
+    return [r for r in v if isinstance(r, dict)] if isinstance(v, list) else None
+
+
+def footer_columns():
+    cols = _rows(SITO.get("footer", {}).get("colonne"))
+    if cols is not None:
+        return [(_str(c.get("titolo")), [(_str(r.get("testo")), _str(r.get("link"))) for r in _rows(c.get("voci")) or []]) for c in cols]
+    altrove = [("Instagram", INSTAGRAM), ("Lomography", LOMO)] + ([("LinkedIn", LINKEDIN)] if LINKEDIN else [])
+    sezioni = [("Cultura", "index.html#cultura"), ("Ricerca visiva", "index.html#ricerca-visiva")] + \
+        ([] if "archivio" in BUILDING else [("Archivio", "archivio.html")]) + [("About", "about.html")]
+    return [("Contatti", [(EMAIL, f"mailto:{EMAIL}")]), ("Altrove", altrove), ("Sezioni", sezioni), ("CV", [("Scarica il CV (PDF)", CV)])]
+
+
 def footer():
-    linkedin = f'<li><a href="{LINKEDIN}" target="_blank" rel="noopener">LinkedIn</a></li>' if LINKEDIN else ""
-    return f"""<footer class="site-footer">
-  <a class="footer-cta" href="mailto:{EMAIL}">Scrivimi</a>
-  <a class="footer-email" href="mailto:{EMAIL}">{EMAIL}</a>
+    f = SITO.get("footer", {})
+    cta = f.get("invito") if isinstance(f.get("invito"), str) else "Scrivimi"
+    cta_link = _str(f.get("invito_link")) or f"mailto:{EMAIL}"
+    big = f.get("indirizzo") if isinstance(f.get("indirizzo"), str) else EMAIL
+    big_link = _str(f.get("indirizzo_link")) or (f"mailto:{big}" if "@" in big else "")
+    cols = []
+    for title, rows in footer_columns():
+        items = "".join(f"<li>{_link(t, l, 'lower' if '@' in t else 'ig' if t.lower() == 'instagram' else '')}</li>" for t, l in rows if t)
+        if title or items:
+            cols.append(f"    <div><h2>{html.escape(title)}</h2><ul>{items}</ul></div>")
+    return f"""<footer class="site-footer" id="footer">
+  {_link(cta, cta_link, "footer-cta") if cta.strip() else ""}
+  {_link(big, big_link, "footer-email") if big.strip() else ""}
   <div class="footer-cols">
-    <div><h2>Contatti</h2><ul><li><a class="lower" href="mailto:{EMAIL}">{EMAIL}</a></li></ul></div>
-    <div><h2>Altrove</h2><ul><li><a class="ig" href="{INSTAGRAM}" target="_blank" rel="noopener">Instagram</a></li><li><a href="{LOMO}" target="_blank" rel="noopener">Lomography</a></li>{linkedin}</ul></div>
-    <div><h2>Sezioni</h2><ul><li><a href="index.html#cultura">Cultura</a></li><li><a href="index.html#ricerca-visiva">Ricerca visiva</a></li>{"" if "archivio" in BUILDING else '<li><a href="archivio.html">Archivio</a></li>'}<li><a href="about.html">About</a></li></ul></div>
-    <div><h2>CV</h2><ul><li><a href="{CV}" target="_blank">Scarica il CV (PDF)</a></li></ul></div>
+{chr(10).join(cols)}
   </div>
   <div class="footer-legal">{"".join(f"<span>{html.escape(FOOT[k])}</span>" for k in ("copyright", "credito", "piva") if FOOT[k].strip())}</div>
 </footer>"""
@@ -531,7 +579,7 @@ def fact_href(link):
         return ""
     if link.startswith("@") and " " not in link:
         return f"https://instagram.com/{link[1:]}"
-    if re.match(r"^(https?:|mailto:|tel:|/|#)", link) or re.match(r"^[\w-]+\.html(#.*)?$", link):
+    if re.match(r"^(https?:|mailto:|tel:|/|#|assets/|img/|media/)", link) or re.match(r"^[\w-]+\.html(#.*)?$", link):
         return link
     if "@" in link and "/" not in link:
         return f"mailto:{link}"
