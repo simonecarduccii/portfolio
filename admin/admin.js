@@ -368,12 +368,12 @@
       Object.keys(tree).filter((p) => p.startsWith(ph.dir + "/") && /^\d{2,}\.jpg$/.test(p.slice(ph.dir.length + 1)))
         .sort().forEach((p) => state.seq.push({ sha: tree[p], url: siteUrl(p) }));
     }
-    // Page layout (photo projects): big cover on/off, size and position of each photo in the sequence
+    // Page layout (photo projects): big cover on/off and one of the standard layouts (LAYOUTS)
     let layout = null;
     if (ph.layout) {
       try { layout = JSON.parse(await readText(ph.layout) || "{}"); } catch (e) { layout = {}; }
       state.coverBig = layout.copertina !== false;
-      state.seq.forEach((it, i) => { const l = (layout.foto || [])[i] || {}; it.dim = l.dim || "media"; it.pos = l.pos || "centro"; });
+      state.layout = LAYOUTS.some((l) => l.id === layout.layout) ? layout.layout : LAYOUTS[0].id;
     }
     draft.photos = { node, state, coverPath, layout };
 
@@ -392,6 +392,7 @@
       toggle(state.coverBig, (v) => { state.coverBig = v; markDirty(); }),
       h("span", {}, "Mostra la copertina grande in cima alla pagina"),
       h("small", { class: "hint" }, "(in home resta comunque la foto del progetto)")));
+    if (ph.layout) panel.append(layoutPicker(state));
 
     if (ph.kind === "serie") {
       const grid = h("ol", { class: "seq" });
@@ -405,9 +406,7 @@
               h("button", { type: "button", title: "Dopo", onclick: () => move(i, i + 1) }, "→"),
               h("button", { type: "button", title: "Usa come copertina", onclick: () => { state.cover = { ...it }; drawCover(); markDirty(); } }, "★"),
               h("button", { type: "button", title: "Togli", onclick: () => { state.seq.splice(i, 1); draw(); markDirty(); } }, "×")),
-            ph.layout ? h("span", { class: "lay" },
-              pick(it, "dim", "Dimensione", [["piccola", "Piccola"], ["media", "Media"], ["grande", "Grande"], ["piena", "Tutta larghezza"]]),
-              pick(it, "pos", "Posizione", [["sinistra", "A sinistra"], ["centro", "Al centro"], ["destra", "A destra"]])) : null);
+          );
           li.addEventListener("dragstart", (e) => { e.dataTransfer.setData("text/x-seq", String(i)); li.classList.add("dragging"); });
           li.addEventListener("dragend", () => li.classList.remove("dragging"));
           li.addEventListener("dragover", (e) => { if (e.dataTransfer.types.includes("text/x-seq")) e.preventDefault(); });
@@ -420,18 +419,12 @@
         }), h("li", { class: "add" }, h("label", {}, "+ Aggiungi foto",
           h("input", { type: "file", accept: "image/*", multiple: true, hidden: true, onchange: (e) => addFiles(e.target.files) }))));
       };
-      const pick = (it, key, label, opts) => {
-        const sel = h("select", { "aria-label": label, title: label }, ...opts.map(([v, t]) => h("option", { value: v }, t)));
-        sel.value = it[key] || opts[1][0];
-        sel.addEventListener("change", () => { it[key] = sel.value; markDirty(); });
-        return sel;
-      };
       const move = (a, b) => {
         if (b < 0 || b >= state.seq.length) return;
         const [it] = state.seq.splice(a, 1); state.seq.splice(b, 0, it); draw(); markDirty();
       };
       const addFiles = async (files) => {
-        for (const f of files) if (f.type.startsWith("image/")) state.seq.push({ ...(await newPhoto(f, MAX_SIDE)), dim: "media", pos: "centro" });
+        for (const f of files) if (f.type.startsWith("image/")) state.seq.push(await newPhoto(f, MAX_SIDE));
         draw(); markDirty();
       };
       dropZone(grid, addFiles);
@@ -439,6 +432,38 @@
       panel.append(h("h3", {}, ph.seq, h("small", {}, " trascina per riordinare, o trascina qui le foto dal Finder")), grid);
     }
     return panel;
+  }
+
+  // Standard layouts of a photo page sequence: the same ids are classes on the site (.photo-seq.layout-<id>).
+  // Each mini drawing is a list of [x, y, w, h] boxes on a 40 x 52 page.
+  const LAYOUTS = [
+    { id: "colonna", name: "Colonna", note: "una foto per riga, al centro", boxes: [[13, 4, 14, 10], [13, 16, 14, 10], [13, 28, 14, 10], [13, 40, 14, 10]] },
+    { id: "alternato", name: "Alternato", note: "una a sinistra, una a destra", boxes: [[3, 4, 20, 13], [17, 19, 20, 13], [3, 34, 20, 13]] },
+    { id: "griglia", name: "Griglia", note: "due foto per riga", boxes: [[3, 4, 16.5, 11], [20.5, 4, 16.5, 11], [3, 17, 16.5, 11], [20.5, 17, 16.5, 11], [3, 30, 16.5, 11], [20.5, 30, 16.5, 11]] },
+    { id: "grande", name: "Grande", note: "ogni foto a tutta larghezza", boxes: [[3, 4, 34, 21], [3, 27, 34, 21]] },
+    { id: "ritmo", name: "Ritmo", note: "una grande, poi due affiancate", boxes: [[3, 4, 34, 20], [3, 26, 16.5, 11], [20.5, 26, 16.5, 11], [3, 39, 34, 9]] },
+  ];
+
+  function layoutPicker(state) {
+    const NS = "http://www.w3.org/2000/svg";
+    const mini = (l) => {
+      const svg = document.createElementNS(NS, "svg");
+      svg.setAttribute("viewBox", "0 0 40 52"); svg.setAttribute("aria-hidden", "true");
+      l.boxes.forEach(([x, y, w, hh]) => {
+        const r = document.createElementNS(NS, "rect");
+        Object.entries({ x, y, width: w, height: hh, rx: 0.8 }).forEach(([k, v]) => r.setAttribute(k, v));
+        svg.append(r);
+      });
+      return svg;
+    };
+    const wrap = h("div", { class: "layouts", role: "radiogroup", "aria-label": "Layout delle foto" });
+    LAYOUTS.forEach((l) => {
+      const input = h("input", { type: "radio", name: "layout", value: l.id });
+      input.checked = state.layout === l.id;
+      input.addEventListener("change", () => { state.layout = l.id; markDirty(); });
+      wrap.append(h("label", { class: "layout-opt" }, input, mini(l), h("b", {}, l.name), h("small", {}, l.note)));
+    });
+    return h("div", {}, h("h3", {}, "Layout delle foto", h("small", {}, " vale per tutta la sequenza; sul telefono sempre una foto per riga")), wrap);
   }
 
   async function newPhoto(file, side) {
@@ -565,10 +590,8 @@
           }
           if (draft.photos.layout) {
             const fresh = JSON.parse(await readText(n.photos.layout, true) || "{}");
-            const { copertina, foto, ...rest } = fresh;
-            const rows = state.seq.map((it) => "    " + JSON.stringify({ dim: it.dim || "media", pos: it.pos || "centro" }));
-            const json = JSON.stringify({ ...rest, copertina: state.coverBig }, null, 2).replace(/\n}$/, "") +
-              ',\n  "foto": [\n' + rows.join(",\n") + "\n  ]\n}\n";
+            const { foto, ...rest } = fresh; // "foto" = per-photo sizes of the first version, no longer used
+            const json = JSON.stringify({ ...rest, copertina: state.coverBig, layout: state.layout }, null, 2) + "\n";
             if (json !== (texts[n.photos.layout] || "")) out[n.photos.layout] = await blobFrom({ text: json });
           }
         }
