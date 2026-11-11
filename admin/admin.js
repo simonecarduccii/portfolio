@@ -240,7 +240,7 @@
         type: "button", class: "node" + (n.hidden ? " hidden" : "") + (current === n ? " on" : "") + (n.group ? " group" : ""),
         title: n.hidden ? "Spento: non compare in home" : null,
         onclick: () => open(n),
-      }, n.title, n.hidden ? h("span", { class: "tag" }, "spento") : null),
+      }, n.title, n.hidden ? h("span", { class: "tag" }, "spento") : pageSlug(n) && BUILDING.has(pageSlug(n)) ? h("span", { class: "tag" }, "in costruzione") : null),
       n.children ? list(n.children, depth + 1) : null)));
     $("#nav").replaceChildren(list(window.STRUTTURA, 0));
   }
@@ -278,6 +278,8 @@
       h("h1", {}, node.title),
       node.page ? h("a", { class: "open-page", href: SITE + node.page, target: "_blank", rel: "noopener" }, "Apri la pagina ↗") : null,
       node.switchKey ? h("div", { class: "head-switch" }, toggle(!node.hidden, (v) => { draft.switches[node.switchKey] = v; markDirty(); }), h("span", {}, "Visibile in home")) : null,
+      pageSlug(node) ? h("div", { class: "head-switch building-switch" }, toggle(BUILDING.has(pageSlug(node)), (v) => { draft.building = v; markDirty(); }),
+        h("span", {}, "Pagina in costruzione"), h("small", { class: "hint" }, "(chi la apre vede solo l'avviso, con menu e footer)")) : null,
       node.note ? h("p", { class: "note" }, node.note) : null);
 
     const body = h("div", { class: "el-body" });
@@ -299,7 +301,7 @@
     const bar = h("div", { class: "savebar" },
       h("span", { id: "save-state", class: "muted" }, "Nessuna modifica"),
       h("button", { id: "save", type: "button", class: "primary", disabled: true, onclick: save }, "Salva e pubblica"));
-    const editable = node.photos || node.texts || node.homeList || node.settings || node.freePage || node.switchKey || (node.children || []).some((c) => c.switchKey);
+    const editable = node.photos || node.texts || node.homeList || node.settings || node.freePage || pageSlug(node) || node.switchKey || (node.children || []).some((c) => c.switchKey);
     return h("div", {}, head, body, editable ? bar : null);
   }
 
@@ -768,6 +770,15 @@ Fotografie e testo: Simone Carducci · ${year}
   // ---------------------------------------------------------------- site settings (content/sito.json)
 
   const SITO_FILE = "content/sito.json";
+
+  // Pages switched to "in costruzione" (content/sito.json -> in_costruzione: list of page names)
+  let BUILDING = new Set();
+  async function loadBuilding() {
+    try { const s = JSON.parse(await readText(SITO_FILE, true) || "{}"); BUILDING = new Set(Array.isArray(s.in_costruzione) ? s.in_costruzione : []); }
+    catch (e) { BUILDING = new Set(); }
+  }
+  // the page an element has of its own (not the home, not a section of it)
+  const pageSlug = (n) => (n && n.page && !n.noPage && !n.page.includes("#") && n.page !== "index.html" ? n.page.replace(/\.html$/, "") : null);
   const SITO_FORM = [
     { title: "Contatti e link", hint: "Valgono in tutto il sito: footer, About, link di Lomography. Lascia LinkedIn vuoto per non mostrarlo.", fields: [
       ["contatti.email", "Email"], ["contatti.instagram", "Instagram (indirizzo completo)"],
@@ -1151,10 +1162,15 @@ Fotografie e testo: Simone Carducci · ${year}
           if (text !== before) out[file] = await blobFrom({ text });
         }
         if (draft.builder) await builderChanges(out);
-        // site settings
-        if (draft.sito && Object.keys(draft.sito).length) {
+        // site settings (and the "in costruzione" switch of this page)
+        if ((draft.sito && Object.keys(draft.sito).length) || draft.building != null) {
           const fresh = JSON.parse(await readText(SITO_FILE, true) || "{}");
-          for (const [path, v] of Object.entries(draft.sito)) setPath(fresh, path, v);
+          for (const [path, v] of Object.entries(draft.sito || {})) setPath(fresh, path, v);
+          if (draft.building != null) {
+            const list = new Set(Array.isArray(fresh.in_costruzione) ? fresh.in_costruzione : []);
+            if (draft.building) list.add(pageSlug(node)); else list.delete(pageSlug(node));
+            fresh.in_costruzione = [...list].sort();
+          }
           const json = JSON.stringify(fresh, null, 2) + "\n";
           if (json !== (texts[SITO_FILE] || "")) out[SITO_FILE] = await blobFrom({ text: json });
         }
@@ -1236,6 +1252,7 @@ Fotografie e testo: Simone Carducci · ${year}
       }
       if (draft.home || Object.keys(draft.switches).length) { await applyHome(); renderNav(); }
       if (draft.builder) { await applyPages(); renderNav(); }
+      if (draft.building != null) { await loadBuilding(); renderNav(); }
       if (!sha) { st.textContent = "Niente da salvare"; return; }
       st.textContent = "Salvato. Il sito si aggiorna in 1-2 minuti…";
       waitPublished(sha, node);
@@ -1288,6 +1305,7 @@ Fotografie e testo: Simone Carducci · ${year}
     }
     await applyHome();
     await applyPages();
+    await loadBuilding();
     document.body.classList.add("ready");
     renderNav();
     const start = ALL.find((n) => n.id === location.hash.slice(1)) || ALL[0];

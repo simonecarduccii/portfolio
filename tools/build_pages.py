@@ -27,6 +27,8 @@ EMAIL = _k.get("email") or "simone.carducci01@gmail.com"
 INSTAGRAM = _k.get("instagram") or "https://instagram.com/simonecarduccii"
 LOMO = _k.get("lomography") or "https://www.lomography.com/homes/simonecarduccii"
 LINKEDIN = _k.get("linkedin") or None  # the footer shows LinkedIn only once this is set
+# Pages switched to "in costruzione" in /admin: they keep header and footer, the content is replaced by a notice.
+BUILDING = {s for s in SITO.get("in_costruzione", []) if isinstance(s, str) and s != "index"}
 FOOT = {"copyright": "© 2025-2026 Simone Carducci. Tutti i diritti riservati.", "credito": "Developed by me",
         "piva": "P.Iva 18337621009", **{k: v for k, v in SITO.get("footer", {}).items() if isinstance(v, str)}}
 CV = "assets/cv-simone-carducci.pdf"
@@ -232,7 +234,18 @@ def asset_version(name):
     return hashlib.sha1(data).hexdigest()[:8]
 
 
+def building(title):
+    return f"""  <p class="eyebrow">Pagina in costruzione</p>
+  <h1 class="p-title">{html.escape(title)}</h1>
+  <p>Ci sto ancora lavorando: torna a trovarmi presto.</p>
+  <p class="links"><a class="link-arrow" href="./">Torna alla home</a></p>"""
+
+
 def page(*, file, title, description, body, current=None, header="", body_class="", main_class=""):
+    robots = ""
+    if file[:-5] in BUILDING:
+        body, header, main_class = building(title), "", "notfound"
+        robots = '\n<meta name="robots" content="noindex">'
     full_title = f"{title} — {SITE}" if title != SITE else f"{SITE} — Editorial, Events & Cultural Projects"
     nav = "".join(
         f'<a href="{href}"{" aria-current=\"page\"" if key == current else ""}>{label}</a>'
@@ -244,7 +257,7 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{html.escape(full_title)}</title>
-<meta name="description" content="{html.escape(description)}">
+<meta name="description" content="{html.escape(description)}">{robots}
 <meta property="og:title" content="{html.escape(full_title)}">
 <meta property="og:description" content="{html.escape(description)}">
 <meta property="og:type" content="website">
