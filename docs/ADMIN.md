@@ -57,6 +57,10 @@ Il triangolino ▸ / ▾ accanto a un ramo lo apre o lo chiude (il browser se lo
   un indirizzo (`https://…`, anche senza `https://`), una pagina del sito (`modi.html`), una mail o `@nome` (Instagram).
   Sul sito le etichette sono in maiuscolo. La scheda è in `content/schede/<pagina>.json`; finché non la salvi la prima volta resta quella
   scritta nel testo della pagina. Anche il blocco *Scheda dati* delle Pagine ha il link facoltativo.
+- **Cronologia**: in fondo a ogni elemento, *Mostra le versioni precedenti* elenca i salvataggi (data e cosa è cambiato).
+  *Torna a questa versione* riporta testi, foto e layout di quell'elemento com'erano dopo quel salvataggio; *Annulla questo salvataggio*
+  (sulla versione attuale) torna a prima dell'ultimo. Il resto del sito non cambia: i testi in file condivisi (es. `docs/CONTENUTI.md`)
+  vengono ripristinati campo per campo. Anche il ripristino è un salvataggio, quindi si può annullare a sua volta.
 - **Archivio**: aggiungi o togli foto e scrivi pellicola, luogo e anno sotto ciascuna.
 - **Ordine delle sezioni**: in *Home*, ↑ ↓ spostano Pellicole, Ricerca visiva, Progetti con l'AI e la banda Archivio
   (l'hero resta sempre in alto). L'ordine è `ordine` in `content/home.json`.
