@@ -193,6 +193,19 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 .zigzag .tile:nth-child(5) .media { aspect-ratio: 555 / 371; }
 .zigzag .tile:nth-child(6) { grid-column: 2; grid-row: 6; width: 81.98%; margin-left: 0%; margin-top: clamp(46px, 6.73vw, 92px); }
 .zigzag .tile:nth-child(6) .media { aspect-ratio: 455 / 297; }
+/* More than six projects: the same zigzag repeats, one project per row, so the section just grows. */
+.zigzag .tile:nth-child(6n+7) { grid-column: 1; grid-row: var(--row, auto); margin-top: clamp(29px, 4.25vw, 58px); width: 97.3%; margin-left: 1.44%; }
+.zigzag .tile:nth-child(6n+7) .media { aspect-ratio: 540 / 371; }
+.zigzag .tile:nth-child(6n+8) { grid-column: 2; grid-row: var(--row, auto); width: 91.35%; margin-left: 4.32%; margin-top: clamp(29px, 4.25vw, 58px); }
+.zigzag .tile:nth-child(6n+8) .media { aspect-ratio: 507 / 394; }
+.zigzag .tile:nth-child(6n+9) { grid-column: 1; grid-row: var(--row, auto); width: 100%; margin-left: 0%; margin-top: clamp(60px, 8.86vw, 121px); }
+.zigzag .tile:nth-child(6n+9) .media { aspect-ratio: 555 / 279; }
+.zigzag .tile:nth-child(6n+10) { grid-column: 2; grid-row: var(--row, auto); width: 75.86%; margin-left: 12.07%; margin-top: clamp(28px, 4.17vw, 57px); }
+.zigzag .tile:nth-child(6n+10) .media { aspect-ratio: 421 / 371; }
+.zigzag .tile:nth-child(6n+11) { grid-column: 1; grid-row: var(--row, auto); width: 100%; margin-left: 0%; margin-top: clamp(18px, 2.64vw, 36px); }
+.zigzag .tile:nth-child(6n+11) .media { aspect-ratio: 555 / 371; }
+.zigzag .tile:nth-child(6n+12) { grid-column: 2; grid-row: var(--row, auto); width: 81.98%; margin-left: 0%; margin-top: clamp(46px, 6.73vw, 92px); }
+.zigzag .tile:nth-child(6n+12) .media { aspect-ratio: 455 / 297; }
 .zigzag .tile { display: block; }
 .zigzag .media.soon { background: var(--ph); }
 .zigzag .media.soon::after { display: none; }

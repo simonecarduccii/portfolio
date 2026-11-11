@@ -911,12 +911,13 @@ def build_home():
     # Figma "Portfolio · v2": six cards; the ones without a page or photo yet are placeholders.
     cards = [(r["titolo"], project_year(r), r.get("pagina"), fmt_style(r.get("formato"))) for r in RESEARCH if r.get("visibile", True)]
     tiles = ""
-    for title, year, sl, st in cards:
+    for n, (title, year, sl, st) in enumerate(cards, 1):
         cap = f'<span class="fig-cap"><span>{html.escape(title)}</span><span>{year}</span></span>'
+        row = f' style="--row: {n}"' if n > 6 else ""  # after the sixth, each project gets its own row below
         if sl:
-            tiles += f'<a class="tile" href="{sl}.html">{img(f"img/{sl}/cover.jpg", title).replace("<div ", f"<div{st} ", 1)}{cap}</a>'
+            tiles += f'<a class="tile" href="{sl}.html"{row}>{img(f"img/{sl}/cover.jpg", title).replace("<div ", f"<div{st} ", 1)}{cap}</a>'
         else:
-            tiles += f'<div class="tile is-soon"><div{st} class="media empty"></div>{cap}</div>'
+            tiles += f'<div class="tile is-soon"{row}><div{st} class="media empty"></div>{cap}</div>'
     parts = []
     if on("hero") and hero:
         parts.append(f"""  <section class="hero hero-full bw" id="cultura" aria-label="Progetti culturali">
