@@ -406,12 +406,20 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 .lightbox { position: fixed; inset: 0; z-index: 50; align-items: center; justify-content: center; background: rgba(10,10,10,.96); padding: 56px var(--pad); border: 0; width: 100%; height: 100%; max-width: none; max-height: none; color: #fff; }
 .lightbox[open] { display: flex; }
 .lightbox::backdrop { background: rgba(10,10,10,.96); }
-.lightbox img { max-width: 100%; max-height: calc(100svh - 112px); object-fit: contain; }
-.lightbox button { position: absolute; padding: 14px; font-size: 12px; color: inherit; }
-.lightbox .lb-close { top: 8px; right: 8px; }
-.lightbox .lb-prev, .lightbox .lb-next { top: 50%; transform: translateY(-50%); font-size: 28px; font-weight: 300; }
-.lightbox .lb-prev { left: 4px; }
-.lightbox .lb-next { right: 4px; }
+.lightbox .lb-stage { position: relative; display: flex; max-width: 100%; max-height: calc(100svh - 112px); }
+.lightbox img { display: block; max-width: 100%; max-height: calc(100svh - 112px); object-fit: contain; }
+.lightbox button { position: absolute; color: inherit; background: none; border: 0; cursor: pointer; }
+.lightbox .lb-close { top: 12px; right: 16px; padding: 10px; font-size: 22px; line-height: 1; }
+/* Left and right halves of the photo: click to move, the arrow shows on hover. */
+.lightbox .lb-zone { top: 0; bottom: 0; width: 50%; display: flex; align-items: center; padding: 0 16px; font-size: 32px; font-weight: 300; }
+.lightbox .lb-prev { left: 0; justify-content: flex-start; cursor: w-resize; }
+.lightbox .lb-next { right: 0; justify-content: flex-end; cursor: e-resize; }
+.lightbox .lb-zone span { opacity: 0; transition: opacity .2s; text-shadow: 0 0 12px rgba(0,0,0,.6); }
+.lightbox .lb-zone:hover span, .lightbox .lb-zone:focus-visible span { opacity: 1; }
+.lightbox button:focus:not(:focus-visible) { outline: none; }
+.lightbox .lb-zone:focus-visible { outline: none; }
+@media (hover: none) { .lightbox .lb-zone span { opacity: .8; } }
+.photo-seq img, .photo-first img, .gallery img, .p-hero img, .about-intro img { cursor: zoom-in; }
 .lightbox .lb-count { position: absolute; bottom: 18px; left: 0; right: 0; text-align: center; font-size: 11px; opacity: .7; }
 
 /* ---------- 404 ---------- */
@@ -442,3 +450,4 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 .p-title-row:has(.back-link) { justify-content: flex-start; }
 .back-link { font-size: var(--fs-band-link); line-height: 1; color: var(--ink); text-decoration: none; padding: 4px 4px 4px 0; }
 .back-link:hover, .back-link:focus-visible { color: var(--ink-2); }
+body.no-scroll { overflow: hidden; }

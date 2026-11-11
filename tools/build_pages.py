@@ -119,7 +119,18 @@ def on(key):
 # Photo projects ("Ricerca visiva"): every entry of content/home.json with a page and a sheet in docs/progetti/
 # gets its page, in the home order, with one name everywhere (home card, page title, "Altri progetti").
 # New projects are created (and deleted) in /admin.
-PHOTO = [{"slug": r["pagina"], "title": r["titolo"], "year": r["anno"]} for r in RESEARCH
+def project_year(r):
+    """Year of a photo project: the page's own "Anno" (edited in /admin), else the home list value."""
+    if r.get("pagina"):
+        f = ROOT / "docs" / "progetti" / f'{r["pagina"]}.md'
+        if f.exists():
+            m = re.search(r"^- \*\*Anno:\*\*\s*(.+)$", f.read_text(encoding="utf-8"), re.M)
+            if m and m.group(1).strip():
+                return m.group(1).strip()
+    return r.get("anno", "")
+
+
+PHOTO = [{"slug": r["pagina"], "title": r["titolo"], "year": project_year(r)} for r in RESEARCH
          if r.get("pagina") and (ROOT / "docs" / "progetti" / f'{r["pagina"]}.md').exists()]
 
 PHOTO_SLOTS = 12  # sequence slots per photo project; missing files are hidden by main.js
@@ -341,6 +352,23 @@ def icon_links(prefix=""):
             f'<link rel="apple-touch-icon" href="{prefix}assets/apple-touch-icon.png?v={asset_version('apple-touch-icon.png')}">')
 
 
+# Characters people type to "leave a field empty" in /admin (Hangul filler, zero-width, braille blank, nbsp).
+_INVISIBLE = "\u3164\u115f\u1160\u200b\u200c\u200d\u2060\ufeff\u2800\u00a0"
+_EMPTY_TEXT = re.compile(r'<(p|h2|h3|figcaption|blockquote|dd|dt|span class="[^"]*")(?:\s[^>]*)?>[\s' + _INVISIBLE + r']*</(?:p|h2|h3|figcaption|blockquote|dd|dt|span)>')
+_EMPTY_BOX = re.compile(r'<(div|section|figure|dl) class="(?:photo-intro|photo-text[^"]*|prose|credits[^"]*|quote|p-facts-wrap|p-facts|fact)"[^>]*>\s*</(?:div|section|figure|dl)>')
+
+
+def drop_empty(out):
+    """Remove text blocks left empty in /admin, and the boxes around them, so no blank gap stays on the page."""
+    out = re.sub("[" + _INVISIBLE + "]+(?=\\s*<)", "", out)
+    prev = None
+    while prev != out:
+        prev = out
+        out = _EMPTY_TEXT.sub("", out)
+        out = _EMPTY_BOX.sub("", out)
+    return out
+
+
 def page(*, file, title, description, body, current=None, header="", body_class="", main_class=""):
     robots = ""
     key = file[:-5]
@@ -394,8 +422,7 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 </body>
 </html>
 """
-    out = version_media(out)
-    (ROOT / file).write_text(out, encoding="utf-8")
+    (ROOT / file).write_text(version_media(drop_empty(out)), encoding="utf-8")
     print("wrote", file)
 
 
@@ -650,7 +677,7 @@ def build_photo(i, p):
     long_text = section(secs, "Testo")
     credits = first_text(section(secs, "Crediti"))
     place = strip_verify(meta.get("Luogo", ""))
-    year = meta.get("Anno", p["year"]).replace(" – ", " — ")
+    year = re.sub(r"\s*[–—]\s*", " - ", meta.get("Anno", p["year"]))  # short hyphen, as typed in /admin
     meta_lines = [x for x in [place, f"Progetto: {year}"] if x]
     blank = lambda v: not strip_verify(v).strip(" –—-")  # noqa: E731  an empty field or "–" is not shown
     digital = "digital" in meta.get("Supporto", "").lower()
@@ -784,7 +811,7 @@ def build_home():
         f'<li><a href="{sl}.html" data-cover="img/{sl}/cover.jpg"{focus(f"img/{sl}/cover.jpg").replace(" style=", " data-pos=").replace("object-position: ", "")}>{html.escape(t)}<sup class="yr">{html.escape(y)}</sup></a></li>'
         for sl, t, y in hero)
     # Figma "Portfolio · v2": six cards; the ones without a page or photo yet are placeholders.
-    cards = [(r["titolo"], r["anno"], r.get("pagina"), fmt_style(r.get("formato"))) for r in RESEARCH if r.get("visibile", True)]
+    cards = [(r["titolo"], project_year(r), r.get("pagina"), fmt_style(r.get("formato"))) for r in RESEARCH if r.get("visibile", True)]
     tiles = ""
     for title, year, sl, st in cards:
         cap = f'<span class="fig-cap"><span>{html.escape(title)}</span><span>{year}</span></span>'

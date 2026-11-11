@@ -200,20 +200,29 @@
   });
 })();
 
-// Gallery lightbox: click a project photo to see it full screen.
+// Lightbox: every photo on a page (not the ones that are links) opens full screen.
+// Click the right or left half of the photo (an arrow appears on hover) to move, ✕ or a click outside to close.
 (function () {
-  var galleries = document.querySelectorAll('.gallery');
-  if (!galleries.length || !window.HTMLDialogElement) return;
+  if (!window.HTMLDialogElement) return;
+  var SEL = '.photo-seq img, .photo-first img, .gallery img, .p-hero img, .about-intro img';
+  function photos() {
+    return Array.prototype.slice.call(document.querySelectorAll(SEL))
+      .filter(function (img) { return !img.closest('a') && img.isConnected; });
+  }
+  if (!photos().length) return;
 
   var box = document.createElement('dialog');
   box.className = 'lightbox';
   box.setAttribute('aria-label', 'Foto a schermo intero');
-  box.innerHTML = '<img alt=""><button class="lb-prev" type="button" aria-label="Foto precedente">←</button>' +
-    '<button class="lb-next" type="button" aria-label="Foto successiva">→</button>' +
-    '<button class="lb-close" type="button">Chiudi ✕</button><span class="lb-count label"></span>';
+  box.innerHTML = '<div class="lb-stage"><img alt="">' +
+    '<button class="lb-zone lb-prev" type="button" aria-label="Foto precedente"><span>&larr;</span></button>' +
+    '<button class="lb-zone lb-next" type="button" aria-label="Foto successiva"><span>&rarr;</span></button></div>' +
+    '<button class="lb-close" type="button" aria-label="Chiudi" autofocus>&#10005;</button><span class="lb-count label"></span>';
   document.body.appendChild(box);
   var big = box.querySelector('img');
   var count = box.querySelector('.lb-count');
+  var prev = box.querySelector('.lb-prev');
+  var next = box.querySelector('.lb-next');
   var list = [];
   var index = 0;
 
@@ -221,26 +230,27 @@
     index = (i + list.length) % list.length;
     big.src = list[index].currentSrc || list[index].src;
     big.alt = list[index].alt;
-    count.textContent = (index + 1) + ' / ' + list.length;
-    box.querySelector('.lb-prev').hidden = box.querySelector('.lb-next').hidden = list.length < 2;
+    count.textContent = list.length > 1 ? (index + 1) + ' / ' + list.length : '';
+    prev.hidden = next.hidden = list.length < 2;
   }
 
-  galleries.forEach(function (g) {
-    g.addEventListener('click', function (e) {
-      var img = e.target.closest('img');
-      if (!img) return;
-      list = Array.prototype.slice.call(g.querySelectorAll('img'));
-      show(list.indexOf(img));
-      box.showModal();
-      document.body.classList.add('no-scroll');
-    });
+  document.addEventListener('click', function (e) {
+    var img = e.target.closest && e.target.closest('img');
+    if (!img || box.contains(img)) return;
+    list = photos();
+    var i = list.indexOf(img);
+    if (i < 0) return;
+    show(i);
+    box.showModal();
+    document.body.classList.add('no-scroll');
   });
 
   box.addEventListener('close', function () { document.body.classList.remove('no-scroll'); });
   box.querySelector('.lb-close').addEventListener('click', function () { box.close(); });
-  box.querySelector('.lb-prev').addEventListener('click', function () { show(index - 1); });
-  box.querySelector('.lb-next').addEventListener('click', function () { show(index + 1); });
-  box.addEventListener('click', function (e) { if (e.target === box) box.close(); });
+  prev.addEventListener('click', function () { show(index - 1); });
+  next.addEventListener('click', function () { show(index + 1); });
+  // A click anywhere that is not the photo or a button closes the lightbox.
+  box.addEventListener('click', function (e) { if (!e.target.closest('.lb-stage, button')) box.close(); });
   box.addEventListener('keydown', function (e) {
     if (e.key === 'ArrowLeft') show(index - 1);
     if (e.key === 'ArrowRight') show(index + 1);
@@ -251,7 +261,7 @@
   box.addEventListener('touchend', function (e) {
     if (startX === null) return;
     var dx = e.changedTouches[0].clientX - startX;
-    if (Math.abs(dx) > 40) show(index + (dx < 0 ? 1 : -1));
+    if (Math.abs(dx) > 40 && list.length > 1) show(index + (dx < 0 ? 1 : -1));
     startX = null;
   });
 })();
