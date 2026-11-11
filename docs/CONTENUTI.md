@@ -93,7 +93,7 @@ Curo progetti creativi e culturali, dall'idea al pubblico.
 
 **Da dove vengo**
 
-Sono cresciuto a Roma e ho fatto il liceo artistico, indirizzo architettura e ambiente. A diciotto anni lavoravo già nelle pubbliche relazioni: guidavo un piccolo team che organizzava serate per locali, club e stabilimenti, e ho lavorato accanto ad artisti come Achille Lauro, Ludwig, Il Tre e Carl Brave. Successivamente sono passato a lavorare nel mondo della ristorazione, iniziando come Barman e successivamente come Sommelier.
+Sono cresciuto a Roma e ho fatto il liceo artistico, indirizzo architettura e ambiente. A diciotto anni lavoravo già nelle pubbliche relazioni: guidavo un piccolo team che organizzava serate per locali, club e stabilimenti, e ho lavorato accanto ad artisti come Achille Lauro, Ludwig, Il Tre e Carl Brave. Successivamente sono passato a lavorare nel mondo della ristorazione, iniziando come barman e poi come sommelier.
 
 **In Europa**
 
@@ -101,11 +101,11 @@ Ho passato più di 4 anni in servizio: a Bologna, in diversi resort Club Med in 
 
 **Quello che faccio oggi**
 
-Nel luglio 2024 ho fondato Bohème Magazine, di cui curo la direzione artistica ed editoriale: un magazine indipendente sull'arte emergente e sulle opportunità per artisti, che in 26 mesi ha raccolto da zero, in organico, oltre 5.000 persone e 1,47 milioni di visualizzazioni, senza utilizzo di reel o tiktok. Per tenerlo aggiornato ho progettato Vedetta, un sistema che legge e verifica i bandi di centinaia enti culturali, il progetto è tutt'ora in fase di sviluppo. Nel 2026 ho curato la direzione creativa del Colectivo Modì, un collettivo indipendente artistico, mi sono occupato della gestione creativa: identità visiva, comunicazione, organizzazione e gestione delle serate, ingaggio degli artisti; produzione di contenuti social come dj set filmati, video pubblicitari e produzione podcast.
+Nel luglio 2024 ho fondato Bohème Magazine, di cui curo la direzione artistica ed editoriale: un magazine indipendente sull'arte emergente e sulle opportunità per artisti, che in 26 mesi ha raccolto da zero, in organico, oltre 5.000 persone e 1,47 milioni di visualizzazioni, senza utilizzo di reel o TikTok. Per tenerlo aggiornato ho progettato Vedetta, un sistema che legge e verifica i bandi di centinaia di enti culturali, il progetto è tuttora in fase di sviluppo. Nel 2026 ho curato la direzione creativa del Colectivo Modì, un collettivo indipendente artistico, mi sono occupato della gestione creativa: identità visiva, comunicazione, organizzazione e gestione delle serate, ingaggio degli artisti; produzione di contenuti social come dj set filmati, video pubblicitari e produzione podcast.
 
 **Cosa studio**
 
-Sono al terzo anno di Beni culturali all'Università di Torino, indirizzo storico-artistico, ho effettuato un anno di Erasmus+ all'Universidad de Granada, nel 2026 parteciperò ad un'ulteriore Erasmus+ presso l'Université Paris Cité in cui mi occuerò della ricerca e scrittura della tesi. Nel 2024 ho preso il certificato Google in UX Design.
+Sono al terzo anno di Beni culturali all'Università di Torino, indirizzo storico-artistico, ho effettuato un anno di Erasmus+ all'Universidad de Granada, nel 2026 parteciperò ad un'ulteriore Erasmus+ presso l'Université Paris Cité in cui mi occuperò della ricerca e scrittura della tesi. Nel 2024 ho preso il certificato Google in UX Design.
 
 **Il mio sguardo**
 

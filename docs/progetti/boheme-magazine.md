@@ -1,6 +1,6 @@
 # Bohème Magazine
 
-- **Anno:** luglio 2024 – in corso
+- **Anno:** luglio 2024 - in corso
 - **Ruolo:** Fondatore; direzione artistica ed editoriale
 - **Ambito:** Editoria, comunicazione culturale
 - **Formato:** Magazine su Instagram; sito dei bandi e app in progettazione

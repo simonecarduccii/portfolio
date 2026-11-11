@@ -434,7 +434,7 @@ def footer():
   <div class="footer-cols">
     <div><h2>Contatti</h2><ul><li><a class="lower" href="mailto:{EMAIL}">{EMAIL}</a></li></ul></div>
     <div><h2>Altrove</h2><ul><li><a class="ig" href="{INSTAGRAM}" target="_blank" rel="noopener">Instagram</a></li><li><a href="{LOMO}" target="_blank" rel="noopener">Lomography</a></li>{linkedin}</ul></div>
-    <div><h2>Sezioni</h2><ul><li><a href="index.html#cultura">Cultura</a></li><li><a href="index.html#ricerca-visiva">Ricerca visiva</a></li><li><a href="archivio.html">Archivio</a></li><li><a href="about.html">About</a></li></ul></div>
+    <div><h2>Sezioni</h2><ul><li><a href="index.html#cultura">Cultura</a></li><li><a href="index.html#ricerca-visiva">Ricerca visiva</a></li>{"" if "archivio" in BUILDING else '<li><a href="archivio.html">Archivio</a></li>'}<li><a href="about.html">About</a></li></ul></div>
     <div><h2>CV</h2><ul><li><a href="{CV}" target="_blank">Scarica il CV (PDF)</a></li></ul></div>
   </div>
   <div class="footer-legal">{"".join(f"<span>{html.escape(FOOT[k])}</span>" for k in ("copyright", "credito", "piva") if FOOT[k].strip())}</div>
@@ -443,13 +443,15 @@ def footer():
 
 def band_color():
     next_btn = chev("button", ' type="button" data-band-next aria-label="Un\'altra foto a caso"')
+    # While the archive is offline the two archive labels point to Lomography like the rest of the band.
+    arch = f'href="{LOMO}" target="_blank" rel="noopener"' if "archivio" in BUILDING else 'href="archivio.html"'
     return f"""  <section class="band band-color">
     <div class="media has-photo" data-random-photo data-keep><img src="img/home/pellicole.jpg" alt="Fotografia a colori su pellicola di Simone Carducci" loading="lazy"{focus("img/home/pellicole.jpg")}></div>
     <a class="band-link" href="{LOMO}" target="_blank" rel="noopener" aria-label="Tutte le mie pellicole su Lomography"></a>
     <ul class="band-list">
-      <li><a href="archivio.html">Tutto ciò che mi sta intorno</a></li>
+      <li><a {arch}>Tutto ciò che mi sta intorno</a></li>
       <li><a href="{LOMO}" target="_blank" rel="noopener">Tutte le mie pellicole</a></li>
-      <li><a href="archivio.html">Tutta la mia vita</a></li>
+      <li><a {arch}>Tutta la mia vita</a></li>
     </ul>
     {next_btn}
   </section>"""
@@ -506,11 +508,10 @@ def img(src, alt, label=None, eager=False):
     # No photo yet: leave the space blank, no placeholder texture or label (Simone, 2026-11-11).
     if not exists(src):
         return '<div class="media empty"></div>'
-    label = label or f"Foto in arrivo · {src}"
     loading = "" if eager else ' loading="lazy"'
     film = _FILM[_film_i[0] % 4]
     _film_i[0] += 1
-    return (f'<div class="media{film}"><span class="ph">{html.escape(label)}</span>'
+    return (f'<div class="media{film}">'
             f'<img src="{src}" alt="{html.escape(alt)}"{loading}{focus(src)} onerror="this.remove()"></div>')
 
 
