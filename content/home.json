@@ -54,6 +54,13 @@
       "pagina": "siculo",
       "visibile": true,
       "formato": "6:5"
+    },
+    {
+      "id": "albania-coast-to-coast",
+      "titolo": "Albania coast to coast",
+      "anno": "2024",
+      "pagina": "albania-coast-to-coast",
+      "visibile": false
     }
   ]
 }

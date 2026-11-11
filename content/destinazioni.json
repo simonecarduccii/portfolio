@@ -46,5 +46,9 @@
   "archivio": {
     "tipo": "archivio",
     "destinazione": "img/archivio"
+  },
+  "albania-coast-to-coast": {
+    "tipo": "serie",
+    "destinazione": "img/albania-coast-to-coast"
   }
 }
