@@ -21,7 +21,7 @@ Il browser se lo ricorda (pulsante **Esci** per toglierlo). Lo stesso token serv
 ## 2. Come è fatto
 
 A sinistra c'è l'albero del sito, come in `information_architecture`:
-**Home** (Hero con Bohème e modì, Pellicole, Ricerca visiva con Faccini, Ghei, Papà, Vita mia, Progetti con l'AI, Archivio), **Impostazioni**, **About**, **Archivio**.
+**Home** (Hero con Bohème e modì, Pellicole, Ricerca visiva con Faccini, Ghei, Papà, Vita mia, Progetti con l'AI, Archivio), **Pagine**, **Impostazioni**, **About**, **Archivio**.
 Clicca un elemento: al centro trovi insieme le sue **foto** e i suoi **testi**, a destra l'anteprima della pagina online.
 
 - **Copertina**: *Sostituisci*, oppure trascina una foto dal Finder sopra la copertina. Quella di Bohème e di modì è anche lo sfondo dell'hero in home; quella dei progetti fotografici è anche la loro foto nella griglia.
@@ -48,6 +48,13 @@ Clicca un elemento: al centro trovi insieme le sue **foto** e i suoi **testi**, 
 - **Archivio**: aggiungi o togli foto e scrivi pellicola, luogo e anno sotto ciascuna.
 - **Ordine delle sezioni**: in *Home*, ↑ ↓ spostano Pellicole, Ricerca visiva, Progetti con l'AI e la banda Archivio
   (l'hero resta sempre in alto). L'ordine è `ordine` in `content/home.json`.
+- **Pagine**: pagine nuove composte con i blocchi della pagina *Componenti* di Figma (vedi `docs/COMPONENTI.md`).
+  *+ Nuova pagina* chiede il titolo e la crea (online come `<titolo>.html`). Nella pagina, *+ Aggiungi un blocco qui…* inserisce un blocco
+  in quel punto: **Titolo pagina**, **Foto grande** (larga o a tutta pagina), **Testo** (con nota in piccolo), **Citazione**, **Scheda dati**
+  (righe etichetta / valore), **Sequenza foto** (con uno dei layout, anche quelli salvati), **Altri progetti** (automatico), **Progetto successivo**
+  (link a un'altra pagina), **Fascia** (Pellicole o Archivio). ↑ ↓ spostano un blocco, × lo toglie. Le foto si caricano dentro il blocco
+  (o trascinandole dal Finder) e finiscono in `img/<pagina>/`; quelle che nessun blocco usa più vengono tolte al salvataggio.
+  La pagina è in `content/pagine/<pagina>.json`. Per ora non compare nei menu: si raggiunge dal suo indirizzo o da un blocco *Progetto successivo*.
 - **Impostazioni**: le parti che compaiono in più pagine. Email, Instagram, Lomography e LinkedIn (vuoto = non compare),
   la riga in fondo al footer (copyright, credito, partita IVA: una riga vuota non compare), titolo e anni di Bohème e modì
   (l'anno della pagina e quello accanto al titolo in home), titolo, descrizione, stato e anno dei progetti con l'AI.

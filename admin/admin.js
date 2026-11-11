@@ -254,6 +254,8 @@
     if (node.photos) body.append(await photoPanel(node));
     if (node.texts) body.append(await textPanel(node));
     if (node.settings) body.append(await settingsPanel());
+    if (node.pagesList) body.append(await pagesPanel());
+    if (node.freePage) body.append(await builderPanel(node));
     if (node.id === "home") body.append(await orderPanel());
     if (node.homeList) body.append(await homePanel());
     else if (node.children) {
@@ -267,7 +269,7 @@
     const bar = h("div", { class: "savebar" },
       h("span", { id: "save-state", class: "muted" }, "Nessuna modifica"),
       h("button", { id: "save", type: "button", class: "primary", disabled: true, onclick: save }, "Salva e pubblica"));
-    const editable = node.photos || node.texts || node.homeList || node.settings || node.switchKey || (node.children || []).some((c) => c.switchKey);
+    const editable = node.photos || node.texts || node.homeList || node.settings || node.freePage || node.switchKey || (node.children || []).some((c) => c.switchKey);
     return h("div", {}, head, body, editable ? bar : null);
   }
 
@@ -460,6 +462,248 @@ Fotografie e testo: Simone Carducci · ${year}
       if (st) st.textContent = "";
       alert("Non sono riuscito a eliminare il progetto: " + e.message);
     }
+  }
+
+  // ---------------------------------------------------------------- pages made of blocks ("Pagine")
+  // content/pagine/<slug>.json = {titolo, descrizione, blocchi: [...]}; photos in img/<slug>/.
+  // The block types are the components of the Figma page "Componenti" (docs/COMPONENTI.md);
+  // tools/build_pages.py turns each block into the same HTML as the other pages.
+
+  const PAGE_DIR = "content/pagine/";
+  const BLOCKS = [
+    { tipo: "titolo", name: "Titolo pagina", note: "titolo grande e anno", make: () => ({ titolo: "", anno: "" }) },
+    { tipo: "foto", name: "Foto grande", note: "una foto, larga o a tutta pagina", make: () => ({ foto: null, piena: false }) },
+    { tipo: "testo", name: "Testo", note: "paragrafi e una nota in piccolo", make: () => ({ testo: "", nota: "" }) },
+    { tipo: "citazione", name: "Citazione", note: "una frase grande in corsivo", make: () => ({ testo: "", autore: "" }) },
+    { tipo: "scheda", name: "Scheda dati", note: "righe etichetta / valore", make: () => ({ righe: [["", ""]] }) },
+    { tipo: "sequenza", name: "Sequenza foto", note: "più foto in uno dei layout", make: () => ({ layout: "griglia", foto: [] }) },
+    { tipo: "altri", name: "Altri progetti", note: "automatico: fino a 3 progetti di Ricerca visiva", make: () => ({}) },
+    { tipo: "successivo", name: "Progetto successivo", note: "un link a un'altra pagina", make: () => ({ pagina: "", testo: "" }) },
+    { tipo: "fascia", name: "Fascia", note: "Pellicole (colori) o Archivio (bianco e nero)", make: () => ({ variante: "archivio" }) },
+  ];
+  const newId = () => Math.random().toString(36).slice(2, 8);
+  const pageSlugs = () => Object.keys(tree).map((p) => (p.match(/^content\/pagine\/([a-z0-9][a-z0-9-]*)\.json$/) || [])[1]).filter(Boolean).sort();
+
+  async function applyPages() {
+    const group = ALL.find((n) => n.pagesList);
+    if (!group) return;
+    const kids = [];
+    for (const slug of pageSlugs()) {
+      let title = slug;
+      try { title = JSON.parse(await readText(PAGE_DIR + slug + ".json")).titolo || slug; } catch (e) { /* keep the slug */ }
+      kids.push({ id: "pg-" + slug, title, page: slug + ".html", freePage: slug,
+        note: `Online all'indirizzo …/simonecarducci/${slug}.html. Componi la pagina con i blocchi dei componenti Figma: aggiungili, riordinali con ↑ ↓, toglili con ×.` });
+    }
+    group.children = kids;
+    ALL = flatten(window.STRUTTURA, null);
+  }
+
+  async function pagesPanel() {
+    await applyPages();
+    const group = ALL.find((n) => n.pagesList);
+    const ul = h("ol", { class: "order-list" }, group.children.map((n) => h("li", {},
+      h("span", {}, n.title, h("small", {}, ` ${n.freePage}.html`)),
+      h("span", { class: "tools" },
+        h("button", { type: "button", onclick: () => open(n) }, "Apri"),
+        h("button", { type: "button", class: "danger", onclick: () => deletePage(n.freePage, n.title) }, "Elimina")))));
+    return h("section", { class: "panel" }, h("h2", {}, "Le tue pagine"),
+      group.children.length ? ul : h("p", { class: "hint" }, "Ancora nessuna pagina."),
+      h("button", { type: "button", class: "btn add-project", onclick: createPage }, "+ Nuova pagina"));
+  }
+
+  async function createPage() {
+    if (unsaved()) return;
+    const title = (prompt("Titolo della nuova pagina") || "").trim();
+    if (!title) return;
+    let slug = null;
+    try {
+      const sha = await commit(`Create page ${title} from admin`, async () => {
+        const base = slugify(title);
+        const taken = (s) => RESERVED.includes(s) || tree[`${s}.html`] || tree[`${PAGE_DIR}${s}.json`] || tree[`docs/progetti/${s}.md`];
+        slug = base;
+        for (let k = 2; taken(slug); k++) slug = `${base}-${k}`;
+        const data = { titolo: title, descrizione: "", blocchi: [
+          { id: newId(), tipo: "titolo", titolo: title, anno: String(new Date().getFullYear()) },
+          { id: newId(), tipo: "testo", testo: "Testo da scrivere.", nota: "" },
+          { id: newId(), tipo: "fascia", variante: "archivio" }] };
+        return { [`${PAGE_DIR}${slug}.json`]: await blobFrom({ text: asJson(data) }) };
+      });
+      draft.dirty = false;
+      await applyPages(); renderNav();
+      const node = ALL.find((n) => n.freePage === slug);
+      if (node) await open(node);
+      if (sha && node) waitPublished(sha, node);
+    } catch (e) { alert("Non sono riuscito a creare la pagina: " + e.message); }
+  }
+
+  async function deletePage(slug, title) {
+    if (unsaved()) return;
+    if (!confirm(`Eliminare la pagina “${title}” con le sue foto? (Resta recuperabile nella cronologia di GitHub.)`)) return;
+    try {
+      await commit(`Delete page ${title} from admin`, async () => {
+        const out = {};
+        Object.keys(tree).forEach((p) => {
+          if (p === `${PAGE_DIR}${slug}.json` || p === `${slug}.html` || p.startsWith(`img/${slug}/`)) out[p] = null;
+        });
+        return out;
+      });
+      draft.dirty = false;
+      await applyPages(); renderNav();
+      await open(ALL.find((n) => n.pagesList));
+    } catch (e) { alert("Non sono riuscito a eliminare la pagina: " + e.message); }
+  }
+
+  // Pages a "Progetto successivo" block can link to
+  function linkTargets(self) {
+    const out = [["index", "Home"]], seen = new Set(["index", self]);
+    ALL.forEach((n) => {
+      const p = n.page && !n.page.includes("#") && !n.noPage && n.page.replace(/\.html$/, "");
+      if (p && !seen.has(p)) { seen.add(p); out.push([p, n.title]); }
+    });
+    return out;
+  }
+
+  async function builderPanel(node) {
+    const slug = node.freePage, file = `${PAGE_DIR}${slug}.json`;
+    let data = {};
+    try { data = JSON.parse(await readText(file, true) || "{}"); } catch (e) { data = {}; }
+    await loadMine();
+    const state = { titolo: data.titolo || slug, descrizione: data.descrizione || "",
+      blocchi: (Array.isArray(data.blocchi) ? data.blocchi : []).filter((b) => b && BLOCKS.some((t) => t.tipo === b.tipo))
+        .map((b) => ({ ...JSON.parse(JSON.stringify(b)), id: b.id || newId() })) };
+    draft.builder = { node, state, file, extra: Object.fromEntries(Object.entries(data).filter(([k]) => !["titolo", "descrizione", "blocchi"].includes(k))) };
+    const changed = () => markDirty();
+
+    const field = (label, value, set, opts = {}) => {
+      const input = opts.rows ? h("textarea", { rows: opts.rows }) : h("input", { type: "text", placeholder: opts.placeholder || "" });
+      input.value = value || "";
+      input.addEventListener("input", () => { set(input.value); changed(); });
+      return h("label", { class: "field" }, h("span", {}, label), input);
+    };
+    const select = (label, value, options, set) => {
+      const sel = h("select", {}, options.map(([v, t]) => h("option", { value: v }, t)));
+      sel.value = value;
+      sel.addEventListener("change", () => { set(sel.value); changed(); });
+      return h("label", { class: "field inline" }, h("span", {}, label), sel);
+    };
+    const photoSrc = (f) => (f && typeof f === "object" ? f.url : f && tree[f] ? siteUrl(f) : null);
+    const picker = (multiple, onFiles) => {
+      const input = h("input", { type: "file", accept: "image/*", multiple: multiple ? "" : null, hidden: "" });
+      input.addEventListener("change", async () => { await onFiles([...input.files].filter((f) => f.type.startsWith("image/"))); input.value = ""; });
+      return h("label", { class: "btn small" }, input, multiple ? "+ Aggiungi foto" : "Scegli foto");
+    };
+
+    const body = (b) => {
+      switch (b.tipo) {
+        case "titolo": return [field("Titolo", b.titolo, (v) => { b.titolo = v; }), field("Anno", b.anno, (v) => { b.anno = v; })];
+        case "foto": {
+          const src = photoSrc(b.foto);
+          const box = h("div", { class: "block-photo" }, src ? h("img", { src, alt: "" }) : h("span", { class: "ph" }, "nessuna foto"),
+            picker(false, async ([f]) => { if (f) { b.foto = await newPhoto(f, MAX_SIDE); changed(); draw(); } }));
+          dropZone(box, async ([f]) => { if (f && f.type.startsWith("image/")) { b.foto = await newPhoto(f, MAX_SIDE); changed(); draw(); } });
+          return [box, h("div", { class: "head-switch" }, toggle(!!b.piena, (v) => { b.piena = v; changed(); }), h("span", {}, "A tutta pagina (in cima alla pagina, sotto il menu)")),
+            field("Descrizione della foto (per chi non vede)", b.alt, (v) => { b.alt = v; })];
+        }
+        case "testo": return [field("Testo (un rigo vuoto separa i paragrafi)", b.testo, (v) => { b.testo = v; }, { rows: 7 }),
+          field("Nota in piccolo (facoltativa)", b.nota, (v) => { b.nota = v; })];
+        case "citazione": return [field("Citazione", b.testo, (v) => { b.testo = v; }, { rows: 3 }), field("Autore (facoltativo)", b.autore, (v) => { b.autore = v; })];
+        case "scheda": {
+          b.righe = Array.isArray(b.righe) ? b.righe : [];
+          const rows = h("div", { class: "facts-edit" });
+          const drawRows = () => rows.replaceChildren(...b.righe.map((r, i) => {
+            const k = h("input", { type: "text", placeholder: "Etichetta", "aria-label": "Etichetta" }), v = h("input", { type: "text", placeholder: "Valore", "aria-label": "Valore" });
+            k.value = r[0] || ""; v.value = r[1] || "";
+            k.addEventListener("input", () => { r[0] = k.value; changed(); });
+            v.addEventListener("input", () => { r[1] = v.value; changed(); });
+            return h("div", { class: "fact-row" }, k, v, h("button", { type: "button", title: "Togli la riga", onclick: () => { b.righe.splice(i, 1); drawRows(); changed(); } }, "×"));
+          }), h("button", { type: "button", class: "btn small", onclick: () => { b.righe.push(["", ""]); drawRows(); changed(); } }, "+ Riga"));
+          drawRows();
+          return [rows];
+        }
+        case "sequenza": {
+          b.foto = Array.isArray(b.foto) ? b.foto : [];
+          const opts = [...LAYOUTS.map((l) => [l.id, `${l.name} (${l.note})`]), ...MINE.map((l) => [l.id, `${l.name} (salvato)`])];
+          if (!opts.some(([v]) => v === b.layout)) b.layout = "griglia";
+          const grid = h("ol", { class: "seq" }, b.foto.map((f, i) => h("li", {},
+            photoSrc(f) ? h("img", { src: photoSrc(f), alt: "" }) : h("span", { class: "ph" }),
+            h("span", { class: "num" }, String(i + 1).padStart(2, "0")),
+            h("div", { class: "tools" },
+              h("button", { type: "button", title: "Prima", onclick: () => { if (i) { b.foto.splice(i - 1, 0, b.foto.splice(i, 1)[0]); changed(); draw(); } } }, "←"),
+              h("button", { type: "button", title: "Dopo", onclick: () => { if (i < b.foto.length - 1) { b.foto.splice(i + 1, 0, b.foto.splice(i, 1)[0]); changed(); draw(); } } }, "→"),
+              h("button", { type: "button", title: "Togli", onclick: () => { b.foto.splice(i, 1); changed(); draw(); } }, "×")))));
+          const add = async (files) => { for (const f of files) if (f.type.startsWith("image/")) b.foto.push(await newPhoto(f, MAX_SIDE)); changed(); draw(); };
+          dropZone(grid, add);
+          return [select("Layout", b.layout, opts, (v) => { b.layout = v; }), grid, picker(true, add),
+            h("small", { class: "hint" }, "Per una coppia di foto affiancate: layout Griglia con 2 foto.")];
+        }
+        case "altri": return [h("p", { class: "hint" }, "Si riempie da solo con i progetti di Ricerca visiva accesi in home (al massimo 3).")];
+        case "successivo": return [select("Porta a", b.pagina || "", [["", "— scegli una pagina —"], ...linkTargets(slug)], (v) => { b.pagina = v; }),
+          field("Scritta a sinistra", b.testo, (v) => { b.testo = v; }, { placeholder: "Progetto successivo" })];
+        case "fascia": return [select("Quale", b.variante || "archivio", [["pellicole", "Pellicole (a colori)"], ["archivio", "Archivio (bianco e nero)"]], (v) => { b.variante = v; })];
+        default: return [];
+      }
+    };
+
+    const list = h("div", { class: "blocks" });
+    const adder = (at) => {
+      const sel = h("select", { "aria-label": "Aggiungi un blocco" }, h("option", { value: "" }, "+ Aggiungi un blocco qui…"),
+        BLOCKS.map((t) => h("option", { value: t.tipo }, `${t.name} — ${t.note}`)));
+      sel.addEventListener("change", () => {
+        const t = BLOCKS.find((x) => x.tipo === sel.value);
+        if (!t) return;
+        state.blocchi.splice(at, 0, { id: newId(), tipo: t.tipo, ...t.make() });
+        changed(); draw();
+      });
+      return h("div", { class: "block-add" }, sel);
+    };
+    const move = (a, b2) => { if (b2 < 0 || b2 >= state.blocchi.length) return; state.blocchi.splice(b2, 0, state.blocchi.splice(a, 1)[0]); changed(); draw(); };
+    function draw() {
+      const out = [];
+      state.blocchi.forEach((b, i) => {
+        const t = BLOCKS.find((x) => x.tipo === b.tipo);
+        out.push(adder(i), h("section", { class: "block" },
+          h("header", {}, h("b", {}, t.name), h("small", {}, t.note),
+            h("span", { class: "tools" },
+              h("button", { type: "button", title: "Su", "aria-label": "Sposta su", onclick: () => move(i, i - 1) }, "↑"),
+              h("button", { type: "button", title: "Giù", "aria-label": "Sposta giù", onclick: () => move(i, i + 1) }, "↓"),
+              h("button", { type: "button", class: "danger", title: "Togli il blocco", "aria-label": "Togli il blocco",
+                onclick: () => { if (confirm(`Togliere il blocco “${t.name}”?`)) { state.blocchi.splice(i, 1); changed(); draw(); } } }, "×"))),
+          h("div", { class: "block-body" }, ...body(b))));
+      });
+      out.push(adder(state.blocchi.length));
+      list.replaceChildren(...out);
+    }
+    draw();
+    return h("div", {},
+      h("section", { class: "panel" }, h("h2", {}, "Pagina"),
+        field("Titolo (nella scheda del browser e nell'albero)", state.titolo, (v) => { state.titolo = v; }),
+        field("Descrizione per Google (max 155 caratteri)", state.descrizione, (v) => { state.descrizione = v; }, { rows: 2 })),
+      h("section", { class: "panel" }, h("h2", {}, "Blocchi", h("small", {}, " dall'alto in basso, come nella pagina")), list));
+  }
+
+  // Save: upload the new photos, drop the ones no block uses any more, write the JSON
+  async function builderChanges(out) {
+    const { state, file, extra, node } = draft.builder;
+    const slug = node.freePage;
+    const put = async (f, b) => {
+      if (!f || typeof f !== "object") return f;
+      if (!f.path) f.path = `img/${slug}/${b.id}-${newId()}.jpg`;
+      if (!f.sha) f.sha = await blobFrom({ blob: f.blob });
+      out[f.path] = f.sha;
+      return f.path;
+    };
+    const blocchi = [];
+    for (const b of state.blocchi) {
+      const c = { ...b };
+      if (b.tipo === "foto") c.foto = await put(b.foto, b);
+      if (b.tipo === "sequenza") { c.foto = []; for (const f of b.foto) c.foto.push(await put(f, b)); }
+      if (b.tipo === "scheda") c.righe = (b.righe || []).filter((r) => (r[0] || "").trim() || (r[1] || "").trim());
+      blocchi.push(c);
+    }
+    const used = new Set(blocchi.flatMap((b) => (b.tipo === "foto" ? [b.foto] : b.tipo === "sequenza" ? b.foto : [])).filter(Boolean));
+    Object.keys(tree).forEach((p) => { if (p.startsWith(`img/${slug}/`) && p.endsWith(".jpg") && !used.has(p) && !(p in out)) out[p] = null; });
+    const json = asJson({ ...extra, titolo: state.titolo.trim() || slug, descrizione: state.descrizione.trim(), blocchi });
+    if (json !== (texts[file] || "")) out[file] = await blobFrom({ text: json });
   }
 
   // ---------------------------------------------------------------- order of the home sections
@@ -847,6 +1091,7 @@ Fotografie e testo: Simone Carducci · ${year}
           edits.forEach(([f, v]) => { text = setField(text, f, v); });
           if (text !== before) out[file] = await blobFrom({ text });
         }
+        if (draft.builder) await builderChanges(out);
         // site settings
         if (draft.sito && Object.keys(draft.sito).length) {
           const fresh = JSON.parse(await readText(SITO_FILE, true) || "{}");
@@ -920,6 +1165,7 @@ Fotografie e testo: Simone Carducci · ${year}
       });
       draft.dirty = false;
       if (draft.home || Object.keys(draft.switches).length) { await applyHome(); renderNav(); }
+      if (draft.builder) { await applyPages(); renderNav(); }
       if (!sha) { st.textContent = "Niente da salvare"; return; }
       st.textContent = "Salvato. Il sito si aggiorna in 1-2 minuti…";
       waitPublished(sha, node);
@@ -969,6 +1215,7 @@ Fotografie e testo: Simone Carducci · ${year}
       return showLogin(e.status === 401 ? "Il token non funziona più: creane uno nuovo." : "Non riesco a collegarmi a GitHub: " + e.message);
     }
     await applyHome();
+    await applyPages();
     document.body.classList.add("ready");
     renderNav();
     const start = ALL.find((n) => n.id === location.hash.slice(1)) || ALL[0];

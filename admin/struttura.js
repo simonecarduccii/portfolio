@@ -83,6 +83,11 @@ window.STRUTTURA = [
     ],
   },
   {
+    id: "pagine", title: "Pagine", group: true, pagesList: true,
+    note: "Pagine nuove composte con i blocchi dei componenti Figma (titolo, foto, testo, citazione, scheda, sequenza di foto…).",
+    children: [], // filled from content/pagine/ by admin.js
+  },
+  {
     id: "impostazioni", title: "Impostazioni", page: "index.html", settings: true,
     note: "Le parti che compaiono in più pagine: contatti e link del footer, titoli e anni dei progetti culturali, le righe dei progetti con l'AI.",
   },

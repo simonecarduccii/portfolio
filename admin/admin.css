@@ -181,3 +181,31 @@ body.no-preview .preview { display: none; }
   #nav { max-height: 40vh; }
   .preview { display: none; }
 }
+
+/* page builder ("Pagine") */
+.blocks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; max-width: 760px; }
+.block, .block-add, .block-body { min-width: 0; }
+.block-body select { max-width: 100%; }
+.block { border: 1px solid var(--rule); border-radius: 10px; background: #fff; }
+.block > header { display: flex; align-items: baseline; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--rule); }
+.block > header small { color: var(--ink-2); font-size: 12px; flex: 1; }
+.block > header .tools { display: flex; gap: 4px; }
+.block > header .tools button { border: 1px solid var(--rule); background: none; border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+.block > header .tools button.danger { color: #a33; }
+.block-body { padding: 12px; display: grid; gap: 4px; }
+.block-body .field { margin-bottom: 10px; }
+.field.inline { display: flex; align-items: center; gap: 10px; }
+.field select, .block-add select { font: inherit; font-size: 13px; padding: 5px 8px; border: 1px solid var(--rule); border-radius: 8px; background: #fff; }
+.block-add select { border-style: dashed; color: var(--ink-2); background: none; width: 100%; cursor: pointer; }
+.block-photo { position: relative; max-width: 420px; aspect-ratio: 3 / 2; border-radius: 8px; overflow: hidden; background: var(--ph); display: grid; place-items: center; margin-bottom: 10px; }
+.block-photo img { width: 100%; height: 100%; object-fit: cover; }
+.block-photo.over { outline: 2px dashed var(--ink); }
+.block-photo .btn { position: absolute; right: 10px; bottom: 10px; }
+.btn.small { font-size: 13px; padding: 4px 12px; justify-self: start; }
+.btn.small input { display: none; }
+.facts-edit { display: grid; gap: 6px; }
+.fact-row { display: grid; grid-template-columns: 1fr 2fr 28px; gap: 6px; }
+.fact-row input { min-width: 0; width: 100%; padding: 7px 9px; border: 1px solid var(--rule); border-radius: 8px; }
+.fact-row button { border: 0; background: none; cursor: pointer; font-size: 16px; }
+.block-body .seq { margin: 6px 0 10px; }
+.block-body .seq li { cursor: default; }
