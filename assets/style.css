@@ -273,13 +273,21 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 .photo-intro .meta { color: var(--ink-2); margin-top: 6px; }
 .photo-first { padding: clamp(32px, 4vw, 56px) var(--pad) 0; }
 .photo-first .media { aspect-ratio: 16 / 8; }
-.photo-seq { width: min(100% - 2 * var(--pad), 42%); margin: clamp(40px, 5vw, 72px) auto 0; display: grid; gap: 16px; }
-@media (max-width: 1024px) { .photo-seq { width: min(100% - 2 * var(--pad), 60%); } }
-@media (max-width: 640px) { .photo-seq { width: calc(100% - 2 * var(--pad)); } }
-.photo-seq li { position: relative; }
+.photo-seq { width: calc(100% - 2 * var(--pad)); margin: clamp(40px, 5vw, 72px) auto 0; display: grid; gap: 16px; }
+/* size and position of each photo are chosen in /admin (content/layout/<page>.json) */
+.photo-seq li { position: relative; width: 42%; margin-inline: auto; }
+.photo-seq li.size-s { width: 28%; }
+.photo-seq li.size-l { width: 66%; }
+.photo-seq li.size-full { width: 100%; }
+.photo-seq li.pos-left { margin-left: 0; }
+.photo-seq li.pos-right { margin-right: 0; }
+@media (max-width: 1024px) { .photo-seq li { width: 60%; } .photo-seq li.size-s { width: 40%; } .photo-seq li.size-l { width: 80%; } .photo-seq li.size-full { width: 100%; } }
+@media (max-width: 640px) { .photo-seq li, .photo-seq li.size-s, .photo-seq li.size-l { width: 100%; } }
 .photo-seq .media { aspect-ratio: 3 / 2; }
 .photo-seq li.portrait .media { aspect-ratio: 2 / 3; }
 .photo-seq .count { position: absolute; left: calc(100% + 14px); top: 0; font-size: 10px; color: var(--ink-2); }
+.photo-seq li.pos-right .count { left: auto; right: calc(100% + 14px); }
+.photo-seq li.size-full .count { position: static; display: block; margin-top: 4px; }
 @media (max-width: 640px) { .photo-seq .count { position: static; display: block; margin-top: 4px; } }
 .photo-text { max-width: var(--text-width); margin: clamp(56px, 7vw, 104px) auto 0; padding: 0 var(--pad); }
 .photo-text p + p { margin-top: 1em; }

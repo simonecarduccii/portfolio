@@ -65,6 +65,24 @@ PHOTO.sort(key=lambda q: next((i for i, r in enumerate(RESEARCH) if r.get("pagin
 PHOTO_SLOTS = 12  # sequence slots per photo project; missing files are hidden by main.js
 
 
+def layout(slug):
+    """Layout chosen in /admin for a photo page, content/layout/<slug>.json:
+    {"copertina": false} hides the big cover; "foto": [{"dim", "pos"}, ...] in page order."""
+    f = ROOT / "content" / "layout" / f"{slug}.json"
+    return __import__("json").loads(f.read_text(encoding="utf-8")) if f.exists() else {}
+
+
+SIZES = {"piccola": "size-s", "grande": "size-l", "piena": "size-full"}
+PLACES = {"sinistra": "pos-left", "destra": "pos-right"}
+
+
+def photo_class(lay, n):
+    foto = lay.get("foto") or []
+    f = foto[n - 1] if n <= len(foto) else {}
+    cls = " ".join(c for c in (SIZES.get(f.get("dim")), PLACES.get(f.get("pos"))) if c)
+    return f' class="{cls}"' if cls else ""
+
+
 def slots(slug, default):
     """Number of numbered photos (01.jpg, 02.jpg ...) to show for a page.
 
@@ -345,8 +363,9 @@ def build_photo(i, p):
     meta_lines = [x for x in [place, f"Progetto: {year}"] if x]
     tech = [f"{k}: {inline(v)}" for k, v in meta.items() if k in ("Supporto", "Fotocamera", "Pellicola")]
     total = slots(s, PHOTO_SLOTS)
+    lay = layout(s)
     seq = "".join(
-        f'<li data-src="img/{s}/{n:02d}.jpg">{img(f"img/{s}/{n:02d}.jpg", f"{p["title"]}, fotografia {n}")}<span class="count label">{n:02d}/{total:02d}</span></li>'
+        f'<li data-src="img/{s}/{n:02d}.jpg"{photo_class(lay, n)}>{img(f"img/{s}/{n:02d}.jpg", f"{p["title"]}, fotografia {n}")}<span class="count label">{n:02d}/{total:02d}</span></li>'
         for n in range(1, total + 1))
     shown = {r["pagina"] for r in RESEARCH if r.get("visibile", True) and r.get("pagina")}
     others = [q for q in PHOTO if q["slug"] != s and q["slug"] in shown]
@@ -354,14 +373,14 @@ def build_photo(i, p):
         f'<a class="tile" href="{q["slug"]}.html">{img(f"img/{q["slug"]}/cover.jpg", q["title"], " ")}'
         f'<span class="fig-cap"><span>{html.escape(q["title"])}</span><span>{q["year"]}</span></span></a>'
         for q in others[:3])
+    first = f'  <div class="photo-first">{img(f"img/{s}/cover.jpg", p["title"], eager=True)}</div>\n' if lay.get("copertina", True) is not False else ""
     note = draft_note(inline(notes[0])) if notes else (draft_note() if "DA VERIFICARE" in str(secs) else "")
     body = f"""  <div class="p-title-row page-head"><h1 class="p-title">{html.escape(p["title"])}<sup class="yr">{html.escape(year)}</sup></h1></div>
   <div class="photo-intro">
     <p>{inline(intro)}</p>
     <p class="meta">{" · ".join(html.escape(x) for x in meta_lines)}</p>
   </div>
-  <div class="photo-first">{img(f"img/{s}/cover.jpg", p["title"], eager=True)}</div>
-  <ol class="photo-seq" aria-label="Fotografie del progetto">{seq}</ol>
+{first}  <ol class="photo-seq" aria-label="Fotografie del progetto">{seq}</ol>
   <section class="photo-text">
     {note}
     {render_blocks(long_text)}

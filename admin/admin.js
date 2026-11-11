@@ -368,7 +368,14 @@
       Object.keys(tree).filter((p) => p.startsWith(ph.dir + "/") && /^\d{2,}\.jpg$/.test(p.slice(ph.dir.length + 1)))
         .sort().forEach((p) => state.seq.push({ sha: tree[p], url: siteUrl(p) }));
     }
-    draft.photos = { node, state, coverPath };
+    // Page layout (photo projects): big cover on/off, size and position of each photo in the sequence
+    let layout = null;
+    if (ph.layout) {
+      try { layout = JSON.parse(await readText(ph.layout) || "{}"); } catch (e) { layout = {}; }
+      state.coverBig = layout.copertina !== false;
+      state.seq.forEach((it, i) => { const l = (layout.foto || [])[i] || {}; it.dim = l.dim || "media"; it.pos = l.pos || "centro"; });
+    }
+    draft.photos = { node, state, coverPath, layout };
 
     const coverBox = h("div", { class: "cover-slot" });
     const drawCover = () => coverBox.replaceChildren(
@@ -381,6 +388,10 @@
     drawCover();
     dropZone(coverBox, async (files) => { state.cover = await newPhoto(files[0], MAX_SIDE); drawCover(); markDirty(); });
     panel.append(h("h3", {}, ph.cover || "Foto"), coverBox);
+    if (ph.layout) panel.append(h("div", { class: "head-switch cover-switch" },
+      toggle(state.coverBig, (v) => { state.coverBig = v; markDirty(); }),
+      h("span", {}, "Mostra la copertina grande in cima alla pagina"),
+      h("small", { class: "hint" }, "(in home resta comunque la foto del progetto)")));
 
     if (ph.kind === "serie") {
       const grid = h("ol", { class: "seq" });
@@ -393,7 +404,10 @@
               h("button", { type: "button", title: "Prima", onclick: () => move(i, i - 1) }, "←"),
               h("button", { type: "button", title: "Dopo", onclick: () => move(i, i + 1) }, "→"),
               h("button", { type: "button", title: "Usa come copertina", onclick: () => { state.cover = { ...it }; drawCover(); markDirty(); } }, "★"),
-              h("button", { type: "button", title: "Togli", onclick: () => { state.seq.splice(i, 1); draw(); markDirty(); } }, "×")));
+              h("button", { type: "button", title: "Togli", onclick: () => { state.seq.splice(i, 1); draw(); markDirty(); } }, "×")),
+            ph.layout ? h("span", { class: "lay" },
+              pick(it, "dim", "Dimensione", [["piccola", "Piccola"], ["media", "Media"], ["grande", "Grande"], ["piena", "Tutta larghezza"]]),
+              pick(it, "pos", "Posizione", [["sinistra", "A sinistra"], ["centro", "Al centro"], ["destra", "A destra"]])) : null);
           li.addEventListener("dragstart", (e) => { e.dataTransfer.setData("text/x-seq", String(i)); li.classList.add("dragging"); });
           li.addEventListener("dragend", () => li.classList.remove("dragging"));
           li.addEventListener("dragover", (e) => { if (e.dataTransfer.types.includes("text/x-seq")) e.preventDefault(); });
@@ -406,12 +420,18 @@
         }), h("li", { class: "add" }, h("label", {}, "+ Aggiungi foto",
           h("input", { type: "file", accept: "image/*", multiple: true, hidden: true, onchange: (e) => addFiles(e.target.files) }))));
       };
+      const pick = (it, key, label, opts) => {
+        const sel = h("select", { "aria-label": label, title: label }, ...opts.map(([v, t]) => h("option", { value: v }, t)));
+        sel.value = it[key] || opts[1][0];
+        sel.addEventListener("change", () => { it[key] = sel.value; markDirty(); });
+        return sel;
+      };
       const move = (a, b) => {
         if (b < 0 || b >= state.seq.length) return;
         const [it] = state.seq.splice(a, 1); state.seq.splice(b, 0, it); draw(); markDirty();
       };
       const addFiles = async (files) => {
-        for (const f of files) if (f.type.startsWith("image/")) state.seq.push(await newPhoto(f, MAX_SIDE));
+        for (const f of files) if (f.type.startsWith("image/")) state.seq.push({ ...(await newPhoto(f, MAX_SIDE)), dim: "media", pos: "centro" });
         draw(); markDirty();
       };
       dropZone(grid, addFiles);
@@ -542,6 +562,14 @@
               const m = p.startsWith(dir + "/") && p.slice(dir.length + 1).match(/^(\d{2,})\.jpg$/);
               if (m && parseInt(m[1], 10) > state.seq.length) out[p] = null;
             });
+          }
+          if (draft.photos.layout) {
+            const fresh = JSON.parse(await readText(n.photos.layout, true) || "{}");
+            const { copertina, foto, ...rest } = fresh;
+            const rows = state.seq.map((it) => "    " + JSON.stringify({ dim: it.dim || "media", pos: it.pos || "centro" }));
+            const json = JSON.stringify({ ...rest, copertina: state.coverBig }, null, 2).replace(/\n}$/, "") +
+              ',\n  "foto": [\n' + rows.join(",\n") + "\n  ]\n}\n";
+            if (json !== (texts[n.photos.layout] || "")) out[n.photos.layout] = await blobFrom({ text: json });
           }
         }
         // archive: new files, removed files, archivio.json

@@ -17,7 +17,8 @@ const P = (slug) => `docs/progetti/${slug}.md`;
 
 const photoProject = (slug, doc, title, folderHint) => ({
   id: slug, title, page: `${slug}.html`, cartella: slug, folderHint,
-  photos: { kind: "serie", dir: `img/${slug}`, cover: "Copertina (anche in home)", seq: "Sequenza della pagina" },
+  // layout: content/layout/<slug>.json = big cover on/off + size and position of each photo
+  photos: { kind: "serie", dir: `img/${slug}`, cover: "Copertina (anche in home)", seq: "Sequenza della pagina", layout: `content/layout/${slug}.json` },
   texts: [
     { label: "Anno", file: P(doc), meta: "Anno" },
     { label: "Luogo", file: P(doc), meta: "Luogo" },
