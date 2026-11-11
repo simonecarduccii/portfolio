@@ -3,20 +3,43 @@
     "email": "simone.carducci01@gmail.com",
     "instagram": "https://instagram.com/simonecarduccii",
     "lomography": "https://www.lomography.com/homes/simonecarduccii",
-    "linkedin": ""
+    "linkedin": "https://www.linkedin.com/in/simonecarducci/"
   },
   "footer": {
-    "copyright": "© 2025-2026 Simone Carducci. Tutti i diritti riservati.",
+    "copyright": "©2026 Simone Carducci. Tutti i diritti riservati.",
     "credito": "Developed by me",
     "piva": "P.Iva 18337621009"
   },
   "cultura": {
-    "boheme": { "titolo": "Bohème Magazine", "anno": "2024", "anno_home": "since 2023" },
-    "modi": { "titolo": "Colectivo modì", "anno": "2026", "anno_home": "2025-2026" }
+    "boheme": {
+      "titolo": "Bohème Magazine",
+      "anno": "2024",
+      "anno_home": "since 2023"
+    },
+    "modi": {
+      "titolo": "Colectivo modì",
+      "anno": "2026",
+      "anno_home": "2025-2026"
+    }
   },
   "ai": {
-    "vedetta": { "titolo": "Bohème Vedetta", "cosa": "Trova, legge e verifica i bandi per artisti.", "anno": "2026", "stato": "Attivo" },
-    "coaching": { "titolo": "Running Coach", "cosa": "Prepara e corregge il mio piano di corsa, io approvo.", "anno": "2026", "stato": "In sviluppo" },
-    "lettura": { "titolo": "Lettura", "cosa": "Uno strumento di lettura per una persona della mia famiglia.", "anno": "2026", "stato": "Privato" }
+    "vedetta": {
+      "titolo": "Bohème Vedetta",
+      "cosa": "Trova, legge e verifica i bandi per artisti.",
+      "anno": "2026",
+      "stato": "Attivo"
+    },
+    "coaching": {
+      "titolo": "Running Coach",
+      "cosa": "Prepara e corregge il mio piano di corsa, io approvo.",
+      "anno": "2026",
+      "stato": "In sviluppo"
+    },
+    "lettura": {
+      "titolo": "Lettura",
+      "cosa": "Uno strumento di lettura per una persona della mia famiglia.",
+      "anno": "2026",
+      "stato": "Privato"
+    }
   }
 }
