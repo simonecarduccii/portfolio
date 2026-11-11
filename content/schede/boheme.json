@@ -21,14 +21,29 @@
       "link": ""
     },
     {
+      "etichetta": "Founder with",
+      "valore": "Luca Maria Pescatore",
+      "link": ""
+    },
+    {
+      "etichetta": "Osservatorio OFO",
+      "valore": "Francesca Occhi",
+      "link": ""
+    },
+    {
+      "etichetta": "Legal",
+      "valore": "Samuele Ganci",
+      "link": ""
+    },
+    {
+      "etichetta": "Editorial",
+      "valore": "Roberto Ganci",
+      "link": ""
+    },
+    {
       "etichetta": "Where",
       "valore": "@bohememag",
       "link": "@bohememag"
-    },
-    {
-      "etichetta": "Collaboratori",
-      "valore": "Luca Maria Pescatore",
-      "link": ""
     }
   ]
 }
