@@ -438,16 +438,36 @@ def build_photo(i, p):
     place = strip_verify(meta.get("Luogo", ""))
     year = meta.get("Anno", p["year"]).replace(" – ", " — ")
     meta_lines = [x for x in [place, f"Progetto: {year}"] if x]
-    tech = [f"{k}: {inline(v)}" for k, v in meta.items() if k in ("Supporto", "Fotocamera", "Pellicola")]
+    blank = lambda v: not strip_verify(v).strip(" –—-")  # noqa: E731  an empty field or "–" is not shown
+    digital = "digital" in meta.get("Supporto", "").lower()
+    tech = [f"{k}: {inline(meta[k])}" for k in ("Supporto", "Fotocamera", "Pellicola", "Lente")
+            if k in meta and not blank(meta[k]) and not (k == "Pellicola" and digital)]
     total = slots(s, PHOTO_SLOTS)
     lay = layout(s)
     schema = schema_of(lay)
-    spots = grid_places(schema, total) if schema else []
     seq_class = "custom" if schema else (lay.get("layout") if lay.get("layout") in LAYOUTS else "colonna")
     have = [n for n in range(1, total + 1) if exists(f"img/{s}/{n:02d}.jpg")]
-    seq = "".join(
-        f'<li data-src="img/{s}/{n:02d}.jpg"{grid_spot(spots, k)}>{img(f"img/{s}/{n:02d}.jpg", f"{p["title"]}, fotografia {k}")}<span class="count label">{k:02d}/{len(have):02d}</span></li>'
-        for k, n in enumerate(have, 1))
+    # texts between the photos (/admin): {"dopo": photos before it, "testo"}; each run of photos starts the layout again
+    between = {}
+    for t in lay.get("testi") or []:
+        if isinstance(t, dict) and isinstance(t.get("testo"), str) and t["testo"].strip():
+            try:
+                at = max(0, min(len(have), int(t.get("dopo", 0))))
+            except (TypeError, ValueError):
+                continue
+            between.setdefault(at, []).append(t["testo"].strip())
+    parts, start = [], 0
+    for cut in sorted(set(between) | {len(have)}):
+        run = list(enumerate(have, 1))[start:cut]
+        if run:
+            spots = grid_places(schema, len(run)) if schema else []
+            lis = "".join(
+                f'<li data-src="img/{s}/{n:02d}.jpg"{grid_spot(spots, j)}>{img(f"img/{s}/{n:02d}.jpg", f"{p["title"]}, fotografia {k}")}<span class="count label">{k:02d}/{len(have):02d}</span></li>'
+                for j, (k, n) in enumerate(run, 1))
+            parts.append(f'  <ol class="photo-seq layout-{seq_class}" aria-label="Fotografie del progetto">{lis}</ol>')
+        parts += [f'  <div class="seq-text">{paras(t)}</div>' for t in between.get(cut, [])]
+        start = cut
+    seq = "\n".join(parts) + "\n" if parts else ""
     shown = {r["pagina"] for r in RESEARCH if r.get("visibile", True) and r.get("pagina")}
     others = [q for q in PHOTO if q["slug"] != s and q["slug"] in shown]
     related = "".join(
@@ -461,8 +481,7 @@ def build_photo(i, p):
     <p>{inline(intro)}</p>
     <p class="meta">{" · ".join(html.escape(x) for x in meta_lines)}</p>
   </div>
-{first}  <ol class="photo-seq layout-{seq_class}" aria-label="Fotografie del progetto">{seq}</ol>
-  <section class="photo-text">
+{first}{seq}  <section class="photo-text">
     {note}
     {render_blocks(long_text)}
     <div class="credits label">{"".join(f"<span>{t}</span>" for t in tech)}</div>
