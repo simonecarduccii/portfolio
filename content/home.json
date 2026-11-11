@@ -6,7 +6,7 @@
     "pellicole": true,
     "ricerca-visiva": true,
     "ia": false,
-    "banda-archivio": true
+    "banda-archivio": false
   },
   "ricerca_visiva": [
     {
