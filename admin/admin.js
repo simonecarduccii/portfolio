@@ -259,14 +259,43 @@
     return data;
   }
 
+  // Sidebar: the site tree, each branch can be closed (remembered in this browser), plus a search box.
+  const NAV_KEY = "admin-nav-open";
+  let navOpen = {};
+  try { navOpen = JSON.parse(localStorage.getItem(NAV_KEY) || "{}") || {}; } catch (e) { navOpen = {}; }
+  let navQuery = "";
+  const norm = (t) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const contains = (n, c) => { for (let p = c; p; p = p.parent) if (p === n) return true; return false; };
+
   function renderNav() {
-    const list = (nodes, depth) => h("ul", { class: "tree d" + depth }, nodes.map((n) => h("li", {},
-      h("button", {
-        type: "button", class: "node" + (n.hidden ? " hidden" : "") + (current === n ? " on" : "") + (n.group ? " group" : ""),
-        title: n.hidden ? "Spento: non compare in home" : null,
-        onclick: () => open(n),
-      }, n.title, n.hidden ? h("span", { class: "tag" }, "spento") : pageSlug(n) && BUILDING.has(pageSlug(n)) ? h("span", { class: "tag" }, "in costruzione") : null),
-      n.children ? list(n.children, depth + 1) : null)));
+    let search = $("#nav-search");
+    if (!search) {
+      search = h("input", { id: "nav-search", type: "search", placeholder: "Cerca una pagina…", "aria-label": "Cerca una pagina" });
+      search.addEventListener("input", () => { navQuery = norm(search.value.trim()); renderNav(); });
+      search.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") { const first = $("#nav .node"); if (first) first.click(); }
+        if (e.key === "Escape") { search.value = ""; navQuery = ""; renderNav(); }
+      });
+      $("#nav").before(search);
+    }
+    const match = (n) => !navQuery || norm(n.title).includes(navQuery) || (n.children || []).some(match);
+    // open by default: the first level, and any branch holding the page being edited
+    const isOpen = (n, depth) => navQuery ? true : n.id in navOpen ? navOpen[n.id] : depth === 0 || contains(n, current);
+    const list = (nodes, depth) => h("ul", { class: "tree d" + depth }, nodes.filter(match).map((n) => {
+      const kids = n.children && n.children.length;
+      const openNow = kids && isOpen(n, depth);
+      return h("li", { class: kids ? (openNow ? "branch open" : "branch") : null },
+        kids ? h("button", { type: "button", class: "caret", "aria-expanded": openNow ? "true" : "false",
+          "aria-label": (openNow ? "Chiudi " : "Apri ") + n.title,
+          onclick: () => { navOpen[n.id] = !openNow; try { localStorage.setItem(NAV_KEY, JSON.stringify(navOpen)); } catch (e) { /* private mode */ } renderNav(); } },
+          openNow ? "▾" : "▸") : h("span", { class: "caret-space" }),
+        h("button", {
+          type: "button", class: "node" + (n.hidden ? " hidden" : "") + (current === n ? " on" : "") + (n.group ? " group" : ""),
+          title: n.hidden ? "Spento: non compare in home" : null,
+          onclick: () => open(n),
+        }, n.title, n.hidden ? h("span", { class: "tag" }, "spento") : pageSlug(n) && BUILDING.has(pageSlug(n)) ? h("span", { class: "tag" }, "in costruzione") : null),
+        openNow ? list(n.children, depth + 1) : null);
+    }));
     $("#nav").replaceChildren(list(window.STRUTTURA, 0));
   }
 
@@ -309,6 +338,7 @@
 
     const body = h("div", { class: "el-body" });
     if (node.photos) body.append(await photoPanel(node));
+    if (node.facts) body.append(await factsPanel(node));
     if (node.texts) body.append(await textPanel(node));
     if (node.settings) body.append(await settingsPanel());
     if (node.pagesList) body.append(await pagesPanel());
@@ -326,7 +356,7 @@
     const bar = h("div", { class: "savebar" },
       h("span", { id: "save-state", class: "muted" }, "Nessuna modifica"),
       h("button", { id: "save", type: "button", class: "primary", disabled: true, onclick: save }, "Salva e pubblica"));
-    const editable = node.photos || node.texts || node.homeList || node.settings || node.freePage || pageSlug(node) || node.switchKey || (node.children || []).some((c) => c.switchKey);
+    const editable = node.photos || node.facts || node.texts || node.homeList || node.settings || node.freePage || pageSlug(node) || node.switchKey || (node.children || []).some((c) => c.switchKey);
     return h("div", {}, head, body, editable ? bar : null);
   }
 
@@ -669,10 +699,12 @@ Fotografie e testo: Simone Carducci · ${year}
           const rows = h("div", { class: "facts-edit" });
           const drawRows = () => rows.replaceChildren(...b.righe.map((r, i) => {
             const k = h("input", { type: "text", placeholder: "Etichetta", "aria-label": "Etichetta" }), v = h("input", { type: "text", placeholder: "Valore", "aria-label": "Valore" });
-            k.value = r[0] || ""; v.value = r[1] || "";
+            const l = h("input", { type: "text", placeholder: "Link (facoltativo)", "aria-label": "Link (facoltativo)" });
+            k.value = r[0] || ""; v.value = r[1] || ""; l.value = r[2] || "";
             k.addEventListener("input", () => { r[0] = k.value; changed(); });
             v.addEventListener("input", () => { r[1] = v.value; changed(); });
-            return h("div", { class: "fact-row" }, k, v, h("button", { type: "button", title: "Togli la riga", onclick: () => { b.righe.splice(i, 1); drawRows(); changed(); } }, "×"));
+            l.addEventListener("input", () => { r[2] = l.value; changed(); });
+            return h("div", { class: "fact-row" }, k, v, l, h("button", { type: "button", title: "Togli la riga", onclick: () => { b.righe.splice(i, 1); drawRows(); changed(); } }, "×"));
           }), h("button", { type: "button", class: "btn small", onclick: () => { b.righe.push(["", ""]); drawRows(); changed(); } }, "+ Riga"));
           drawRows();
           return [rows];
@@ -840,6 +872,59 @@ Fotografie e testo: Simone Carducci · ${year}
       wrap.append(panel);
     });
     return wrap;
+  }
+
+  // ---------------------------------------------------------------- facts at the top of a page
+  // content/schede/<slug>.json = {righe: [{etichetta, valore, link}]}; until it exists the rows are read
+  // from the project sheet the way tools/build_pages.py does, so the first save keeps what the page shows today.
+
+  function factsFromSheet(md) {
+    const row = (etichetta, v) => {
+      const m = v.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+      return m ? { etichetta, valore: m[1], link: m[2] } : { etichetta, valore: v, link: v.startsWith("@") && !v.includes(" ") ? v : "" };
+    };
+    // culture pages: the "LABEL value · LABEL value" line in "## Testo pagina"
+    const sec = (md.split(/^## Testo pagina.*$/m)[1] || "").split(/^## /m)[0];
+    const line = sec.split("\n").map((l) => l.trim()).find((l) => /^[A-Z][A-Z &]+ /.test(l) && l.includes(" · "));
+    if (line) {
+      return line.split(" · ").map((p) => p.trim().match(/^([A-Z][A-Z &]*[A-Z])\s+(.+)$/)).filter(Boolean)
+        .map((m) => row(m[1].toLowerCase().replace(/(^|[\s&])\S/g, (c) => c.toUpperCase()), m[2].replace(/\s*\(.*$/, "").trim()));
+    }
+    // other pages: the "- **Label:** value" lines above the first heading
+    return md.split(/^## /m)[0].split("\n").map((l) => l.match(/^- \*\*(.+?):\*\*\s*(.*)$/))
+      .filter((m) => m && !m[1].startsWith("Immagine")).map((m) => row(m[1], m[2].trim()));
+  }
+
+  async function factsPanel(node) {
+    const path = `content/schede/${node.facts.slug}.json`;
+    let rows = [];
+    if (tree[path]) {
+      try { rows = (JSON.parse(await readText(path)).righe || []).map((r) => ({ etichetta: r.etichetta || "", valore: r.valore || "", link: r.link || "" })); } catch (e) { rows = []; }
+    } else {
+      rows = factsFromSheet(await readText(node.facts.doc));
+    }
+    draft.facts = { path, rows, dirty: false };
+    const changed = () => { draft.facts.dirty = true; markDirty(); };
+    const box = h("div", { class: "facts-edit sheet-edit" });
+    const draw = () => box.replaceChildren(...rows.map((r, i) => {
+      const inp = (key, ph) => {
+        const el = h("input", { type: "text", placeholder: ph, "aria-label": ph });
+        el.value = r[key];
+        el.addEventListener("input", () => { r[key] = el.value; changed(); });
+        return el;
+      };
+      const move = (d) => { const j = i + d; if (j < 0 || j >= rows.length) return; [rows[i], rows[j]] = [rows[j], rows[i]]; draw(); changed(); };
+      return h("div", { class: "sheet-row" },
+        inp("etichetta", "Etichetta (es. Year)"), inp("valore", "Valore (es. 2026)"), inp("link", "Link (facoltativo)"),
+        h("div", { class: "row-tools" },
+          h("button", { type: "button", title: "Sposta su", disabled: i === 0 ? true : null, onclick: () => move(-1) }, "↑"),
+          h("button", { type: "button", title: "Sposta giù", disabled: i === rows.length - 1 ? true : null, onclick: () => move(1) }, "↓"),
+          h("button", { type: "button", title: "Togli la voce", onclick: () => { rows.splice(i, 1); draw(); changed(); } }, "×")));
+    }), h("button", { type: "button", class: "btn small", onclick: () => { rows.push({ etichetta: "", valore: "", link: "" }); draw(); changed(); box.querySelector(".sheet-row:last-of-type input").focus(); } }, "+ Aggiungi voce"));
+    draw();
+    return h("section", { class: "panel" }, h("h2", {}, "Scheda dati in alto"),
+      h("p", { class: "hint" }, "Le voci sotto il titolo (Year, Creative direction, Where…). Sul sito le etichette compaiono in maiuscolo. Nel link puoi scrivere un indirizzo (https://…), una pagina del sito (es. modi.html), una mail o @nome per Instagram; se lo lasci vuoto il valore resta semplice testo."),
+      box);
   }
 
   // ---------------------------------------------------------------- texts
@@ -1228,6 +1313,12 @@ Fotografie e testo: Simone Carducci · ${year}
           if (text !== before) out[file] = await blobFrom({ text });
         }
         if (draft.builder) await builderChanges(out);
+        // facts at the top of the page
+        if (draft.facts && draft.facts.dirty) {
+          const righe = draft.facts.rows.map((r) => ({ etichetta: r.etichetta.trim(), valore: r.valore.trim(), link: r.link.trim() }))
+            .filter((r) => r.etichetta || r.valore);
+          out[draft.facts.path] = await blobFrom({ text: JSON.stringify({ righe }, null, 2) + "\n" });
+        }
         // site settings (and the "in costruzione" switch of this page)
         if ((draft.sito && Object.keys(draft.sito).length) || draft.building != null) {
           const fresh = JSON.parse(await readText(SITO_FILE, true) || "{}");

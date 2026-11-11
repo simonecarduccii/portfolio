@@ -33,16 +33,16 @@ const photoProject = (slug, doc, title, folderHint) => ({
 });
 
 const culture = (slug, doc, title) => ({
-  id: slug, title, page: `${slug}.html`, cartella: slug,
+  id: slug, title, page: `${slug}.html`, cartella: slug, facts: { slug, doc: P(doc) },
   photos: { kind: "serie", dir: `img/${slug}`, cover: "Copertina: sfondo in home e in alto nella pagina", seq: "Foto della pagina" },
   texts: [
     { label: "In breve (anteprima nei link)", file: P(doc), section: "## In breve", rows: 3 },
-    { label: "Testo della pagina (la riga in maiuscolo è la scheda: ETICHETTA valore · ETICHETTA valore)", file: P(doc), section: "## Testo pagina", rows: 18 },
+    { label: "Testo della pagina (la scheda dati in alto si modifica nel riquadro “Scheda dati in alto”)", file: P(doc), section: "## Testo pagina", rows: 18 },
   ],
 });
 
 const ai = (slug, doc, title) => ({
-  id: slug, title, page: `${slug}.html`, cartella: slug,
+  id: slug, title, page: `${slug}.html`, cartella: slug, facts: { slug, doc: P(doc) },
   photos: { kind: "serie", dir: `img/${slug}`, cover: "Copertina", seq: "Schermate" },
   texts: [{ sections: P(doc), meta: true }],
 });

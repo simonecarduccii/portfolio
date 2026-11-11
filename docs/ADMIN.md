@@ -23,6 +23,8 @@ Il browser se lo ricorda (pulsante **Esci** per toglierlo). Lo stesso token serv
 A sinistra c'è l'albero del sito, come in `information_architecture`:
 **Home** (Hero con Bohème e modì, Pellicole, Ricerca visiva con Faccini, Ghei, Papà, Vita mia, Progetti con l'AI, Archivio), **Pagine**, **Impostazioni**, **About**, **Archivio**.
 Clicca un elemento: al centro trovi insieme le sue **foto** e i suoi **testi**, a destra l'anteprima della pagina online.
+Il triangolino ▸ / ▾ accanto a un ramo lo apre o lo chiude (il browser se lo ricorda); il campo *Cerca una pagina…* in alto filtra l'albero
+(Invio apre il primo risultato, Esc svuota).
 
 - **Copertina**: *Sostituisci*, oppure trascina una foto dal Finder sopra la copertina. Quella di Bohème e di modì è anche lo sfondo dell'hero in home; quella dei progetti fotografici è anche la loro foto nella griglia.
 - **Sequenza**: trascina le foto per cambiare l'ordine (o usa ← →), ★ la rende copertina, × la toglie. Per aggiungerne, *+ Aggiungi foto* o trascinale dal Finder sulla griglia.
@@ -50,6 +52,11 @@ Clicca un elemento: al centro trovi insieme le sue **foto** e i suoi **testi**, 
   e il layout riparte dopo ogni testo. È `testi` (`{dopo: foto prima del testo, testo}`) in `content/layout/<pagina>.json`.
 - **Scheda tecnica** (progetti fotografici): un campo vuoto o con “–” non compare sul sito. Se il supporto è *Digitale*, *Pellicola*
   sparisce (anche dal pannello); *Lente* è facoltativa.
+- **Scheda dati in alto** (Bohème, modì, progetti con l'AI): le voci sotto il titolo (Year, Creative direction, Where…).
+  Puoi cambiare etichetta e valore, aggiungere voci (*+ Aggiungi voce*), toglierle (×) e spostarle (↑ ↓). Ogni voce ha un *Link* facoltativo:
+  un indirizzo (`https://…`, anche senza `https://`), una pagina del sito (`modi.html`), una mail o `@nome` (Instagram).
+  Sul sito le etichette sono in maiuscolo. La scheda è in `content/schede/<pagina>.json`; finché non la salvi la prima volta resta quella
+  scritta nel testo della pagina. Anche il blocco *Scheda dati* delle Pagine ha il link facoltativo.
 - **Archivio**: aggiungi o togli foto e scrivi pellicola, luogo e anno sotto ciascuna.
 - **Ordine delle sezioni**: in *Home*, ↑ ↓ spostano Pellicole, Ricerca visiva, Progetti con l'AI e la banda Archivio
   (l'hero resta sempre in alto). L'ordine è `ordine` in `content/home.json`.
