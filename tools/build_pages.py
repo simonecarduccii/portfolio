@@ -33,7 +33,53 @@ BUILDING = {s for s in SITO.get("in_costruzione", []) if isinstance(s, str) and 
 FOOT = {"copyright": "© 2025-2026 Simone Carducci. Tutti i diritti riservati.", "credito": "Developed by me",
         "piva": "P.Iva 18337621009", **{k: v for k, v in SITO.get("footer", {}).items() if isinstance(v, str)}}
 CV = "assets/cv-simone-carducci.pdf"
-FONTS = "https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+# Global style from /admin -> Impostazioni -> Stile (content/sito.json "stile"); empty = the Figma design.
+# Only fonts that have 400-700 and an italic 400 on Google Fonts, so the same weights load for each.
+FONT_CHOICES = ["Hanken Grotesk", "Inter", "Work Sans", "DM Sans", "Instrument Sans", "Public Sans"]  # list agreed with 1 · Designer
+STYLE = SITO.get("stile") if isinstance(SITO.get("stile"), dict) else {}
+FONT = STYLE.get("font") if STYLE.get("font") in FONT_CHOICES else "Hanken Grotesk"
+FONTS = f"https://fonts.googleapis.com/css2?family={FONT.replace(' ', '+')}:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+STYLE_COLORS = {"sfondo": "--paper", "testo": "--ink", "testo_secondario": "--ink-2", "linee": "--rule",
+                "footer_sfondo": "--footer-bg"}
+SPACE_VARS = ("--pad", "--space-section", "--space-stagger", "--gutter", "--pad-band", "--pad-grid", "--pad-header")
+
+
+def _scale(value, k):
+    """'clamp(30px, 4.1vw, 56px)' * k -> every px / vw number scaled."""
+    return re.sub(r"(\d+(?:\.\d+)?)(px|vw)", lambda m: f"{round(float(m.group(1)) * k, 2):g}{m.group(2)}", value)
+
+
+def _pct(v, lo, hi):
+    try:
+        v = float(v)
+    except (TypeError, ValueError):
+        return None
+    return v / 100 if lo <= v <= hi and v != 100 else None
+
+
+def style_overrides():
+    """The :root variables that /admin changes, '' when the style is the Figma one."""
+    root = (ROOT / "assets" / "style.css").read_text(encoding="utf-8")
+    base = dict(re.findall(r"^\s*(--[\w-]+):\s*([^;]+);", root.split("}", 1)[0], re.M))
+    out = []
+    if FONT != "Hanken Grotesk":
+        out.append(f'--font-sans: "{FONT}", "Helvetica Neue", Arial, sans-serif')
+    for key, var in STYLE_COLORS.items():
+        c = (STYLE.get("colori") or {}).get(key) if isinstance(STYLE.get("colori"), dict) else None
+        if isinstance(c, str) and re.fullmatch(r"#[0-9a-fA-F]{6}", c.strip()):
+            out.append(f"{var}: {c.strip().lower()}")
+    k = _pct(STYLE.get("testo"), 85, 125)
+    if k:
+        out += [f"{v}: {_scale(base[v], k)}" for v in base if v.startswith("--fs-")]
+    k = _pct(STYLE.get("spazi"), 75, 150)
+    if k:
+        out += [f"{v}: {_scale(base[v], k)}" for v in SPACE_VARS if v in base]
+    return f"\n<style>:root {{ {'; '.join(out)}; }}</style>" if out else ""
+
+
+STYLE_CSS = style_overrides()
+THEME = next((c.strip().lower() for c in [((STYLE.get("colori") or {}) if isinstance(STYLE.get("colori"), dict) else {}).get("sfondo")]
+              if isinstance(c, str) and re.fullmatch(r"#[0-9a-fA-F]{6}", c.strip())), "#fbfbfb")
 
 CULTURE = [
     {"slug": "boheme", "doc": "boheme-magazine", "title": "Bohème Magazine", "year": "2024", "home_year": "since 2023"},
@@ -262,12 +308,12 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 <meta property="og:title" content="{html.escape(full_title)}">
 <meta property="og:description" content="{html.escape(description)}">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#fbfbfb">
+<meta name="theme-color" content="{THEME}">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="{FONTS}" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v={asset_version('style.css')}">
+<link rel="stylesheet" href="assets/style.css?v={asset_version('style.css')}">{STYLE_CSS}
 </head>
 <body{f' class="{body_class}"' if body_class else ""}>
 <a class="skip" href="#main">Vai al contenuto</a>

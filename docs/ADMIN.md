@@ -93,6 +93,11 @@ Il triangolino ▸ / ▾ accanto a un ramo lo apre o lo chiude (il browser se lo
   la riga in fondo al footer (copyright, credito, partita IVA: una riga vuota non compare), titolo e anni di Bohème e modì
   (l'anno della pagina e quello accanto al titolo in home), titolo, descrizione, stato e anno dei progetti con l'AI.
   Tutto è in `content/sito.json`.
+- **Stile del sito** (in fondo a *Impostazioni*): font (Hanken Grotesk di Figma, Inter, Work Sans, DM Sans, Instrument Sans, Public Sans:
+  solo font con corsivo vero e pesi 400-700), colori di sfondo, testo, testo secondario, linee e sfondo del footer,
+  *Dimensione del testo* (85-125%) e *Spaziature* (75-150%). Il riquadro di prova mostra subito il risultato.
+  Un colore poco leggibile (contrasto sotto 4,5:1, regola AA) blocca il salvataggio con un avviso. *Torna allo stile di Figma* toglie tutto.
+  È `stile` in `content/sito.json`; il sito lo applica con un piccolo `<style>` sulle variabili CSS (limiti concordati con 1 · Designer).
 - **Testi**: ogni campo è un pezzo della pagina. `**grassetto**`, `_corsivo_`, `[testo del link](https://...)`; un rigo vuoto separa i paragrafi.
   Le frasi con `[DA VERIFICARE]` restano evidenziate sul sito finché non togli la nota.
 
