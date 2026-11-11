@@ -167,7 +167,7 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 .home .hero-list { left: clamp(16px, 1.9vw, 26px); right: 32px; bottom: 48px; display: grid; gap: 0; }
 .home .hero-list a { font-size: var(--fs-hero-title); line-height: 1.3; color: var(--on-photo); opacity: .55; cursor: pointer; transition: opacity .3s; }
 .home .hero-list li.is-active a, .home .hero-list a:hover, .home .hero-list a:focus-visible { opacity: 1; }
-.home .hero-list sup.yr { font-size: var(--fs-home-year); opacity: .5; margin-left: 8px; vertical-align: baseline; }
+.home .hero-list sup.yr { font-size: var(--fs-home-year); opacity: .5; margin-left: 8px; vertical-align: baseline; white-space: nowrap; }
 .band-color { height: var(--band-film); }
 .band-list { left: var(--pad-band); gap: 5px; }
 .band-list a { font-weight: 400; font-size: var(--fs-band-link); line-height: 1.0042; letter-spacing: 0; }
