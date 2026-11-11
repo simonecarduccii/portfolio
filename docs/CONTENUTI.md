@@ -109,7 +109,7 @@ Sono al terzo anno di Beni culturali all'Università di Torino, indirizzo storic
 
 **Il mio sguardo**
 
-Ho più macchine fotografiche di quante ne servano: una Chinon Auto 3001, una Konica Recorder, una Leica CL, una Nikonos III a rullino che va anche sott’acqua, e per il digitale una Sony A7C e una Ricoh GR. Scatto soprattutto su pellicola. Mi interessano soprattutto l'arte del Novecento e quella contemporanea, il modo di osservare me l'hanno insegnato le avanguardie, in fotografia e al cinema.
+Ho più macchine fotografiche di quante ne servano: una Chinon Auto 3001, una Konica Recorder, una Leica CL, una Nikonos III a rullino che va anche sott’acqua, e per il digitale una Sony A7C e una Ricoh GR. Mi interesso soprattutto di arte del Novecento e contemporanea, il modo di osservare me l'hanno insegnato le avanguardie, in fotografia e al cinema.
 Fotografo, sviluppo e scannerizzo pellicole da anni: curo un vasto archivio personale, è il modo in cui guardo le cose prima di raccontarle. Il resto lo trovo fuori: nei libri, nei viaggi, in montagna. È lì che raccolgo il materiale da cui partono i progetti.
 
 ### Ambiti, competenze, strumenti
