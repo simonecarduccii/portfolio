@@ -11,7 +11,7 @@ Tono: prima persona, frasi brevi, fatti prima degli aggettivi. Niente "passione"
 ## Meta (SEO)
 
 - **Title home:** Simone Carducci — Editorial, Events & Cultural Projects
-- **Description home (max 155 caratteri):** Simone Carducci progetta e porta al pubblico progetti culturali: un magazine sull'arte emergente, un collettivo audiovisivo, fotografia su pellicola.
+- **Description home (max 155 caratteri):** Simone Carducci progetta e porta al pubblico progetti culturali: un magazine sull'arte emergente, un collettivo audiovisivo, fotografia su pellicola e non.
 - **Description About:** Chi è Simone Carducci: progetti culturali tra editoria, eventi, immagine e strumenti digitali.
 
 ## Hero (home)
