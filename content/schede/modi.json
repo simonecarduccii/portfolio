@@ -1,29 +1,44 @@
 {
   "righe": [
     {
-      "etichetta": "Year",
+      "etichetta": "Ideato da",
+      "valore": "Simone Carducci",
+      "link": ""
+    },
+    {
+      "etichetta": "Anno",
       "valore": "2026",
       "link": ""
     },
     {
-      "etichetta": "Creative Direction",
+      "etichetta": "Formato",
+      "valore": "Collettivo artistico",
+      "link": ""
+    },
+    {
+      "etichetta": "Direzione Creativa",
       "valore": "Simone Carducci",
       "link": ""
     },
     {
       "etichetta": "Video & Editing",
-      "valore": "Florian Voci",
+      "valore": "Florian Voci, Maïwenn Delbes",
       "link": ""
     },
     {
-      "etichetta": "Format",
-      "valore": "Filmed DJ sets, podcast, promo videos",
+      "etichetta": "Djs",
+      "valore": "Florian Voci, Paolo Tosto, Felix Alexandre Drechsler, Giulio Capece, Damiano Pierrotti, Merlin Massan",
+      "link": ""
+    },
+    {
+      "etichetta": "Partners",
+      "valore": "Emycet Viajes, Best Life Experience",
       "link": ""
     },
     {
       "etichetta": "Where",
       "valore": "@colectivomodi",
-      "link": "@colectivomodi"
+      "link": "https://www.instagram.com/colectivomodi/"
     }
   ]
 }
