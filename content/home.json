@@ -21,7 +21,8 @@
       "titolo": "Torino 17",
       "anno": "2026",
       "pagina": "torino-17",
-      "visibile": true
+      "visibile": true,
+      "formato": "16:9"
     },
     {
       "id": "faccioni",
@@ -61,7 +62,7 @@
       "anno": "2024",
       "pagina": "albania-coast-to-coast",
       "visibile": true,
-      "formato": "6:5"
+      "formato": "3:2"
     }
   ]
 }
