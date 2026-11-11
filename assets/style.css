@@ -401,14 +401,14 @@ a.ig-post:hover .ig-caption { color: var(--ink); text-decoration: underline; tex
 /* ---------- Footer: one italic line ---------- */
 .site-footer { display: flex; flex-direction: column; padding: 34px clamp(16px, 2.64vw, 36px) 33px; background: var(--footer-bg); color: var(--footer-ink); }
 .footer-cta { font-weight: 700; font-size: var(--fs-footer-cta); letter-spacing: -.05em; line-height: .9; text-transform: uppercase; }
-.footer-email { margin-top: 12px; font-weight: 500; font-size: var(--fs-footer-email); letter-spacing: -.02em; line-height: 1.2; text-decoration: underline; text-underline-offset: .15em; text-decoration-thickness: 1px; overflow-wrap: anywhere; }
+.footer-email { margin-top: 12px; font-weight: 500; font-size: var(--fs-footer-email); letter-spacing: -.02em; line-height: 1.2; text-decoration: none; overflow-wrap: anywhere; }
 .footer-cols { margin-top: clamp(48px, 6.37vw, 87px); display: grid; grid-template-columns: repeat(4, minmax(0, 300px)); gap: 32px; font-size: var(--fs-footer-col); letter-spacing: .06em; line-height: 1.4; }
 .footer-cols > div { border-top: 1px solid var(--footer-rule); padding-top: 24px; display: grid; gap: 14px; align-content: start; }
 .footer-cols h2 { font-weight: 400; font-style: italic; font-size: inherit; text-transform: uppercase; color: var(--footer-ink-2); }
 .footer-cols ul { display: grid; gap: 14px; font-weight: 500; text-transform: uppercase; }
 .footer-cols .lower { text-transform: none; letter-spacing: 0; overflow-wrap: anywhere; }
 .footer-cols .ig { color: var(--accent-ig); }
-.footer-cta:hover, .footer-cols a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.footer-cta:hover, .footer-email:hover, .footer-cols a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .footer-legal { margin-top: clamp(48px, 6.37vw, 87px); display: flex; justify-content: space-between; gap: 8px 24px; flex-wrap: wrap; font-size: var(--fs-footer-legal); letter-spacing: .08em; text-transform: uppercase; color: var(--footer-ink-2); }
 @media (max-width: 900px) { .footer-cols { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 480px) { .footer-cols { grid-template-columns: 1fr; } .footer-legal { flex-direction: column; } }
