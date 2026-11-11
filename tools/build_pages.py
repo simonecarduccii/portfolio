@@ -696,7 +696,7 @@ def build_photo(i, p):
     <p class="copy label">{inline(credits) if credits else f"© {p['year']} Simone Carducci. Fotografie su pellicola, non riproducibili senza autorizzazione."}</p>
   </section>
   <section class="related" aria-label="Altri progetti">
-    <h2 class="small-title">Altri progetti</h2>
+    <div class="related-head"><h2 class="small-title">Altri progetti</h2><span class="related-nav" hidden><button type="button" data-rel-step="-1" aria-label="Progetti precedenti">&larr;</button><button type="button" data-rel-step="1" aria-label="Progetti successivi">&rarr;</button></span></div>
     <div class="related-row">{related}</div>
   </section>
 {band_archive()}"""
@@ -1007,7 +1007,7 @@ def block_html(b, p, i):
             f'<a class="tile" href="{q["slug"]}.html">{img(f"img/{q["slug"]}/cover.jpg", q["title"], " ")}'
             f'<span class="fig-cap"><span>{html.escape(q["title"])}</span><span>{html.escape(q["year"])}</span></span></a>'
             for q in others)
-        return (f'  <section class="related" aria-label="Altri progetti">\n    <h2 class="small-title">Altri progetti</h2>\n'
+        return (f'  <section class="related" aria-label="Altri progetti">\n    <div class="related-head"><h2 class="small-title">Altri progetti</h2><span class="related-nav" hidden><button type="button" data-rel-step="-1" aria-label="Progetti precedenti">&larr;</button><button type="button" data-rel-step="1" aria-label="Progetti successivi">&rarr;</button></span></div>\n'
                 f'    <div class="related-row">{tiles}</div>\n  </section>')
     if kind == "successivo":
         to, targets = _str(b.get("pagina")), page_targets()
