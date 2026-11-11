@@ -561,13 +561,79 @@ Fotografie e testo: Simone Carducci · ${year}
   // tools/build_pages.py turns each block into the same HTML as the other pages.
 
   const PAGE_DIR = "content/pagine/";
+  // ---------------------------------------------------------------- videos
+  // A video is a YouTube / Vimeo link, or a file uploaded to media/<page>/ (max 50 MB: longer videos go on YouTube or Vimeo).
+  // In the JSON it is always a string: the link, or the path of the file.
+
+  const VIDEO_MAX = 50 * 1024 * 1024;
+  const isVideoRef = (v) => (typeof v === "string" && /^(https?:\/\/|media\/)/.test(v.trim())) || (v && typeof v === "object" && v.video);
+  const videoKind = (v) => {
+    if (v && typeof v === "object") return "file";
+    const s = (v || "").trim();
+    if (/youtube\.com|youtu\.be/.test(s)) return "YouTube";
+    if (/vimeo\.com/.test(s)) return "Vimeo";
+    if (/^media\//.test(s)) return "file";
+    return s ? "?" : "";
+  };
+
+  function videoField(get, set) {
+    const wrap = h("div", { class: "video-field" });
+    const draw = () => {
+      const v = get();
+      const isFile = videoKind(v) === "file";
+      const url = h("input", { type: "text", placeholder: "Link YouTube o Vimeo (https://…)", "aria-label": "Link del video" });
+      url.value = isFile ? "" : (v || "");
+      const status = h("small", { class: "video-status" });
+      const showStatus = () => {
+        const k = videoKind(get());
+        status.textContent = k === "?" ? "Link non riconosciuto: incolla l'indirizzo di un video YouTube o Vimeo." : k && k !== "file" ? `Video ${k} ✓` : "";
+      };
+      url.addEventListener("input", () => { set(url.value.trim()); showStatus(); });
+      const file = h("input", { type: "file", accept: "video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov,.m4v", hidden: "" });
+      file.addEventListener("change", () => {
+        const f = file.files[0];
+        if (!f) return;
+        if (f.size > VIDEO_MAX) { alert(`Il file pesa ${Math.round(f.size / 1048576)} MB: il massimo è 50 MB. Caricalo su YouTube o Vimeo e incolla qui il link.`); return; }
+        const ext = ((f.name.match(/\.(mp4|webm|mov|m4v)$/i) || [])[1] || "mp4").toLowerCase();
+        set({ video: true, blob: f, ext, name: f.name, url: URL.createObjectURL(f) });
+        draw();
+      });
+      const cur = get();
+      const src = cur && typeof cur === "object" ? cur.url : isFile ? siteUrl(cur) : null;
+      wrap.replaceChildren(
+        h("div", { class: "video-row" }, url, h("label", { class: "btn small" }, file, "Carica un file")),
+        status,
+        src ? h("div", { class: "video-file" }, h("video", { src, controls: "", preload: "metadata", playsinline: "" }),
+          h("button", { type: "button", class: "btn small", onclick: () => { set(""); draw(); } }, "Togli il file")) : null);
+      showStatus();
+    };
+    draw();
+    return wrap;
+  }
+
+  // the string saved in the JSON; an uploaded file goes to media/<slug>/
+  async function putVideo(v, slug, out) {
+    if (!v) return "";
+    if (typeof v === "string") return v.trim();
+    if (!v.path) v.path = `media/${slug}/${newId()}.${v.ext}`;
+    if (!v.sha) v.sha = await blobFrom({ blob: v.blob });
+    out[v.path] = v.sha;
+    return v.path;
+  }
+
+  // files in media/<slug>/ that nothing uses any more are removed
+  function dropUnusedMedia(slug, used, out) {
+    Object.keys(tree).forEach((p) => { if (p.startsWith(`media/${slug}/`) && !used.has(p) && !(p in out)) out[p] = null; });
+  }
+
   const BLOCKS = [
     { tipo: "titolo", name: "Titolo pagina", note: "titolo grande e anno", make: () => ({ titolo: "", anno: "" }) },
     { tipo: "foto", name: "Foto grande", note: "una foto, larga o a tutta pagina", make: () => ({ foto: null, piena: false }) },
     { tipo: "testo", name: "Testo", note: "paragrafi e una nota in piccolo", make: () => ({ testo: "", nota: "" }) },
     { tipo: "citazione", name: "Citazione", note: "una frase grande in corsivo", make: () => ({ testo: "", autore: "" }) },
     { tipo: "scheda", name: "Scheda dati", note: "righe etichetta / valore", make: () => ({ righe: [["", ""]] }) },
-    { tipo: "sequenza", name: "Sequenza foto", note: "più foto in uno dei layout", make: () => ({ layout: "griglia", foto: [] }) },
+    { tipo: "sequenza", name: "Sequenza foto", note: "più foto (e video) in uno dei layout", make: () => ({ layout: "griglia", foto: [] }) },
+    { tipo: "video", name: "Video", note: "YouTube, Vimeo o un file", make: () => ({ video: "", didascalia: "", larga: false }) },
     { tipo: "altri", name: "Altri progetti", note: "automatico: fino a 3 progetti di Ricerca visiva", make: () => ({}) },
     { tipo: "successivo", name: "Progetto successivo", note: "un link a un'altra pagina", make: () => ({ pagina: "", testo: "" }) },
     { tipo: "fascia", name: "Fascia", note: "Pellicole (colori) o Archivio (bianco e nero)", make: () => ({ variante: "archivio" }) },
@@ -696,6 +762,9 @@ Fotografie e testo: Simone Carducci · ${year}
           return [box, h("div", { class: "head-switch" }, toggle(!!b.piena, (v) => { b.piena = v; changed(); }), h("span", {}, "A tutta pagina (in cima alla pagina, sotto il menu)")),
             field("Descrizione della foto (per chi non vede)", b.alt, (v) => { b.alt = v; })];
         }
+        case "video": return [videoField(() => b.video, (v) => { b.video = v; changed(); }),
+          field("Didascalia (facoltativa)", b.didascalia, (v) => { b.didascalia = v; }),
+          h("div", { class: "head-switch" }, toggle(!!b.larga, (v) => { b.larga = v; changed(); }), h("span", {}, "A tutta larghezza"))];
         case "testo": return [field("Testo (un rigo vuoto separa i paragrafi)", b.testo, (v) => { b.testo = v; }, { rows: 7 }),
           field("Nota in piccolo (facoltativa)", b.nota, (v) => { b.nota = v; })];
         case "citazione": return [field("Citazione", b.testo, (v) => { b.testo = v; }, { rows: 3 }), field("Autore (facoltativo)", b.autore, (v) => { b.autore = v; })];
@@ -719,7 +788,8 @@ Fotografie e testo: Simone Carducci · ${year}
           const opts = [...LAYOUTS.map((l) => [l.id, `${l.name} (${l.note})`]), ...MINE.map((l) => [l.id, `${l.name} (salvato)`])];
           if (!opts.some(([v]) => v === b.layout)) b.layout = "griglia";
           const grid = h("ol", { class: "seq" }, b.foto.map((f, i) => h("li", {},
-            photoSrc(f) ? h("img", { src: photoSrc(f), alt: "" }) : h("span", { class: "ph" }),
+            isVideoRef(f) ? h("span", { class: "ph video-ph", title: typeof f === "string" ? f : f.name }, "▶ " + (videoKind(f) === "file" ? "video" : videoKind(f)))
+              : photoSrc(f) ? h("img", { src: photoSrc(f), alt: "" }) : h("span", { class: "ph" }),
             h("span", { class: "num" }, String(i + 1).padStart(2, "0")),
             h("div", { class: "tools" },
               h("button", { type: "button", title: "Prima", onclick: () => { if (i) { b.foto.splice(i - 1, 0, b.foto.splice(i, 1)[0]); changed(); draw(); } } }, "←"),
@@ -728,7 +798,21 @@ Fotografie e testo: Simone Carducci · ${year}
           const add = async (files) => { for (const f of files) { const p = isImage(f) && await newPhoto(f, MAX_SIDE); if (p) b.foto.push(p); } changed(); draw(); };
           dropZone(grid, add);
           return [select("Layout", b.layout, opts, (v) => { b.layout = v; }), grid,
-            h("div", { class: "photo-btns" }, picker(true, add), libButton(true, (list) => { b.foto.push(...list); changed(); draw(); })),
+            h("div", { class: "photo-btns" }, picker(true, add), libButton(true, (list) => { b.foto.push(...list); changed(); draw(); }),
+              h("button", { type: "button", class: "btn small", onclick: () => {
+                const u = prompt("Link del video (YouTube o Vimeo):");
+                if (u && /youtu|vimeo/.test(u)) { b.foto.push(u.trim()); changed(); draw(); } else if (u) alert("Link non riconosciuto: serve un video YouTube o Vimeo.");
+              } }, "+ Video (link)"),
+              (() => {
+                const inp = h("input", { type: "file", accept: "video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov,.m4v", hidden: "" });
+                inp.addEventListener("change", () => {
+                  const f = inp.files[0]; if (!f) return;
+                  if (f.size > VIDEO_MAX) { alert("Il file supera 50 MB: caricalo su YouTube o Vimeo e usa il link."); return; }
+                  b.foto.push({ video: true, blob: f, name: f.name, ext: ((f.name.match(/\.(mp4|webm|mov|m4v)$/i) || [])[1] || "mp4").toLowerCase() });
+                  changed(); draw();
+                });
+                return h("label", { class: "btn small" }, inp, "+ Video (file)");
+              })()),
             h("small", { class: "hint" }, "Per una coppia di foto affiancate: layout Griglia con 2 foto.")];
         }
         case "altri": return [h("p", { class: "hint" }, "Si riempie da solo con i progetti di Ricerca visiva accesi in home (al massimo 3).")];
@@ -782,6 +866,7 @@ Fotografie e testo: Simone Carducci · ${year}
     const slug = node.freePage;
     const copies = [];
     const put = async (f, b) => {
+      if (isVideoRef(f)) return putVideo(f, slug, out);
       if (!f || typeof f !== "object") return f;
       if (!f.path) f.path = `img/${slug}/${b.id}-${newId()}.jpg`;
       if (f.from) copies.push({ from: f.from, to: f.path });
@@ -793,11 +878,13 @@ Fotografie e testo: Simone Carducci · ${year}
     for (const b of state.blocchi) {
       const c = { ...b };
       if (b.tipo === "foto") c.foto = await put(b.foto, b);
+      if (b.tipo === "video") c.video = await putVideo(b.video, slug, out);
       if (b.tipo === "sequenza") { c.foto = []; for (const f of b.foto) c.foto.push(await put(f, b)); }
       if (b.tipo === "scheda") c.righe = (b.righe || []).filter((r) => (r[0] || "").trim() || (r[1] || "").trim());
       blocchi.push(c);
     }
     if (copies.length) await fociFollow(out, copies, null);
+    dropUnusedMedia(slug, new Set(blocchi.flatMap((b) => (b.tipo === "video" ? [b.video] : b.tipo === "sequenza" ? b.foto : [])).filter((v) => typeof v === "string")), out);
     const used = new Set(blocchi.flatMap((b) => (b.tipo === "foto" ? [b.foto] : b.tipo === "sequenza" ? b.foto : [])).filter(Boolean));
     Object.keys(tree).forEach((p) => { if (p.startsWith(`img/${slug}/`) && p.endsWith(".jpg") && !used.has(p) && !(p in out)) out[p] = null; });
     const json = asJson({ ...extra, titolo: state.titolo.trim() || slug, descrizione: state.descrizione.trim(), blocchi });
@@ -997,12 +1084,13 @@ Fotografie e testo: Simone Carducci · ${year}
       const known = LAYOUTS.some((l) => l.id === layout.layout) || MINE.some((l) => l.id === layout.layout) || (layout.layout === "casuale" && state.schema);
       state.layout = known ? layout.layout : LAYOUTS[0].id;
       // texts between the photos: {dopo: photos before it, testo}
-      const tx = (Array.isArray(layout.testi) ? layout.testi : []).filter((t) => t && typeof t.testo === "string")
-        .map((t) => ({ dopo: Math.max(0, Math.min(state.seq.length, parseInt(t.dopo, 10) || 0)), testo: t.testo }));
+      // and videos: {dopo, video}
+      const tx = (Array.isArray(layout.testi) ? layout.testi : []).filter((t) => t && (typeof t.testo === "string" || typeof t.video === "string"))
+        .map((t) => ({ dopo: Math.max(0, Math.min(state.seq.length, parseInt(t.dopo, 10) || 0)), testo: t.testo, video: t.video }));
       for (let k = tx.length - 1; k >= 0; k--) {
         let at = 0, seen = 0;
         while (at < state.seq.length && seen < tx[k].dopo) { if (!state.seq[at].text) seen++; at++; }
-        state.seq.splice(at, 0, { text: true, testo: tx[k].testo });
+        state.seq.splice(at, 0, typeof tx[k].video === "string" ? { text: true, video: tx[k].video } : { text: true, testo: tx[k].testo });
       }
     }
     draft.photos = { node, state, coverPath, layout };
@@ -1051,6 +1139,15 @@ Fotografie e testo: Simone Carducci · ${year}
             li.addEventListener("drop", (e) => { const from = e.dataTransfer.getData("text/x-seq"); if (from === "") return; e.preventDefault(); e.stopPropagation(); move(+from, i); });
             return li;
           };
+          if (it.text && "video" in it) {
+            return drag(h("li", { class: "text video", draggable: "true", style: schema ? `grid-row: ${at.row}` : null },
+              h("span", { class: "grip", title: "Trascina per spostare" }, "⋮⋮ video"),
+              videoField(() => it.video, (v) => { it.video = v; markDirty(); }),
+              h("span", { class: "text-tools" },
+                h("button", { type: "button", title: "Prima", onclick: () => move(i, i - 1) }, "↑"),
+                h("button", { type: "button", title: "Dopo", onclick: () => move(i, i + 1) }, "↓"),
+                h("button", { type: "button", title: "Togli il video", onclick: () => { state.seq.splice(i, 1); draw(); markDirty(); } }, "×"))));
+          }
           if (it.text) {
             const ta = h("textarea", { rows: 3, placeholder: "Testo tra le foto…", "aria-label": "Testo tra le foto" });
             ta.value = it.testo || "";
@@ -1077,7 +1174,9 @@ Fotografie e testo: Simone Carducci · ${year}
           h("input", { type: "file", accept: "image/*", multiple: true, hidden: true, onchange: (e) => addFiles(e.target.files) })),
           libButton(true, (list) => { state.seq.push(...list); draw(); markDirty(); }),
           ph.layout ? h("button", { type: "button", class: "add-text", onclick: () => { state.seq.push({ text: true, testo: "" }); draw(); markDirty();
-            const tas = grid.querySelectorAll("li.text textarea"); if (tas.length) tas[tas.length - 1].focus(); } }, "+ Aggiungi testo") : null));
+            const tas = grid.querySelectorAll("li.text textarea"); if (tas.length) tas[tas.length - 1].focus(); } }, "+ Aggiungi testo") : null,
+          ph.layout ? h("button", { type: "button", class: "add-text", onclick: () => { state.seq.push({ text: true, video: "" }); draw(); markDirty();
+            const ins = grid.querySelectorAll("li.video input[type=text]"); if (ins.length) ins[ins.length - 1].focus(); } }, "+ Aggiungi video") : null));
       };
       const move = (a, b) => {
         if (b < 0 || b >= state.seq.length) return;
@@ -1400,7 +1499,13 @@ Fotografie e testo: Simone Carducci · ${year}
             delete page.testi;
             let before = 0;
             const testi = [];
-            state.seq.forEach((it) => { if (!it.text) before++; else if ((it.testo || "").trim()) testi.push({ dopo: before, testo: it.testo.trim() }); });
+            const slugOf = n.photos.dir.replace(/^img\//, "");
+            for (const it of state.seq) {
+              if (!it.text) before++;
+              else if ("video" in it) { const v = await putVideo(it.video, slugOf, out); if (v) testi.push({ dopo: before, video: v }); }
+              else if ((it.testo || "").trim()) testi.push({ dopo: before, testo: it.testo.trim() });
+            }
+            dropUnusedMedia(slugOf, new Set(testi.map((t) => t.video).filter(Boolean)), out);
             if (testi.length) page.testi = testi;
             const json = layoutJson(page);
             if (json !== (texts[n.photos.layout] || "")) out[n.photos.layout] = await blobFrom({ text: json });
