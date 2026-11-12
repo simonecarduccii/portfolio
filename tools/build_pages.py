@@ -776,7 +776,9 @@ def build_photo(i, p):
     credits = first_text(section(secs, "Crediti"))
     place = strip_verify(meta.get("Luogo", ""))
     year = re.sub(r"\s*[–—]\s*", " - ", meta.get("Anno", p["year"]))  # short hyphen, as typed in /admin
-    meta_lines = [x for x in [place, f"Progetto: {year}"] if x]
+    # label before the year: content/sito.json "etichette" {"ricerca_visiva": …}; empty = just the year
+    label = str(SITO.get("etichette", {}).get("ricerca_visiva", "Ricerca visiva")).strip()
+    meta_lines = [x for x in [place, f"{label}: {year}" if label else year] if x]
     blank = lambda v: not strip_verify(v).strip(" –—-")  # noqa: E731  an empty field or "–" is not shown
     digital = "digital" in meta.get("Supporto", "").lower()
     tech = [f"{k}: {inline(meta[k])}" for k in ("Supporto", "Fotocamera", "Pellicola", "Lente")
