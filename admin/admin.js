@@ -1747,7 +1747,7 @@ Testo da scrivere.
     let data = {};
     try { data = JSON.parse(await readText(path) || "{}"); } catch (e) { data = {}; }
     draft.cartella = { path, data, value: data.cartella || "" };
-    const input = h("input", { type: "text", placeholder: "es. 01home/03ricerca_visiva/01faccini", value: data.cartella || "" });
+    const input = h("input", { type: "text", placeholder: "es. 01home/03ricerca_visiva/03faccini", value: data.cartella || "" });
     input.addEventListener("input", () => { draft.cartella.value = input.value.trim(); markDirty(); });
     return h("label", { class: "field folder" },
       h("span", {}, "Cartella sul Mac (dentro porfolio/information_architecture)"), input,

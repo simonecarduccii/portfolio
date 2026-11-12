@@ -112,7 +112,7 @@ Le foto vengono rimpicciolite nel browser prima di partire e perdono GPS e dati 
 ## 3. Foto da una cartella del Mac
 
 Ogni elemento con foto ha il campo **Cartella sul Mac**: il percorso dentro
-`~/porfolio/information_architecture`, per esempio `01home/03ricerca_visiva/01faccini`.
+`~/porfolio/information_architecture`, per esempio `01home/03ricerca_visiva/03faccini`.
 Quando cambi, aggiungi o togli una foto in quella cartella, il Mac la manda al sito da solo.
 
 Nella cartella:
