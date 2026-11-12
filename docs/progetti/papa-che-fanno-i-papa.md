@@ -7,7 +7,7 @@ Testi segnaposto (lorem ipsum): servono a fissare struttura e lunghezze. Simone 
 - **Supporto:** Varie
 - **Fotocamera:** Varie
 - **Pellicola:** 
-- **Luogo:** Torino - Granada - Marrakech
+- **Luogo:** Luoghi vari
 - **Immagine di copertina:** img/papa-che-fanno-i-papa/cover.jpg
 
 ## Intro in testata (max 40 parole)
@@ -22,4 +22,4 @@ La forza fisica, quasi bruta, si piega allo sforzo di portare qualcuno e diventa
 
 ## Crediti
 
-Fotografie e testo: Simone Carducci · 2025 - in corso · © 2025 Simone Carducci. Tutti i diritti riservati.
+FOTOGRAFIE E TESTO: SIMONE CARDUCCI · 2025 - in corso · © 2025-2026 SIMONE CARDUCCI. TUTTI I DIRITTI RISERVATI.

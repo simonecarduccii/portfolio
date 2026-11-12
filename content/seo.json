@@ -20,14 +20,17 @@
   "modi": {
     "titolo": "Colectivo Modì - Simone Carducci"
   },
-  "place-of-freedom": {
-    "titolo": "Ghei - Simone Carducci",
-    "descrizione": "ㅤ"
+  "papa-che-fanno-i-papa": {
+    "titolo": "Papà - Simone Carducci"
   },
-  "siculo": {
-    "titolo": "Vita mia - Simone Carducci"
+  "place-of-freedom": {
+    "descrizione": "ㅤRicerca visiva, 2025"
   },
   "torino-17": {
     "descrizione": "Il 17 ottobre 2026 Torino scende in piazza contro il carovita. Un corteo pacifico e non, attraversato con un 15mm, a distanza di braccio da chi marcia e da chi lo ferma."
+  },
+  "vincere-il-mondiale": {
+    "titolo": "Vincere il mondiale - Simone Carducci",
+    "descrizione": "Ricerca visiva, 2026"
   }
 }
