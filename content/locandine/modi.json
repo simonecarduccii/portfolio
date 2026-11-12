@@ -28,11 +28,39 @@
       "serate": [
         {
           "cartella": "die-neue-bruke-i-26-03",
-          "nome": "Die Neue Brüke I · 26/03"
+          "nome": "Die Neue Brüke I · 26/03",
+          "video": [
+            {
+              "url": "https://youtu.be/XwZf_MF1fxM",
+              "testo": "Novetik - Die Neue Brüke I"
+            },
+            {
+              "url": "https://youtu.be/8RPl-Usxi0E",
+              "testo": "Maïwenn B2B Merlin - Die Neue Brüke I"
+            }
+          ]
         },
         {
           "cartella": "die-neue-bruke-ii-23-04",
-          "nome": "Die Neue Brüke II · 23/04"
+          "nome": "Die Neue Brüke II · 23/04",
+          "video": [
+            {
+              "url": "https://youtu.be/rBSP5Guy_-c",
+              "testo": "Simo! - Die Neue Brüke II"
+            },
+            {
+              "url": "https://youtu.be/f-L7mEbKdzA",
+              "testo": "Maïwenn - Die Neue Brüke II"
+            },
+            {
+              "url": "https://youtu.be/_edxl1Trm_4",
+              "testo": "Merlin - Die Neue Brüke II"
+            },
+            {
+              "url": "https://youtu.be/1vZhwbCFY3s",
+              "testo": "Giulio - Die Neue Brüke II"
+            }
+          ]
         },
         {
           "cartella": "die-neue-bruke-iii-28-05",
@@ -55,7 +83,13 @@
       "serate": [
         {
           "cartella": "friday-at-modi-i",
-          "nome": "Friday at Modì I"
+          "nome": "Friday at Modì I",
+          "video": [
+            {
+              "url": "https://youtu.be/6ktb6A-vUho",
+              "testo": "Panic & Simo! - Friday at Modì I"
+            }
+          ]
         }
       ]
     }
