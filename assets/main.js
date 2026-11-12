@@ -344,6 +344,21 @@
   });
 })();
 
+// One player for several videos: a click on the list plays that video in the player.
+(function () {
+  document.querySelectorAll('.video-player').forEach(function (vp) {
+    var frame = vp.querySelector('iframe');
+    vp.addEventListener('click', function (e) {
+      var b = e.target.closest('.vp-item');
+      if (!b || !frame) return;
+      var src = b.getAttribute('data-src');
+      frame.src = src + (src.indexOf('?') < 0 ? '?' : '&') + 'autoplay=1';
+      frame.title = b.getAttribute('data-title');
+      vp.querySelectorAll('.vp-item').forEach(function (x) { if (x === b) x.setAttribute('aria-current', 'true'); else x.removeAttribute('aria-current'); });
+    });
+  });
+})();
+
 // Instagram embeds tell their real height with a message; size each frame to it so nothing is cut.
 window.addEventListener('message', function (e) {
   if (!/^https:\/\/www\.instagram\.com$/.test(e.origin)) return;

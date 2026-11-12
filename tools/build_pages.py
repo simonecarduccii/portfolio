@@ -755,8 +755,24 @@ def page_videos(slug):
     if not items:
         return ""
     title = _str(data.get("titolo")) or "Video"
-    return (f'<section class="page-videos" aria-label="{html.escape(title)}"><h2 class="small-title">{html.escape(title)}</h2>'
-            f'<div class="page-videos-list">{"".join(items)}</div></section>')
+    head = f'<section class="page-videos" aria-label="{html.escape(title)}"><h2 class="small-title">{html.escape(title)}</h2>'
+    links = [(v, video_embed(_str(v.get("url")))) for v in data.get("video") or [] if isinstance(v, dict)]
+    links = [(v, e) for v, e in links if e]
+    if len(links) < 2 or len(links) != len(items):
+        return head + f'<div class="page-videos-list">{"".join(items)}</div></section>'
+    # several YouTube/Vimeo videos: one player, and the list below it to choose which one plays
+    first_v, first_e = links[0]
+    tabs = []
+    for k, (v, e) in enumerate(links):
+        text = _str(v.get("testo")) or f"Video {k + 1}"
+        yt = re.search(r"youtube-nocookie\.com/embed/([\w-]+)", e)
+        thumb = f'<img src="https://i.ytimg.com/vi/{yt.group(1)}/mqdefault.jpg" alt="" loading="lazy">' if yt else '<span class="vp-ph" aria-hidden="true">&#9654;</span>'
+        tabs.append(f'<li><button type="button" class="vp-item" data-src="{html.escape(e)}" data-title="{html.escape(plain(text))}"'
+                    f'{" aria-current=\"true\"" if k == 0 else ""}>{thumb}<span>{inline(text)}</span></button></li>')
+    first_title = plain(_str(first_v.get("testo")) or "Video 1")
+    return (head + f'<div class="video-player"><div class="video"><iframe src="{html.escape(first_e)}" title="{html.escape(first_title)}" loading="lazy" '
+            f'allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen></iframe></div>'
+            f'<ul class="vp-list">{"".join(tabs)}</ul></div></section>')
 
 
 def poster_rows(slug):
@@ -827,6 +843,15 @@ def poster_rows(slug):
     return f'<section class="poster-cats" aria-label="Eventi">{deck_row}{"".join(rows)}</section>'
 
 
+def page_gallery(slug, title):
+    """The photos of "Foto della pagina" in /admin (img/<slug>/01.jpg ...), as a "Galleria" of five columns; none = no section."""
+    photos = [f"img/{slug}/{n:02d}.jpg" for n in range(1, slots(slug, 0) + 1) if exists(f"img/{slug}/{n:02d}.jpg")]
+    if not photos:
+        return ""
+    return ('<section class="page-gallery" aria-label="Galleria"><h2 class="small-title">Galleria</h2><div class="gallery-grid">'
+            + "".join(img(src, f"{title}, foto {k}") for k, src in enumerate(photos, 1)) + "</div></section>")
+
+
 def build_culture(i, p):
     meta, notes, secs = parse_sheet(p["doc"])
     nxt = CULTURE[(i + 1) % len(CULTURE)]
@@ -848,10 +873,10 @@ def build_culture(i, p):
     <div class="prose">
 {chr(10).join(f"<p>{inline(x)}</p>" for x in paras)}
     </div>
-    <div class="gallery col" aria-label="Immagini del progetto">{"".join(img(f"img/{s}/{n:02d}.jpg", f"{p['title']}, immagine {n}") for n in range(1, slots(s, 6) + 1) if exists(f"img/{s}/{n:02d}.jpg"))}</div>
   </section>
   {poster_rows(s)}
   {page_videos(s)}
+  {page_gallery(s, p["title"])}
   {instagram_posts(s)}
   <a class="next-project" href="{nxt["slug"]}.html"><span>Progetto successivo</span><span>{html.escape(nxt["title"])} ›</span></a>
 {band_archive()}"""

@@ -1314,7 +1314,7 @@ Testo da scrivere.
     title.value = vd.titolo;
     title.addEventListener("input", () => { vd.titolo = title.value; changed(); });
     return h("section", { class: "panel" }, h("h2", {}, "Video (YouTube o Vimeo)"),
-      h("p", { class: "hint" }, "Incolla il link del video (su YouTube: Condividi → Copia link). Compaiono sotto le foto, nell'ordine della lista, ognuno con la sua didascalia se la scrivi. Senza video la sezione non compare."),
+      h("p", { class: "hint" }, "Incolla il link del video (su YouTube: Condividi → Copia link). Compaiono sotto le locandine: con più video c'è un solo player e sotto la lista per scegliere quale guardare, nell'ordine qui sotto, con la didascalia se la scrivi. Senza video la sezione non compare."),
       h("label", { class: "field", for: "vd-title" }, h("span", {}, "Titolo della sezione"), title),
       rowsEditor(vd.video, [["url", "Link (https://youtu.be/…)"], ["testo", "Didascalia (facoltativa)"]], changed, "+ Aggiungi un video"));
   }

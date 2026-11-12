@@ -187,3 +187,6 @@ Quello che è vuoto non compare, e nemmeno una categoria tutta vuota.
   "Locandine scaricabili" lo spegne per una categoria (`"scarica": false`).
 - Spostando le immagini, ognuna tiene il file che aveva quando il pannello è stato aperto: una modifica fatta
   altrove nel frattempo non le rimescola (vale anche per "Foto della pagina").
+- Ordine della pagina (Bohème e Colectivo modì): testo, mazzi di locandine, foto e video per categoria, poi la
+  sezione "Video" (con più video, un player con la lista sotto) e infine la "Galleria", cioè le foto di
+  "Foto della pagina", cinque per riga.
