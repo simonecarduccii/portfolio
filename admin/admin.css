@@ -366,6 +366,11 @@ body.no-preview .preview { display: none; }
 .pc-thumb { width: 60px; height: 80px; object-fit: cover; border-radius: 4px; flex: none; }
 .pc-thumb-add { display: grid; place-items: center; text-align: center; font-size: 11px; border: 1px dashed var(--ink-2, #888); color: var(--ink-2, #666); cursor: pointer; background: #fff; }
 .pc-thumb-add input { display: none; }
+.pc-fold { flex: none; width: 30px; height: 34px; border: 1px solid var(--rule); background: #fff; border-radius: 6px; cursor: pointer; font-size: 14px; }
+.pc-sum { flex: 0 1 auto; min-width: 0; font-size: 12px; color: var(--ink-2, #666); }
+.pc-head input, .pc-serata-name input { min-width: 0; }
+.pc-serata.closed { padding: 10px 14px; }
+.pc-serata.closed .pc-thumb { width: 36px; height: 48px; }
 .pc-new-serata { justify-self: start; background: var(--ink); color: var(--paper); font-weight: 600; padding: 10px 20px; }
 .pc-num { font-size: 12px; color: var(--ink-2, #666); white-space: nowrap; }
 .pc-images { display: grid; gap: 8px; }

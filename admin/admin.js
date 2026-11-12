@@ -1374,6 +1374,15 @@ Testo da scrivere.
     draft.posters = ps;
     const changed = () => { ps.dirty = true; markDirty(); };
     const list = h("div", { class: "pc-list" });
+    // what is open or closed (categories, evenings) is remembered in this browser
+    let openKeys = {};
+    try { openKeys = JSON.parse(localStorage.getItem("pc-open") || "{}") || {}; } catch (e) { openKeys = {}; }
+    const isOpen = (k, def) => (k in openKeys ? openKeys[k] : def);
+    const flip = (k, def) => { openKeys[k] = !isOpen(k, def); try { localStorage.setItem("pc-open", JSON.stringify(openKeys)); } catch (e) { /* private mode */ } draw(); };
+    const fold = (k, def) => h("button", { type: "button", class: "pc-fold", "aria-expanded": isOpen(k, def) ? "true" : "false",
+      title: isOpen(k, def) ? "Chiudi" : "Apri", onclick: () => flip(k, def) }, isOpen(k, def) ? "▾" : "▸");
+    // photo lists show one row until you ask for all of them
+    const ROW = 6, allShown = new WeakSet();
     // one list of images (posters or event photos): upload, library, drag files in, reorder, remove
     const images = (arr, label, addLabel, keepRaw) => {
       const file = h("input", { type: "file", accept: "image/*", multiple: "", hidden: "" });
@@ -1391,7 +1400,7 @@ Testo da scrivere.
       file.addEventListener("change", async () => { await add([...file.files]); file.value = ""; });
       const box = h("div", { class: "pc-images" },
         h("h4", {}, label, h("small", { class: "muted" }, arr.length ? ` · ${arr.length}` : " · nessuna: non compare")),
-        arr.length ? h("ol", { class: "seq pc-seq" }, arr.map((f, i) => h("li", {},
+        arr.length ? h("ol", { class: "seq pc-seq" }, (arr.length > ROW && !allShown.has(arr) ? arr.slice(0, ROW) : arr).map((f, i) => h("li", {},
           h("img", { src: f.url, alt: "" }),
           h("span", { class: "num" }, String(i + 1)),
           h("div", { class: "tools" },
@@ -1401,7 +1410,10 @@ Testo da scrivere.
               if (se && (se.foto.length || se.video.some((v) => v.url.trim())) && !confirm(`Togliendo la locandina togli anche la sua serata “${se.nome || `Serata ${i + 1}`}” con foto e video. Continuare?`)) return;
               arr.splice(i, 1); draw(); changed(); } }, "×"),
             h("button", { type: "button", title: "Dopo", onclick: () => { if (i < arr.length - 1) { arr.splice(i + 1, 0, arr.splice(i, 1)[0]); draw(); changed(); } } }, "→"))))) : null,
-        h("div", { class: "photo-btns" }, h("label", { class: "btn small" }, file, addLabel),
+        h("div", { class: "photo-btns" },
+          arr.length > ROW ? h("button", { type: "button", class: "btn small pc-more", onclick: () => { if (allShown.has(arr)) allShown.delete(arr); else allShown.add(arr); draw(); } },
+            allShown.has(arr) ? "Mostra solo una riga" : `Mostra tutte (${arr.length})`) : null,
+          h("label", { class: "btn small" }, file, addLabel),
           libButton(true, (picked) => { arr.push(...picked); draw(); changed(); })));
       dropZone(box, add);
       return box;
@@ -1438,10 +1450,14 @@ Testo da scrivere.
           });
           thumb = h("label", { class: "pc-thumb pc-thumb-add", title: "Aggiungi la locandina di questa serata" }, pf, "+ Locandina");
         }
-        return h("div", { class: "pc-serata" },
-          h("div", { class: "pc-serata-head" }, thumb,
-            h("div", { class: "pc-serata-name" }, h("span", { class: "pc-num" }, `Serata ${si + 1}`), nm),
-            h("div", { class: "row-tools" }, h("button", { type: "button", title: poster ? "Togli la serata e la sua locandina" : "Togli la serata", onclick: remove }, "×"))),
+        const key = `${slug}|s|${cat.nome}|${se.nome || si}`;
+        const open = isOpen(key, false);
+        const nv = se.video.filter((v) => v.url.trim()).length;
+        const head = h("div", { class: "pc-serata-head" }, fold(key, false), thumb,
+          h("div", { class: "pc-serata-name" }, h("span", { class: "pc-num" }, `Serata ${si + 1} · ${se.foto.length} foto, ${nv} video`), nm),
+          h("div", { class: "row-tools" }, h("button", { type: "button", title: poster ? "Togli la serata e la sua locandina" : "Togli la serata", onclick: remove }, "×")));
+        if (!open) return h("div", { class: "pc-serata closed" }, head);
+        return h("div", { class: "pc-serata" }, head,
           images(se.foto, "Foto", "+ Carica foto"),
           h("div", { class: "pc-images" }, h("h4", {}, "Video", h("small", { class: "muted" }, " · un link YouTube per ogni DJ (4 DJ = 4 link)")),
             rowsEditor(se.video, [["url", "Link YouTube (https://youtu.be/…)"], ["testo", "DJ (es. Novetik)"]], changed, "+ Aggiungi il video di un DJ")));
@@ -1452,14 +1468,17 @@ Testo da scrivere.
         if (poster) cat.locandine.splice(cat.locandine.indexOf(poster), 1); else cat.extra.splice(cat.extra.indexOf(se), 1);
         draw(); changed();
       };
-      return h("div", { class: "pc-cat" + (empty ? " empty" : "") },
-        h("div", { class: "pc-head" }, name,
+      const ckey = `${slug}|c|${cat.nome}`;
+      const catHead = (extra) => h("div", { class: "pc-head" }, fold(ckey, true), name, extra,
           h("div", { class: "row-tools" },
             h("button", { type: "button", title: "Sposta su", disabled: ci === 0 ? true : null, onclick: () => moveCat(-1) }, "↑"),
             h("button", { type: "button", title: "Sposta giù", disabled: ci === ps.cats.length - 1 ? true : null, onclick: () => moveCat(1) }, "↓"),
             h("button", { type: "button", title: "Togli la categoria", onclick: () => {
               if (!empty && !confirm(`Togliere la categoria “${cat.nome || "senza nome"}” con tutte le sue immagini e i video?`)) return;
-              ps.cats.splice(ci, 1); draw(); changed(); } }, "×"))),
+              ps.cats.splice(ci, 1); draw(); changed(); } }, "×")));
+      if (!isOpen(ckey, true)) return h("div", { class: "pc-cat closed" + (empty ? " empty" : "") },
+        catHead(h("small", { class: "pc-sum" }, `${cat.locandine.length} locandine · ${serate.length} serate · ${nPhotos} foto · ${nVideos} video`)));
+      return h("div", { class: "pc-cat" + (empty ? " empty" : "") }, catHead(null),
         empty ? h("p", { class: "hint" }, "Ancora vuota: sul sito non compare finché non aggiungi qualcosa.") : null,
         images(cat.locandine, "Locandine (il mazzo: la prima è davanti)", "+ Carica locandine", true),
         cat.locandine.length ? h("div", { class: "head-switch" }, toggle(cat.scarica, (v) => { cat.scarica = v; changed(); }),
