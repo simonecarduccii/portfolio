@@ -20,4 +20,4 @@ Testi segnaposto (lorem ipsum): servono a fissare struttura e lunghezze. Simone 
 
 ## Crediti
 
-Fotografie e testo: Simone Carducci · 2025 · © 2025 Simone Carducci. Tutti i diritti riservati.
+FOTOGRAFIE E TESTO: SIMONE CARDUCCI · 2025 · © 2025 SIMONE CARDUCCI. TUTTI I DIRITTI RISERVATI.
