@@ -12,6 +12,10 @@ on:
       - "img/**"
       - "tools/build_pages.py"
       - "tools/apply_photos.py"
+      - "tools/check_videos.py"
+  # every day: a YouTube video made private is hidden, one made public again comes back
+  schedule:
+    - cron: "17 5 * * *"
   workflow_dispatch:
 
 permissions:
@@ -35,6 +39,8 @@ jobs:
       - run: pip install pillow pillow-heif
       - name: Apply photos
         run: python3 tools/apply_photos.py
+      - name: Check YouTube videos
+        run: python3 tools/check_videos.py
       - name: Build pages
         run: python3 tools/build_pages.py
       - name: Check site
