@@ -17,4 +17,4 @@
 
 ## Crediti
 
-Fotografie e testo: Simone Carducci · 2024 · © 2024 Simone Carducci. Tutti i diritti riservati.
+
