@@ -630,10 +630,24 @@ def fact_value_html(v, link):
 VIDEO_FILE = re.compile(r"media/[a-z0-9][a-z0-9-]*/[\w.-]+\.(mp4|webm|mov|m4v)")
 
 
+def _unavailable_videos():
+    """YouTube ids that are private or removed, written by tools/check_videos.py (run by the "Update site" Action)."""
+    try:
+        return set(json.loads((ROOT / "content" / "video-status.json").read_text(encoding="utf-8")).get("unavailable", []))
+    except (OSError, ValueError, AttributeError):
+        return set()
+
+
+UNAVAILABLE_VIDEOS = _unavailable_videos()
+
+
 def video_embed(src):
-    """YouTube / Vimeo link -> embeddable player URL (YouTube without cookies), else None."""
+    """YouTube / Vimeo link -> embeddable player URL (YouTube without cookies), else None.
+    A private or removed YouTube video gives None too, so it is left out until it is public again."""
     m = re.search(r"(?:youtube\.com/(?:watch\?(?:.*&)?v=|shorts/|embed/|live/)|youtu\.be/)([\w-]{6,})", src)
     if m:
+        if m.group(1) in UNAVAILABLE_VIDEOS:
+            return None
         return f"https://www.youtube-nocookie.com/embed/{m.group(1)}"
     m = re.search(r"vimeo\.com/(?:video/|channels/[\w-]+/)?(\d+)", src)
     if m:

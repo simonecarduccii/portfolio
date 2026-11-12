@@ -359,6 +359,19 @@
   });
 })();
 
+// A YouTube video made private after the last build: YouTube's oEmbed answers 401/403/404, so it is skipped here too.
+// Any other answer (or no answer at all) counts as playable, so a failed check never hides a good video.
+var scVideoChecks = {};
+function scVideoOk(src) {
+  var m = /youtube(?:-nocookie)?\.com\/embed\/([\w-]{6,})/.exec(src || '');
+  if (!m || typeof fetch !== 'function') return Promise.resolve(true);
+  if (!scVideoChecks[m[1]]) {
+    scVideoChecks[m[1]] = fetch('https://www.youtube.com/oembed?format=json&url=' + encodeURIComponent('https://www.youtube.com/watch?v=' + m[1]))
+      .then(function (r) { return [401, 403, 404].indexOf(r.status) < 0; }, function () { return true; });
+  }
+  return scVideoChecks[m[1]];
+}
+
 // Videos one at a time: a random one when the page opens, "Un altro video" plays another (never the same twice in a row).
 function scRandomPlayer(box, autoplay) {
   var list = [];
@@ -372,6 +385,14 @@ function scRandomPlayer(box, autoplay) {
   var at = 0;
   function play(auto) {
     var v = list[order[at]];
+    scVideoOk(v.src).then(function (ok) {
+      if (ok || v !== list[order[at]]) return;
+      // private now: take it out and play the next one; none left = hide the whole section
+      order.splice(at, 1);
+      if (!order.length) { var s = box.closest('.page-videos'); (s || box).hidden = true; return; }
+      at = at % order.length;
+      play(auto);
+    });
     if (/^https?:/.test(v.src)) {
       holder.className = 'video';
       holder.innerHTML = '';
@@ -496,6 +517,7 @@ document.querySelectorAll('.page-videos .video-random').forEach(function (b) { s
     }).join('') + '</ul>';
     body.querySelectorAll('[data-v]').forEach(function (b) {
       b.addEventListener('click', function () { play(se, Number(b.getAttribute('data-v')), function () { djs(se, back); }); });
+      scVideoOk(se.videos[Number(b.getAttribute('data-v'))].src).then(function (ok) { if (!ok) b.parentNode.hidden = true; });
     });
   }
   function play(se, i, back) {
