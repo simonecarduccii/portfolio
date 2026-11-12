@@ -1263,6 +1263,7 @@ Testo da scrivere.
       post: (Array.isArray(data.post) ? data.post : []).filter((x) => x && typeof x === "object").map((x) => ({
         url: x.url || "", testo: x.testo || "", visibile: x.visibile !== false,
         img: x.immagine && tree[x.immagine] ? { orig: x.immagine, url: siteUrl(x.immagine) } : null,
+        video: typeof x.video === "string" && tree[x.video] ? x.video : "",
       })),
     };
     draft.ig = ig;
@@ -1280,11 +1281,25 @@ Testo da scrivere.
       cap.addEventListener("input", () => { pst.testo = cap.value; changed(); });
       const file = h("input", { type: "file", accept: "image/*", hidden: "" });
       file.addEventListener("change", async () => { const f = file.files[0]; const ph = f && isImage(f) && await newPhoto(f, MAX_SIDE); if (ph) { pst.img = ph; draw(); changed(); } });
+      // the reel's own video file: the site shows only the video, without Instagram's frame
+      const vfile = h("input", { type: "file", accept: "video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov,.m4v", hidden: "" });
+      vfile.addEventListener("change", () => {
+        const f = vfile.files[0];
+        if (!f) return;
+        if (f.size > VIDEO_MAX) { alert(`Il file pesa ${Math.round(f.size / 1048576)} MB: il massimo è 50 MB.`); return; }
+        const ext = ((f.name.match(/\.(mp4|webm|mov|m4v)$/i) || [])[1] || "mp4").toLowerCase();
+        pst.video = { video: true, blob: f, ext, name: f.name, url: URL.createObjectURL(f) };
+        draw(); changed();
+      });
+      const vsrc = pst.video && typeof pst.video === "object" ? pst.video.url : pst.video ? siteUrl(pst.video) : null;
       const move = (d) => { const j = i + d; if (j < 0 || j >= ig.post.length) return; [ig.post[i], ig.post[j]] = [ig.post[j], ig.post[i]]; draw(); changed(); };
       return h("div", { class: "ig-item" + (pst.visibile ? "" : " off") },
-        h("div", { class: "ig-thumb" }, pst.img ? h("img", { src: pst.img.url, alt: "" }) : h("span", { class: "ph" }, "senza foto: si vede il post di Instagram")),
+        h("div", { class: "ig-thumb" }, vsrc ? h("video", { src: vsrc, muted: "", playsinline: "", preload: "metadata" })
+          : pst.img ? h("img", { src: pst.img.url, alt: "" }) : h("span", { class: "ph" }, "senza video né foto: si vede il post di Instagram, con la sua cornice")),
         h("div", { class: "ig-fields" }, url, cap,
           h("div", { class: "photo-btns" },
+            h("label", { class: "btn small" }, vfile, pst.video ? "Cambia video" : "Carica il video"),
+            pst.video ? h("button", { type: "button", class: "btn small", onclick: () => { pst.video = ""; draw(); changed(); } }, "Togli il video") : null,
             h("label", { class: "btn small" }, file, pst.img ? "Cambia foto" : "Carica una foto"),
             libButton(false, ([p]) => { pst.img = p; draw(); changed(); }),
             pst.img ? h("button", { type: "button", class: "btn small", onclick: () => { pst.img = null; draw(); changed(); } }, "Togli la foto") : null,
@@ -1293,10 +1308,10 @@ Testo da scrivere.
           h("button", { type: "button", title: "Sposta su", disabled: i === 0 ? true : null, onclick: () => move(-1) }, "↑"),
           h("button", { type: "button", title: "Sposta giù", disabled: i === ig.post.length - 1 ? true : null, onclick: () => move(1) }, "↓"),
           h("button", { type: "button", title: "Togli il post", onclick: () => { ig.post.splice(i, 1); draw(); changed(); } }, "×")));
-    }), h("button", { type: "button", class: "btn small", onclick: () => { ig.post.push({ url: "", testo: "", visibile: true, img: null }); draw(); changed(); list.querySelector(".ig-item:last-of-type input").focus(); } }, "+ Aggiungi un post"));
+    }), h("button", { type: "button", class: "btn small", onclick: () => { ig.post.push({ url: "", testo: "", visibile: true, img: null, video: "" }); draw(); changed(); list.querySelector(".ig-item:last-of-type input").focus(); } }, "+ Aggiungi un post"));
     draw();
     return h("section", { class: "panel" }, h("h2", {}, "Post di Instagram"),
-      h("p", { class: "hint" }, "Incolla il link di ogni post (su Instagram: ··· → Copia link). Con una foto il post diventa un riquadro che porta a Instagram; senza foto il sito mostra il post di Instagram. Senza post la sezione non compare."),
+      h("p", { class: "hint" }, "Incolla il link di ogni post (su Instagram: ··· → Copia link). Con “Carica il video” (il file del reel, fino a 50 MB) il sito mostra solo il video, senza la cornice di Instagram, con sotto il link al post; la foto, se c'è, fa da copertina. Con solo una foto il post diventa un riquadro che porta a Instagram; senza niente il sito mostra il post di Instagram con la sua cornice. I post stanno al centro. Senza post la sezione non compare."),
       h("label", { class: "field", for: "ig-title" }, h("span", {}, "Titolo della sezione"), title),
       list);
   }
@@ -1516,7 +1531,7 @@ Testo da scrivere.
   async function instagramChanges(out) {
     const ig = draft.ig;
     if (!ig || !ig.dirty) return;
-    const used = new Set();
+    const used = new Set(), usedMedia = new Set();
     const post = [];
     for (const [i, pst] of ig.post.entries()) {
       if (!pst.url) continue;
@@ -1528,12 +1543,18 @@ Testo da scrivere.
         used.add(target);
         item.immagine = target;
       }
+      if (pst.video) {
+        if (typeof pst.video === "object" && !pst.video.path) pst.video.path = `media/${ig.slug}/ig-${igCode(pst.url) || newId()}.${pst.video.ext}`;
+        item.video = await putVideo(pst.video, ig.slug, out);
+        usedMedia.add(item.video);
+      }
       if (pst.testo.trim()) item.testo = pst.testo.trim();
       item.visibile = pst.visibile;
       post.push(item);
     }
     // photos of posts that were removed or lost their photo
     Object.keys(tree).forEach((p) => { if (p.startsWith(`img/${ig.slug}/ig-`) && !used.has(p) && !(p in out)) out[p] = null; });
+    Object.keys(tree).forEach((p) => { if (p.startsWith(`media/${ig.slug}/ig-`) && !usedMedia.has(p) && !(p in out)) out[p] = null; });
     const json = JSON.stringify({ titolo: ig.titolo.trim() || "Su Instagram", post }, null, 2) + "\n";
     if (json !== (texts[ig.path] || "")) out[ig.path] = await blobFrom({ text: json });
   }

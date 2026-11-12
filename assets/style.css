@@ -459,13 +459,18 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 .page-video figcaption { margin-top: 8px; font-size: 14px; color: var(--ink-2); }
 .ig-posts { padding: clamp(40px, 5vw, 64px) var(--pad) 0; }
 .ig-posts .small-title { margin-bottom: 16px; }
-.ig-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gutter); align-items: start; }
+.ig-posts .small-title { text-align: center; }
+.ig-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--gutter); align-items: flex-start; }
+.ig-grid > * { flex: 0 1 360px; min-width: 0; }
+.ig-post.ig-video .media { aspect-ratio: auto; background: #000; }
+.ig-video video { display: block; width: 100%; height: auto; max-height: 80svh; }
+.ig-posts .ig-caption { text-align: center; }
 .ig-post { display: block; }
 .ig-post .media { aspect-ratio: 4 / 5; }
 .ig-caption { display: block; margin-top: 8px; font-size: 13px; color: var(--ink-2); }
 a.ig-post:hover .ig-caption { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
 .ig-embed iframe { display: block; width: 100%; aspect-ratio: 4 / 6; border: 0; background: transparent; }
-@media (max-width: 640px) { .ig-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .ig-grid > * { flex-basis: 100%; } }
 
 /* ---------- Archive (mockup: full-screen photo with the index) ---------- */
 .archive-cover { height: 100svh; min-height: 520px; }
