@@ -27,7 +27,7 @@
     },
     {
       "etichetta": "Djs",
-      "valore": "Florian Voci, Paolo Tosto, Felix Alexandre Drechsler, Giulio Capece, Damiano Pierrotti, Merlin Massan",
+      "valore": "Florian Voci, Paolo Tosto, Felix Alexandre Drechsler, Giulio Capece, Damiano Pierrotti, Merlin Massan, altri",
       "link": ""
     },
     {
@@ -36,7 +36,12 @@
       "link": ""
     },
     {
-      "etichetta": "Where",
+      "etichetta": "Dove",
+      "valore": "Granada (ES)",
+      "link": ""
+    },
+    {
+      "etichetta": "Instagram",
       "valore": "@colectivomodi",
       "link": "https://www.instagram.com/colectivomodi/"
     }
