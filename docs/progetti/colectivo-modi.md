@@ -11,7 +11,7 @@
 
 ## In breve
 
-Un collettivo che organizza serate, filma i DJ set e li pubblica, perché una serata non finisca quando si spengono le luci.
+Serate, DJ set e arte: un collettivo che filma la notte perché non finisca quando si accendono le luci.
 
 ## Testo pagina (mockup: 3–4 paragrafi da 60–90 parole, senza titoletti)
 

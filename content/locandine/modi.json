@@ -6,7 +6,33 @@
     },
     {
       "nome": "Die Neue Brüke",
-      "cartella": "die-neue-bruke"
+      "cartella": "die-neue-bruke",
+      "video": [
+        {
+          "url": "https://youtu.be/XwZf_MF1fxM",
+          "testo": "Novetik - Die Neue Brüke I"
+        },
+        {
+          "url": "https://youtu.be/8RPl-Usxi0E",
+          "testo": "Maïwenn B2B Merlin - Die Neue Brüke I"
+        },
+        {
+          "url": "https://youtu.be/rBSP5Guy_-c",
+          "testo": "Simo! - Die Neue Brüke II"
+        },
+        {
+          "url": "https://youtu.be/f-L7mEbKdzA",
+          "testo": "Maïwenn - Die Neue Brüke II"
+        },
+        {
+          "url": "https://youtu.be/_edxl1Trm_4",
+          "testo": "Merlin - Die Neue Brüke II"
+        },
+        {
+          "url": "https://youtu.be/1vZhwbCFY3s",
+          "testo": "Giulio - Die Neue Brüke II"
+        }
+      ]
     },
     {
       "nome": "Open Sound",
@@ -14,7 +40,13 @@
     },
     {
       "nome": "Friday at Modì",
-      "cartella": "friday-at-modi"
+      "cartella": "friday-at-modi",
+      "video": [
+        {
+          "url": "https://youtu.be/6ktb6A-vUho",
+          "testo": "Panic & Simo! - Friday at Modì I"
+        }
+      ]
     }
   ]
 }
