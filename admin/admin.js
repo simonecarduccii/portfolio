@@ -1336,18 +1336,25 @@ Testo da scrivere.
       .map((p) => ({ orig: p, sha: tree[p], url: siteUrl(p) }));
     // print-quality original of a poster (for the download button): stampa/<slug>/<cartella>/NN.jpg or .png
     const rawOf = (p) => { const b = p.replace(/\.jpg$/, ""); const q = [".jpg", ".png"].map((e) => b + e).find((x) => tree[x]); return q ? { sha: tree[q], ext: q.slice(-3) } : null; };
+    const vids = (arr) => (Array.isArray(arr) ? arr : []).filter((v) => v && typeof v === "object").map((v) => ({ url: v.url || "", testo: v.testo || "" }));
+    // one evening per poster (same order), each with its photos img/<slug>/<cartella>/foto/<serata>/01.jpg ... and its videos
+    // (one per DJ set); the evening travels with its poster when you reorder the deck. Evenings beyond the posters stay
+    // in "extra"; older photos straight in foto/ and videos of the whole category go to the first evening.
+    const serateOf = (c) => {
+      const locandine = filesOf(`img/${slug}/${c.cartella}`).map((f) => ({ ...f, raw: rawOf(f.orig.replace(/^img\//, "stampa/")) }));
+      const raw = (Array.isArray(c.serate) ? c.serate : []).filter((x) => x && typeof x === "object");
+      const all = raw.map((x) => ({ nome: x.nome || "", foto: x.cartella ? filesOf(`img/${slug}/${c.cartella}/foto/${x.cartella}`) : [], video: vids(x.video) }));
+      const flat = filesOf(`img/${slug}/${c.cartella}/foto`), old = vids(c.video);
+      if ((flat.length || old.length) && !all.length) all.push({ nome: "", foto: [], video: [] });
+      if (all.length) { all[0].foto.unshift(...flat); all[0].video.push(...old); }
+      locandine.forEach((l, i) => { l.serata = all[i] || { nome: "", foto: [], video: [] }; });
+      return { locandine, extra: all.slice(locandine.length) };
+    };
     const ps = { path, slug, dirty: false, dimensione: ["piccole", "medie", "grandi"].includes(data.dimensione) ? data.dimensione : "medie",
       cats: (Array.isArray(data.categorie) ? data.categorie : []).filter((c) => c && typeof c === "object" && c.cartella).map((c) => ({
         nome: c.nome || "",
         scarica: c.scarica !== false,
-        locandine: filesOf(`img/${slug}/${c.cartella}`).map((f) => ({ ...f, raw: rawOf(f.orig.replace(/^img\//, "stampa/")) })),
-        // event photos divided by evening: img/<slug>/<cartella>/foto/<serata>/01.jpg ... (older photos straight in foto/ become one evening)
-        serate: [
-          ...(filesOf(`img/${slug}/${c.cartella}/foto`).length ? [{ nome: "Serata", foto: filesOf(`img/${slug}/${c.cartella}/foto`) }] : []),
-          ...(Array.isArray(c.serate) ? c.serate : []).filter((x) => x && typeof x === "object" && x.cartella)
-            .map((x) => ({ nome: x.nome || "", foto: filesOf(`img/${slug}/${c.cartella}/foto/${x.cartella}`) })),
-        ],
-        video: (Array.isArray(c.video) ? c.video : []).filter((v) => v && typeof v === "object").map((v) => ({ url: v.url || "", testo: v.testo || "" })),
+        ...serateOf(c),
       })) };
     draft.posters = ps;
     const changed = () => { ps.dirty = true; markDirty(); };
@@ -1374,7 +1381,10 @@ Testo da scrivere.
           h("span", { class: "num" }, String(i + 1)),
           h("div", { class: "tools" },
             h("button", { type: "button", title: "Prima", onclick: () => { if (i) { arr.splice(i - 1, 0, arr.splice(i, 1)[0]); draw(); changed(); } } }, "←"),
-            h("button", { type: "button", title: "Togli", onclick: () => { arr.splice(i, 1); draw(); changed(); } }, "×"),
+            h("button", { type: "button", title: "Togli", onclick: () => {
+              const se = f.serata;
+              if (se && (se.foto.length || se.video.some((v) => v.url.trim())) && !confirm(`Togliendo la locandina togli anche la sua serata “${se.nome || `Serata ${i + 1}`}” con foto e video. Continuare?`)) return;
+              arr.splice(i, 1); draw(); changed(); } }, "×"),
             h("button", { type: "button", title: "Dopo", onclick: () => { if (i < arr.length - 1) { arr.splice(i + 1, 0, arr.splice(i, 1)[0]); draw(); changed(); } } }, "→"))))) : null,
         h("div", { class: "photo-btns" }, h("label", { class: "btn small" }, file, addLabel),
           libButton(true, (picked) => { arr.push(...picked); draw(); changed(); })));
@@ -1386,8 +1396,24 @@ Testo da scrivere.
       name.value = cat.nome;
       name.addEventListener("input", () => { cat.nome = name.value; changed(); });
       const moveCat = (d) => { const j = ci + d; if (j < 0 || j >= ps.cats.length) return; [ps.cats[ci], ps.cats[j]] = [ps.cats[j], ps.cats[ci]]; draw(); changed(); };
-      const nPhotos = cat.serate.reduce((n, x) => n + x.foto.length, 0);
-      const empty = !cat.locandine.length && !nPhotos && !cat.video.some((v) => v.url.trim());
+      cat.locandine.forEach((l) => { if (!l.serata) l.serata = { nome: "", foto: [], video: [] }; });
+      const serate = [...cat.locandine.map((l) => l.serata), ...cat.extra];
+      const nPhotos = serate.reduce((n, x) => n + x.foto.length, 0);
+      const nVideos = serate.reduce((n, x) => n + x.video.filter((v) => v.url.trim()).length, 0);
+      const empty = !cat.locandine.length && !nPhotos && !nVideos;
+      const serataBox = (se, si, poster, remove) => {
+        const nm = h("input", { type: "text", placeholder: `Nome della serata (es. ${cat.nome || "POP NO POP"} I · 26/02)`, "aria-label": "Nome della serata" });
+        nm.value = se.nome;
+        nm.addEventListener("input", () => { se.nome = nm.value; changed(); });
+        return h("div", { class: "pc-serata" },
+          h("div", { class: "pc-head" },
+            poster ? h("img", { class: "pc-thumb", src: poster.url, alt: "" }) : null,
+            h("span", { class: "pc-num" }, `Serata ${si + 1}`), nm,
+            remove ? h("div", { class: "row-tools" }, h("button", { type: "button", title: "Togli la serata", onclick: remove }, "×")) : null),
+          images(se.foto, "Foto della serata", "+ Carica foto"),
+          h("div", { class: "pc-images" }, h("h4", {}, "Video della serata", h("small", { class: "muted" }, " · un link YouTube per ogni DJ set")),
+            rowsEditor(se.video, [["url", "Link (https://youtu.be/…)"], ["testo", "DJ (es. Novetik)"]], changed, "+ Aggiungi un DJ set")));
+      };
       return h("div", { class: "pc-cat" + (empty ? " empty" : "") },
         h("div", { class: "pc-head" }, name,
           h("div", { class: "row-tools" },
@@ -1401,27 +1427,14 @@ Testo da scrivere.
         cat.locandine.length ? h("div", { class: "head-switch" }, toggle(cat.scarica, (v) => { cat.scarica = v; changed(); }),
           h("small", {}, "Locandine scaricabili (pulsante “Scarica” sotto ognuna, in qualità originale per la stampa)")) : null,
         h("div", { class: "pc-images pc-serate" },
-          h("h4", {}, "Foto delle serate", h("small", { class: "muted" }, nPhotos ? ` · ${nPhotos}` : " · nessuna: non compare")),
-          h("p", { class: "hint" }, "Una serata per ogni evento (es. “Acto I · 26/02/2026”): sul sito le foto restano divise per serata, nel pulsante “Foto” sotto le locandine e nella Galleria, che fa da archivio."),
-          ...cat.serate.map((se, si) => {
-            const nm = h("input", { type: "text", placeholder: "Nome della serata (es. Acto I · 26/02/2026)", "aria-label": "Nome della serata" });
-            nm.value = se.nome;
-            nm.addEventListener("input", () => { se.nome = nm.value; changed(); });
-            const mv = (d) => { const j = si + d; if (j < 0 || j >= cat.serate.length) return; [cat.serate[si], cat.serate[j]] = [cat.serate[j], cat.serate[si]]; draw(); changed(); };
-            return h("div", { class: "pc-serata" },
-              h("div", { class: "pc-head" }, nm,
-                h("div", { class: "row-tools" },
-                  h("button", { type: "button", title: "Sposta su", disabled: si === 0 ? true : null, onclick: () => mv(-1) }, "↑"),
-                  h("button", { type: "button", title: "Sposta giù", disabled: si === cat.serate.length - 1 ? true : null, onclick: () => mv(1) }, "↓"),
-                  h("button", { type: "button", title: "Togli la serata", onclick: () => {
-                    if (se.foto.length && !confirm(`Togliere la serata “${se.nome || "senza nome"}” e le sue ${se.foto.length} foto?`)) return;
-                    cat.serate.splice(si, 1); draw(); changed(); } }, "×"))),
-              images(se.foto, "Foto", "+ Carica foto"));
-          }),
-          h("button", { type: "button", class: "btn small", onclick: () => { cat.serate.push({ nome: "", foto: [] }); draw(); changed(); } }, "+ Aggiungi una serata")),
-        h("div", { class: "pc-images" }, h("h4", {}, "Video (YouTube o Vimeo, es. i DJ set)"),
-          rowsEditor(cat.video, [["url", "Link (https://youtu.be/…)"], ["testo", "Didascalia (facoltativa)"]], changed, "+ Aggiungi un video")));
-    }), h("button", { type: "button", class: "btn small", onclick: () => { ps.cats.push({ nome: "", scarica: true, locandine: [], serate: [], video: [] }); draw(); changed(); list.querySelector(".pc-cat:last-of-type input").focus(); } }, "+ Aggiungi una categoria"));
+          h("h4", {}, "Serate", h("small", { class: "muted" }, ` · ${nPhotos} foto, ${nVideos} video`)),
+          h("p", { class: "hint" }, "Una serata per ogni locandina, nello stesso ordine: aggiungi una locandina e compare la sua serata, spostala e la serata la segue. Per ogni serata le foto e un link YouTube per ogni DJ (4 DJ = 4 link). Sul sito, “Foto” e “Video” sotto le locandine fanno scegliere prima la serata; la sezione Video e la Galleria prendono tutto da qui."),
+          ...cat.locandine.map((l, i) => serataBox(l.serata, i, l, null)),
+          ...cat.extra.map((se, k) => serataBox(se, cat.locandine.length + k, null, () => {
+            if ((se.foto.length || se.video.some((v) => v.url.trim())) && !confirm(`Togliere la serata “${se.nome || "senza nome"}” con le sue foto e i video?`)) return;
+            cat.extra.splice(k, 1); draw(); changed(); })),
+          cat.locandine.length ? null : h("button", { type: "button", class: "btn small", onclick: () => { cat.extra.push({ nome: "", foto: [], video: [] }); draw(); changed(); } }, "+ Aggiungi una serata senza locandina")));
+    }), h("button", { type: "button", class: "btn small", onclick: () => { ps.cats.push({ nome: "", scarica: true, locandine: [], extra: [] }); draw(); changed(); list.querySelector(".pc-cat:last-of-type input").focus(); } }, "+ Aggiungi una categoria"));
     draw();
     const size = h("select", { id: "pc-size" }, [["piccole", "Piccole"], ["medie", "Medie"], ["grandi", "Grandi"]].map(([v, t]) => h("option", { value: v }, t)));
     size.value = ps.dimensione;
@@ -1436,7 +1449,8 @@ Testo da scrivere.
     const ps = draft.posters;
     if (!ps || !ps.dirty) return;
     const used = new Set(), names = new Set(), categorie = [];
-    await uploadAll(ps.cats.flatMap((c) => [...c.locandine, ...c.serate.flatMap((x) => x.foto)]).filter((f) => f.blob && !f.sha));
+    const serateOf = (c) => [...c.locandine.map((l) => l.serata || { nome: "", foto: [], video: [] }), ...c.extra];
+    await uploadAll(ps.cats.flatMap((c) => [...c.locandine, ...serateOf(c).flatMap((x) => x.foto)]).filter((f) => f.blob && !f.sha));
     await uploadAll(ps.cats.flatMap((c) => c.locandine.map((f) => f.raw)).filter((r) => r && r.blob && !r.sha));
     const place = (arr, dir) => arr.forEach((f, i) => {
       const target = `${dir}/${String(i + 1).padStart(2, "0")}.jpg`;
@@ -1448,16 +1462,16 @@ Testo da scrivere.
     });
     for (const cat of ps.cats) {
       const nome = cat.nome.trim();
-      const video = cat.video.map((v) => ({ url: v.url.trim(), testo: v.testo.trim() })).filter((v) => v.url).map((v) => (v.testo ? v : { url: v.url }));
-      const nPhotos = cat.serate.reduce((n, x) => n + x.foto.length, 0);
-      if (!nome && !cat.locandine.length && !nPhotos && !video.length) continue;
+      const clean = (arr) => arr.map((v) => ({ url: v.url.trim(), testo: v.testo.trim() })).filter((v) => v.url).map((v) => (v.testo ? v : { url: v.url }));
+      const all = serateOf(cat);
+      const has = all.some((x) => x.foto.length || clean(x.video).length);
+      if (!nome && !cat.locandine.length && !has) continue;
       const base = catFolder(nome || "categoria");
       let folder = base, k = 2;
       while (names.has(folder)) folder = `${base}-${k++}`;
       names.add(folder);
       const entry = { nome: nome || "Senza nome", cartella: folder };
       if (!cat.scarica) entry.scarica = false;
-      if (video.length) entry.video = video;
       categorie.push(entry);
       place(cat.locandine, `img/${ps.slug}/${folder}`);
       cat.locandine.forEach((f, i) => {
@@ -1466,15 +1480,19 @@ Testo da scrivere.
         used.add(target);
         if (tree[target] !== f.raw.sha) out[target] = f.raw.sha;
       });
+      // one evening per poster (kept even when empty, so the order matches), then the evenings without a poster
       const serate = [], sNames = new Set();
-      cat.serate.forEach((se, si) => {
-        const sn = se.nome.trim();
-        if (!sn && !se.foto.length) return;
+      all.forEach((se, si) => {
+        const sn = se.nome.trim(), video = clean(se.video);
+        if (si >= cat.locandine.length && !sn && !se.foto.length && !video.length) return;
         const sb = catFolder(sn || `serata-${si + 1}`);
         let sf = sb, sk = 2;
         while (sNames.has(sf)) sf = `${sb}-${sk++}`;
         sNames.add(sf);
-        serate.push({ nome: sn || `Serata ${si + 1}`, cartella: sf });
+        const item = { cartella: sf };
+        if (sn) item.nome = sn;
+        if (video.length) item.video = video;
+        serate.push(item);
         place(se.foto, `img/${ps.slug}/${folder}/foto/${sf}`);
       });
       if (serate.length) entry.serate = serate;

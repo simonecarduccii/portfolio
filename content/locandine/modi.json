@@ -7,50 +7,89 @@
         {
           "nome": "Serata 1",
           "cartella": "serata-1"
+        },
+        {
+          "cartella": "serata-2"
+        },
+        {
+          "cartella": "serata-3"
+        },
+        {
+          "cartella": "serata-4"
+        },
+        {
+          "cartella": "serata-5"
         }
       ]
     },
     {
       "nome": "Die Neue Brüke",
       "cartella": "die-neue-bruke",
-      "video": [
+      "serate": [
         {
-          "url": "https://youtu.be/XwZf_MF1fxM",
-          "testo": "Novetik - Die Neue Brüke I"
+          "nome": "Die Neue Brüke I · 26/03",
+          "cartella": "serata-1",
+          "video": [
+            {
+              "url": "https://youtu.be/XwZf_MF1fxM",
+              "testo": "Novetik - Die Neue Brüke I"
+            },
+            {
+              "url": "https://youtu.be/8RPl-Usxi0E",
+              "testo": "Maïwenn B2B Merlin - Die Neue Brüke I"
+            }
+          ]
         },
         {
-          "url": "https://youtu.be/8RPl-Usxi0E",
-          "testo": "Maïwenn B2B Merlin - Die Neue Brüke I"
+          "nome": "Die Neue Brüke II · 23/04",
+          "cartella": "serata-2",
+          "video": [
+            {
+              "url": "https://youtu.be/rBSP5Guy_-c",
+              "testo": "Simo! - Die Neue Brüke II"
+            },
+            {
+              "url": "https://youtu.be/f-L7mEbKdzA",
+              "testo": "Maïwenn - Die Neue Brüke II"
+            },
+            {
+              "url": "https://youtu.be/_edxl1Trm_4",
+              "testo": "Merlin - Die Neue Brüke II"
+            },
+            {
+              "url": "https://youtu.be/1vZhwbCFY3s",
+              "testo": "Giulio - Die Neue Brüke II"
+            }
+          ]
         },
         {
-          "url": "https://youtu.be/rBSP5Guy_-c",
-          "testo": "Simo! - Die Neue Brüke II"
-        },
-        {
-          "url": "https://youtu.be/f-L7mEbKdzA",
-          "testo": "Maïwenn - Die Neue Brüke II"
-        },
-        {
-          "url": "https://youtu.be/_edxl1Trm_4",
-          "testo": "Merlin - Die Neue Brüke II"
-        },
-        {
-          "url": "https://youtu.be/1vZhwbCFY3s",
-          "testo": "Giulio - Die Neue Brüke II"
+          "nome": "Die Neue Brüke III · 28/05",
+          "cartella": "serata-3"
         }
       ]
     },
     {
       "nome": "Open Sound",
-      "cartella": "open-sound"
+      "cartella": "open-sound",
+      "serate": [
+        {
+          "cartella": "serata-1"
+        }
+      ]
     },
     {
       "nome": "Friday at Modì",
       "cartella": "friday-at-modi",
-      "video": [
+      "serate": [
         {
-          "url": "https://youtu.be/6ktb6A-vUho",
-          "testo": "Panic & Simo! - Friday at Modì I"
+          "nome": "Friday at Modì I",
+          "cartella": "serata-1",
+          "video": [
+            {
+              "url": "https://youtu.be/6ktb6A-vUho",
+              "testo": "Panic & Simo! - Friday at Modì I"
+            }
+          ]
         }
       ]
     }
