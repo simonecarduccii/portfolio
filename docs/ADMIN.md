@@ -176,21 +176,23 @@ Una volta salvate, le colonne del footer non seguono più da sole i cambi fatti 
 
 ## Eventi per categoria (pagine Bohème e Colectivo modì)
 
-Pannello "Eventi per categoria": ogni categoria (es. POP NO POP, Die Neue Brüke) è un blocco della pagina con
-le locandine a mazzo di carte (una colonna per categoria, tutte su una riga, frecce ← → o swipe), le foto dell'evento e i video (YouTube/Vimeo, es. i DJ set).
-Quello che è vuoto non compare, e nemmeno una categoria tutta vuota.
+Pannello "Eventi per categoria": ogni categoria (es. POP NO POP, Die Neue Brüke) è un mazzo di locandine
+(una colonna per categoria, tutte su una riga, frecce ← → o swipe). Ogni locandina è una **serata**: sotto le locandine
+il pannello mostra da solo una serata per ognuna, nello stesso ordine (aggiungi una locandina e compare la sua serata,
+spostala e la serata la segue, toglila e la serata va via con lei). Per ogni serata: un nome (es. "Acto I · 26/02"),
+le foto e un link YouTube per ogni DJ set (4 DJ = 4 link). Quello che è vuoto non compare.
 
-- Dati: `content/locandine/<pagina>.json` = `{categorie: [{nome, cartella, video: [{url, testo}], scarica}]}`.
-- Locandine: `img/<pagina>/<cartella>/01.jpg …`; foto dell'evento: `img/<pagina>/<cartella>/foto/01.jpg …`.
+- Dati: `content/locandine/<pagina>.json` = `{categorie: [{nome, cartella, scarica, serate: [{nome, cartella, video: [{url, testo}]}]}]}`,
+  `serate[i]` è la serata della locandina `i`. Una categoria senza locandine può avere serate ("+ Aggiungi una serata senza locandina").
+- Locandine: `img/<pagina>/<cartella>/01.jpg …`; foto di una serata: `img/<pagina>/<cartella>/foto/<serata>/01.jpg …`.
 - Download: sotto ogni locandina c'è "Scarica la locandina", con l'originale caricato (JPEG/PNG fino a 25 MB,
   in `stampa/<pagina>/<cartella>/01.jpg`); senza originale si scarica la versione del sito. L'interruttore
   "Locandine scaricabili" lo spegne per una categoria (`"scarica": false`).
 - Spostando le immagini, ognuna tiene il file che aveva quando il pannello è stato aperto: una modifica fatta
   altrove nel frattempo non le rimescola (vale anche per "Foto della pagina").
-- Ordine della pagina (Bohème e Colectivo modì): testo, mazzi di locandine, foto e video per categoria, poi la
-  sezione "Video" (con più video, un player con la lista sotto) e infine la "Galleria", cioè le foto di
-  "Foto della pagina", cinque per riga.
-- Sotto ogni mazzo di locandine ci sono i pulsanti "Foto" e "Video" della categoria (compaiono solo se la categoria ne ha):
-  aprono una finestra con le foto una alla volta, o un video a caso con "Un altro video". La sezione "Video" più in
-  basso mostra un video alla volta, scelto a caso tra quelli del pannello Video e quelli di tutte le categorie.
-  Le foto di una categoria senza locandine finiscono nella Galleria.
+- Sul sito, sotto ogni mazzo, "Foto" e "Video" (solo se la categoria ne ha) aprono una finestra: prima si sceglie
+  la serata (dalla sua locandina), poi la griglia di tutte le sue foto (clic = foto grande) o la lista dei DJ (clic = video).
+- Ordine della pagina (Bohème e Colectivo modì): testo, mazzi di locandine, Social, "Video DJ set" (un video alla volta,
+  a caso tra tutti quelli delle serate e del pannello Video, a tutta larghezza su banda nera) e infine la "Galleria":
+  5 × 2 foto prese a caso da tutte le serate e da "Foto della pagina"; la freccia → in alto a destra ne pesca altre
+  dieci, ← torna alle precedenti, i pulsanti sopra mostrano una sola serata.

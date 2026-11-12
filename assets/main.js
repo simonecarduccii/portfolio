@@ -396,7 +396,8 @@ function scRandomPlayer(box, autoplay) {
 }
 document.querySelectorAll('.page-videos .video-random').forEach(function (b) { scRandomPlayer(b, false); });
 
-// "Foto" / "Video" under each poster deck: a window with that event's photos (one at a time) or one of its videos.
+// "Foto" / "Video" under each poster deck: a window where you first choose the evening (by its poster),
+// then a grid of all its photos (click one to see it large) or the list of its DJ sets (click one to watch it).
 (function () {
   var dlg = document.querySelector('.ev-dialog');
   if (!dlg || typeof dlg.showModal !== 'function') {
@@ -405,30 +406,56 @@ document.querySelectorAll('.page-videos .video-random').forEach(function (b) { s
   }
   var title = dlg.querySelector('.ev-dialog-title');
   var body = dlg.querySelector('.ev-dialog-body');
-  function esc(t) { var d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
-  function photos(items) {
-    var i = 0;
-    // evenings: buttons to jump to the first photo of each one
-    var names = [];
-    items.forEach(function (it, k) { if (names.indexOf(it.serata || '') < 0) names.push(it.serata || ''); });
-    var chips = names.length > 1 ? '<div class="ev-serate">' + names.map(function (n, k) {
-      return '<button type="button" data-serata="' + k + '">' + esc(n || 'Senza nome') + '</button>'; }).join('') + '</div>' : '';
-    body.innerHTML = chips + '<img class="ev-photo" alt=""><div class="ev-photo-nav"><button type="button" data-s="-1" aria-label="Foto precedente">&larr;</button>' +
+  var ev = null; // {name, kind, label, serate}
+  function esc(t) { var d = document.createElement('div'); d.textContent = t == null ? '' : t; return d.innerHTML; }
+  function ytId(src) { var m = /youtube(?:-nocookie)?\.com\/embed\/([\w-]{6,})/.exec(src || ''); return m ? m[1] : ''; }
+  // header: "POP NO POP · Foto" then the evening, with a link back to the step before
+  function head(back, parts) {
+    title.innerHTML = (back ? '<button type="button" class="ev-back" aria-label="Indietro">&larr;</button>' : '') +
+      parts.map(esc).join(' <span class="ev-sep">·</span> ');
+    var bb = title.querySelector('.ev-back');
+    if (bb) bb.addEventListener('click', back);
+    body.onkeydown = null;
+  }
+  function pickSerata() {
+    var list = ev.serate;
+    if (list.length === 1) return open(0, false);
+    head(null, [ev.name, ev.label]);
+    body.innerHTML = '<p class="ev-step">Scegli la serata</p><ul class="ev-serate-grid">' + list.map(function (se, k) {
+      var n = ev.kind === 'foto' ? se.photos.length + ' foto' : se.videos.length + (se.videos.length === 1 ? ' video' : ' video');
+      return '<li><button type="button" data-k="' + k + '">' +
+        (se.poster ? '<img src="' + esc(se.poster) + '" alt="" loading="lazy">' : '<span class="ev-noposter"></span>') +
+        '<span class="ev-sname">' + esc(se.name) + '</span><span class="ev-snum">' + n + '</span></button></li>';
+    }).join('') + '</ul>';
+    body.querySelectorAll('[data-k]').forEach(function (b) {
+      b.addEventListener('click', function () { open(Number(b.getAttribute('data-k')), true); });
+    });
+    var first = body.querySelector('[data-k]'); if (first) first.focus();
+  }
+  function open(k, fromList) {
+    var se = ev.serate[k];
+    var back = fromList ? pickSerata : null;
+    if (ev.kind === 'foto') grid(se, back); else djs(se, back);
+  }
+  function grid(se, back) {
+    head(back, [ev.name, se.name]);
+    body.innerHTML = '<ul class="ev-grid">' + se.photos.map(function (p, i) {
+      return '<li><button type="button" data-i="' + i + '"><img src="' + esc(p.src) + '" alt="' + esc(p.alt) + '" loading="lazy"></button></li>';
+    }).join('') + '</ul>';
+    body.querySelectorAll('[data-i]').forEach(function (b) {
+      b.addEventListener('click', function () { photo(se, Number(b.getAttribute('data-i')), back); });
+    });
+  }
+  function photo(se, i, backToList) {
+    var items = se.photos;
+    head(function () { grid(se, backToList); }, [ev.name, se.name]);
+    body.innerHTML = '<img class="ev-photo" alt=""><div class="ev-photo-nav"><button type="button" data-s="-1" aria-label="Foto precedente">&larr;</button>' +
       '<span class="poster-count"></span><button type="button" data-s="1" aria-label="Foto successiva">&rarr;</button></div>';
     var im = body.querySelector('img'), count = body.querySelector('.poster-count');
-    function show() {
-      im.src = items[i].src; im.alt = items[i].alt || ''; count.textContent = (i + 1) + ' / ' + items.length;
-      var cur = names.indexOf(items[i].serata || '');
-      body.querySelectorAll('[data-serata]').forEach(function (b) { b.setAttribute('aria-pressed', Number(b.getAttribute('data-serata')) === cur ? 'true' : 'false'); });
-    }
-    body.addEventListener('click', function (e) {
-      var b = e.target.closest('[data-serata]'); if (!b) return;
-      var n = names[Number(b.getAttribute('data-serata'))];
-      for (var k = 0; k < items.length; k++) if ((items[k].serata || '') === n) { i = k; break; }
-      show();
-    });
-    body.querySelector('.ev-photo-nav').hidden = items.length < 2;
-    body.querySelector('.ev-photo-nav').addEventListener('click', function (e) {
+    function show() { im.src = items[i].src; im.alt = items[i].alt || ''; count.textContent = (i + 1) + ' / ' + items.length; }
+    var nav = body.querySelector('.ev-photo-nav');
+    nav.hidden = items.length < 2;
+    nav.addEventListener('click', function (e) {
       var b = e.target.closest('[data-s]'); if (!b) return;
       i = (i + Number(b.getAttribute('data-s')) + items.length) % items.length; show();
     });
@@ -438,22 +465,37 @@ document.querySelectorAll('.page-videos .video-random').forEach(function (b) { s
     };
     show();
   }
-  function videos(items) {
-    body.onkeydown = null;
-    body.innerHTML = '<div class="video-random"><div class="video"></div><div class="vr-foot"><p class="vr-caption"></p>' +
-      (items.length > 1 ? '<button type="button" class="vr-next">Un altro video &#8635;</button>' : '') + '</div></div>';
+  function djs(se, back) {
+    if (se.videos.length === 1) return play(se, 0, back);
+    head(back, [ev.name, se.name]);
+    body.innerHTML = '<p class="ev-step">Scegli il DJ set</p><ul class="ev-djs">' + se.videos.map(function (v, i) {
+      var id = ytId(v.src);
+      return '<li><button type="button" data-v="' + i + '">' +
+        (id ? '<img src="https://i.ytimg.com/vi/' + id + '/mqdefault.jpg" alt="" loading="lazy">' : '<span class="ev-noposter"></span>') +
+        '<span class="ev-sname">' + esc(v.title) + '</span></button></li>';
+    }).join('') + '</ul>';
+    body.querySelectorAll('[data-v]').forEach(function (b) {
+      b.addEventListener('click', function () { play(se, Number(b.getAttribute('data-v')), function () { djs(se, back); }); });
+    });
+  }
+  function play(se, i, back) {
+    var v = se.videos[i];
+    head(back, [ev.name, se.name]);
+    body.innerHTML = '<div class="video-random"><div class="video"></div><div class="vr-foot"><p class="vr-caption"></p></div></div>';
     var box = body.firstChild;
-    box.setAttribute('data-videos', JSON.stringify(items));
+    box.setAttribute('data-videos', JSON.stringify([v]));
     scRandomPlayer(box, true);
   }
   document.addEventListener('click', function (e) {
     var b = e.target.closest('.ev-btn');
     if (!b) return;
-    var items = [];
-    try { items = JSON.parse(b.getAttribute('data-items') || '[]'); } catch (err) { return; }
-    if (!items.length) return;
-    title.textContent = b.getAttribute('data-title') + ' · ' + b.textContent;
-    if (b.getAttribute('data-kind') === 'foto') photos(items); else videos(items);
+    var all = [];
+    try { all = JSON.parse(b.getAttribute('data-serate') || '[]'); } catch (err) { return; }
+    var kind = b.getAttribute('data-kind');
+    var serate = all.filter(function (se) { return kind === 'foto' ? se.photos.length : se.videos.length; });
+    if (!serate.length) return;
+    ev = { name: b.getAttribute('data-title'), kind: kind, label: b.textContent, serate: serate };
+    pickSerata();
     dlg.showModal();
   });
   dlg.addEventListener('keydown', function (e) { if (body.onkeydown) body.onkeydown(e); });
@@ -462,7 +504,8 @@ document.querySelectorAll('.page-videos .video-random').forEach(function (b) { s
   dlg.addEventListener('close', function () { body.innerHTML = ''; }); // stops the video
 })();
 
-// Galleria: ten photos at a time (5 x 2) in random order, arrows for the others; the buttons show one evening only.
+// Galleria: always ten cells (5 x 2) with photos picked at random from every evening; the arrow top right picks ten
+// others, the one on its left goes back; the buttons show one evening only.
 (function () {
   document.querySelectorAll('.page-gallery').forEach(function (sec) {
     var grid = sec.querySelector('.gallery-grid');
@@ -470,28 +513,38 @@ document.querySelectorAll('.page-videos .video-random').forEach(function (b) { s
     var nav = sec.querySelector('.g-nav');
     if (!grid) return;
     var all = [].slice.call(grid.querySelectorAll('.g-item'));
-    for (var k = all.length - 1; k > 0; k--) { var j = Math.floor(Math.random() * (k + 1)); var t = all[k]; all[k] = all[j]; all[j] = t; }
-    all.forEach(function (el) { grid.appendChild(el); });
-    var PER = 10, page = 0, g = '';
-    function shown() { return all.filter(function (el) { return g === '' || el.getAttribute('data-g') === g; }); }
-    function draw() {
-      var list = shown(), pages = Math.max(1, Math.ceil(list.length / PER));
-      page = (page + pages) % pages;
-      all.forEach(function (el) { el.hidden = true; });
-      list.slice(page * PER, page * PER + PER).forEach(function (el) { el.hidden = false; });
-      if (nav) { nav.hidden = pages < 2; nav.querySelector('.poster-count').textContent = (page + 1) + ' / ' + pages; }
+    var PER = 10, g = '', history = [], at = -1;
+    function shuffle(a) { for (var k = a.length - 1; k > 0; k--) { var j = Math.floor(Math.random() * (k + 1)); var t = a[k]; a[k] = a[j]; a[j] = t; } return a; }
+    function pool() { return all.filter(function (el) { return g === '' || el.getAttribute('data-g') === g; }); }
+    // ten new ones: first those not on screen now, then the others
+    function pick() {
+      var list = pool(), now = history[at] || [];
+      var fresh = shuffle(list.filter(function (el) { return now.indexOf(el) < 0; }));
+      var old = shuffle(list.filter(function (el) { return now.indexOf(el) >= 0; }));
+      return fresh.concat(old).slice(0, PER);
     }
+    function show(set) {
+      all.forEach(function (el) { el.hidden = true; });
+      grid.querySelectorAll('.g-empty').forEach(function (el) { el.remove(); });
+      set.forEach(function (el) { el.hidden = false; grid.appendChild(el); });
+      for (var m = set.length; m < PER; m++) { var e = document.createElement('div'); e.className = 'g-item g-empty'; e.setAttribute('aria-hidden', 'true'); grid.appendChild(e); }
+      if (nav) {
+        nav.hidden = pool().length <= PER;
+        nav.querySelector('[data-gs="-1"]').disabled = at < 1;
+      }
+    }
+    function next() { history = history.slice(0, at + 1); history.push(pick()); at = history.length - 1; show(history[at]); }
     if (nav) nav.addEventListener('click', function (e) {
       var b = e.target.closest('[data-gs]'); if (!b) return;
-      page += Number(b.getAttribute('data-gs')); draw();
+      if (b.getAttribute('data-gs') === '1') next(); else if (at > 0) { at--; show(history[at]); }
     });
     if (bar) bar.addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b) return;
-      g = b.getAttribute('data-g'); page = 0;
+      g = b.getAttribute('data-g'); history = []; at = -1;
       bar.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
-      draw();
+      next();
     });
-    draw();
+    next();
   });
 })();
 

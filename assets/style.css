@@ -400,17 +400,39 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 .vp-item[aria-current] { color: var(--ink); }
 .vp-item[aria-current] span { text-decoration: underline; text-underline-offset: 3px; }
 /* "Galleria": the photos of the page, five columns (two on phones). */
-.page-gallery { padding: clamp(40px, 5vw, 64px) var(--pad) 0; }
+.page-gallery { padding: clamp(72px, 8vw, 128px) var(--pad) 0; }
 .page-gallery .small-title { margin-bottom: 16px; }
 .gallery-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
 .gallery-grid .media { aspect-ratio: 1; }
 .g-item[hidden] { display: none; }
-.g-nav { display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 16px; }
+.g-empty { aspect-ratio: 1; }
+.g-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
+.g-head .small-title { margin: 0; }
+.g-nav button:disabled { opacity: .3; cursor: default; }
+.g-nav { display: flex; align-items: center; gap: 8px; }
 .g-nav[hidden] { display: none; }
 .g-nav button { font: inherit; font-size: var(--fs-band-link); line-height: 1; color: var(--ink); background: none; border: 0; padding: 4px; cursor: pointer; }
 .g-filter { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
 .g-filter button { font: inherit; font-size: 13px; color: var(--ink); background: none; border: 1px solid var(--rule); border-radius: 999px; padding: 5px 14px; cursor: pointer; }
 .g-filter button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg, #fafaf9); }
+/* Foto / Video window: step 1 the evenings (their posters), step 2 a grid of photos or the list of DJ sets */
+.ev-dialog { overflow: auto; }
+.ev-dialog-title { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ev-sep { color: var(--ink-2); }
+.ev-back { font: inherit; font-size: var(--fs-band-link); background: none; border: 0; color: var(--ink); cursor: pointer; padding: 0 6px 0 0; }
+.ev-step { margin: 0 0 12px; font-size: 13px; color: var(--ink-2); }
+.ev-serate-grid, .ev-djs, .ev-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.ev-serate-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.ev-djs { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+.ev-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.ev-serate-grid button, .ev-djs button, .ev-grid button { display: grid; gap: 6px; width: 100%; padding: 0; border: 0; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.ev-serate-grid img, .ev-serate-grid .ev-noposter { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; background: #ddd; display: block; }
+.ev-djs img, .ev-djs .ev-noposter { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: #111; display: block; }
+.ev-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+.ev-serate-grid button:hover img, .ev-djs button:hover img, .ev-grid button:hover img { opacity: .82; }
+.ev-sname { font-size: 14px; }
+.ev-snum { font-size: 12px; color: var(--ink-2); }
+@media (max-width: 560px) { .ev-serate-grid, .ev-grid { grid-template-columns: repeat(2, 1fr); } .ev-djs { grid-template-columns: 1fr; } }
 .ev-serate { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 .ev-serate button { font: inherit; font-size: 13px; color: var(--ink); background: none; border: 1px solid var(--rule); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
 .ev-serate button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg, #fafaf9); }
@@ -421,17 +443,17 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 .video-random { max-width: 1100px; }
 /* Video section: YouTube "theater mode", a full-width black band with the 16:9 player centred in it. */
 .page-videos .video-random { max-width: none; }
-.page-videos .video-random > .video { margin: 0 calc(-1 * var(--pad)); aspect-ratio: auto; height: min(56.25vw, 78svh); background: #000; }
-.page-videos .video-random > .video iframe { left: 50%; right: auto; width: min(100%, calc(78svh * 16 / 9)); transform: translateX(-50%); }
+.page-videos .video-random > .video { margin: 0 calc(-1 * var(--pad)); aspect-ratio: auto; height: min(56.25vw, 68svh); background: #000; }
+.page-videos .video-random > .video iframe { left: 50%; right: auto; width: min(100%, calc(68svh * 16 / 9)); transform: translateX(-50%); }
 .page-videos .video-random > .video.file { display: flex; justify-content: center; }
 .page-videos .video-random > .video video { width: auto; max-width: 100%; height: 100%; max-height: none; }
-.page-videos .vr-foot { max-width: 1100px; margin-left: auto; margin-right: auto; }
+.page-videos .vr-foot { max-width: 1100px; margin: 14px auto 0; }
 .vr-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-top: 10px; }
 .vr-caption { margin: 0; font-size: 14px; color: var(--ink-2); }
 .vr-next { font: inherit; font-size: 14px; color: var(--ink); background: none; border: 0; padding: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; white-space: nowrap; }
 
 /* Instagram posts under a culture page: three per row (one on phones), a tile with its own image or Instagram's embed. */
-.page-videos { padding: clamp(40px, 5vw, 64px) var(--pad) 0; }
+.page-videos { padding: clamp(72px, 8vw, 128px) var(--pad) 0; }
 .page-videos .small-title { margin-bottom: 16px; }
 .page-videos-list { display: grid; gap: clamp(24px, 3vw, 40px); max-width: 1100px; }
 .page-video figcaption { margin-top: 8px; font-size: 14px; color: var(--ink-2); }
