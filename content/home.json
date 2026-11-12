@@ -18,6 +18,14 @@
       "formato": "16:9"
     },
     {
+      "id": "maghreb-2",
+      "titolo": "Maghreb",
+      "anno": "2026",
+      "pagina": "maghreb-2",
+      "visibile": true,
+      "formato": "16:9"
+    },
+    {
       "id": "faccioni",
       "titolo": "Faccini",
       "anno": "2025 - in corso",
@@ -32,14 +40,6 @@
       "pagina": "papa-che-fanno-i-papa",
       "visibile": true,
       "formato": "3:2"
-    },
-    {
-      "id": "maghreb-2",
-      "titolo": "Maghreb",
-      "anno": "2026",
-      "pagina": "maghreb-2",
-      "visibile": true,
-      "formato": "16:9"
     },
     {
       "id": "siculo",
