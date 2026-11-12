@@ -342,7 +342,7 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
    (the arrows or a swipe bring the poster behind to the front), then each category's event photos and videos. */
 .poster-cats { padding: clamp(56px, 7vw, 104px) var(--pad) 0; display: grid; gap: clamp(48px, 6vw, 88px); }
 .deck-row { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: clamp(32px, 4vw, 64px); align-items: start; }
-.deck-col { display: grid; gap: 16px; min-width: 0; }
+.deck-col { display: grid; gap: 16px; min-width: 0; width: 100%; max-width: calc(var(--deck-w, 300px) + 24px); }
 .deck { position: relative; aspect-ratio: 3 / 4; margin: 24px 24px 0 0; outline: none; touch-action: pan-y; cursor: pointer; }
 .deck:focus-visible { outline: 2px solid var(--ink); outline-offset: 6px; }
 .card { position: absolute; inset: 0; margin: 0; z-index: calc(50 - var(--d));
