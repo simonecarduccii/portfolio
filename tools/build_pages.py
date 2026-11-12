@@ -734,64 +734,34 @@ def instagram_posts(slug):
             f'<div class="ig-grid">{"".join(items)}</div></section>')
 
 
-def page_videos(slug):
-    """Videos under a culture page, set in /admin: content/video/<slug>.json
-    {"titolo": "Video", "video": [{"url": YouTube/Vimeo link, "testo": caption}]}; no videos = no section."""
-    f = ROOT / "content" / "video" / f"{slug}.json"
-    if not f.is_file():
-        return ""
-    try:
-        data = json.loads(f.read_text(encoding="utf-8"))
-    except ValueError:
-        return ""
-    items = []
-    for v in data.get("video") or []:
+def _video_items(raw, fallback):
+    """[{"src": embed url or local file, "title": text}] from a list of {"url", "testo"} set in /admin."""
+    out = []
+    for v in raw or []:
         if not isinstance(v, dict):
             continue
-        text = _str(v.get("testo"))
-        player = video_html(_str(v.get("url")), text or "Video")
-        if player:
-            items.append(f'<figure class="page-video">{player}' + (f"<figcaption>{inline(text)}</figcaption>" if text else "") + "</figure>")
-    if not items:
-        return ""
-    title = _str(data.get("titolo")) or "Video"
-    head = f'<section class="page-videos" aria-label="{html.escape(title)}"><h2 class="small-title">{html.escape(title)}</h2>'
-    links = [(v, video_embed(_str(v.get("url")))) for v in data.get("video") or [] if isinstance(v, dict)]
-    links = [(v, e) for v, e in links if e]
-    if len(links) < 2 or len(links) != len(items):
-        return head + f'<div class="page-videos-list">{"".join(items)}</div></section>'
-    # several YouTube/Vimeo videos: one player, and the list below it to choose which one plays
-    first_v, first_e = links[0]
-    tabs = []
-    for k, (v, e) in enumerate(links):
-        text = _str(v.get("testo")) or f"Video {k + 1}"
-        yt = re.search(r"youtube-nocookie\.com/embed/([\w-]+)", e)
-        thumb = f'<img src="https://i.ytimg.com/vi/{yt.group(1)}/mqdefault.jpg" alt="" loading="lazy">' if yt else '<span class="vp-ph" aria-hidden="true">&#9654;</span>'
-        tabs.append(f'<li><button type="button" class="vp-item" data-src="{html.escape(e)}" data-title="{html.escape(plain(text))}"'
-                    f'{" aria-current=\"true\"" if k == 0 else ""}>{thumb}<span>{inline(text)}</span></button></li>')
-    first_title = plain(_str(first_v.get("testo")) or "Video 1")
-    return (head + f'<div class="video-player"><div class="video"><iframe src="{html.escape(first_e)}" title="{html.escape(first_title)}" loading="lazy" '
-            f'allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen></iframe></div>'
-            f'<ul class="vp-list">{"".join(tabs)}</ul></div></section>')
+        url, text = _str(v.get("url")), _str(v.get("testo"))
+        src = video_embed(url) or (url if VIDEO_FILE.fullmatch(url) and exists(url) else None)
+        if src:
+            out.append({"src": src, "title": plain(text) or fallback})
+    return out
 
 
-def poster_rows(slug):
-    """Events by category under a culture page, set in /admin: content/locandine/<slug>.json
-    {"categorie": [{"nome": "POP NO POP", "cartella": "pop-no-pop", "video": [{"url", "testo"}]}]}.
-    Posters are img/<slug>/<cartella>/01.jpg ... (one at a time, with arrows), event photos
-    img/<slug>/<cartella>/foto/01.jpg ...; whatever is missing is left out, and so is an empty category."""
+def _numbered(d):
+    return sorted((x for x in d.glob("[0-9][0-9]*.jpg") if x.stem.isdigit()), key=lambda x: int(x.stem)) if d.is_dir() else []
+
+
+def event_categories(slug):
+    """content/locandine/<slug>.json {"dimensione", "categorie": [{"nome", "cartella", "video": [{"url", "testo"}], "scarica"}]}
+    with what is on disk: posters img/<slug>/<cartella>/01.jpg ..., event photos img/<slug>/<cartella>/foto/01.jpg ..."""
     f = ROOT / "content" / "locandine" / f"{slug}.json"
     if not f.is_file():
-        return ""
+        return {}, []
     try:
         data = json.loads(f.read_text(encoding="utf-8"))
     except ValueError:
-        return ""
-
-    def numbered(d):
-        return sorted((x for x in d.glob("[0-9][0-9]*.jpg") if x.stem.isdigit()), key=lambda x: int(x.stem)) if d.is_dir() else []
-
-    rows, decks = [], []
+        return {}, []
+    cats = []
     for cat in data.get("categorie") or []:
         if not isinstance(cat, dict):
             continue
@@ -799,16 +769,54 @@ def poster_rows(slug):
         if not folder or "/" in folder or ".." in folder:
             continue
         base = f"img/{slug}/{folder}"
-        posters, photos = numbered(ROOT / base), numbered(ROOT / base / "foto")
-        videos = []
-        for v in cat.get("video") or []:
-            if not isinstance(v, dict):
-                continue
-            text = _str(v.get("testo"))
-            player = video_html(_str(v.get("url")), text or name or "Video")
-            if player:
-                videos.append(f'<figure class="page-video">{player}' + (f"<figcaption>{inline(text)}</figcaption>" if text else "") + "</figure>")
-        if not (posters or photos or videos):
+        cats.append({"name": name, "folder": folder, "base": base, "scarica": cat.get("scarica") is not False,
+                     "posters": _numbered(ROOT / base), "photos": [f"{base}/foto/{x.name}" for x in _numbered(ROOT / base / "foto")],
+                     "videos": _video_items(cat.get("video"), name or "Video")})
+    return data, cats
+
+
+def _random_player(videos, cls=""):
+    """One video at a time: the page picks one at random (assets/main.js), "Un altro video" picks another."""
+    first = videos[0]
+    more = '<button type="button" class="vr-next">Un altro video &#8635;</button>' if len(videos) > 1 else ""
+    if first["src"].startswith("http"):
+        player = (f'<div class="video"><iframe src="{html.escape(first["src"])}" title="{html.escape(first["title"])}" loading="lazy" '
+                  f'allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen></iframe></div>')
+    else:
+        player = f'<div class="video file"><video src="{first["src"]}" controls playsinline preload="metadata"></video></div>'
+    return (f'<div class="video-random{cls}" data-videos="{html.escape(json.dumps(videos, ensure_ascii=False))}">{player}'
+            f'<div class="vr-foot"><p class="vr-caption">{html.escape(first["title"])}</p>{more}</div></div>')
+
+
+def page_videos(slug):
+    """The video section under a culture page: the videos of content/video/<slug>.json {"titolo", "video": [{"url", "testo"}]}
+    and those of every event category, one at a time, picked at random; no videos = no section."""
+    f = ROOT / "content" / "video" / f"{slug}.json"
+    data = {}
+    if f.is_file():
+        try:
+            data = json.loads(f.read_text(encoding="utf-8"))
+        except ValueError:
+            data = {}
+    videos = _video_items(data.get("video"), "Video")
+    for cat in event_categories(slug)[1]:
+        videos += cat["videos"]
+    if not videos:
+        return ""
+    title = _str(data.get("titolo")) or "Video"
+    return (f'<section class="page-videos" aria-label="{html.escape(title)}"><h2 class="small-title">{html.escape(title)}</h2>'
+            f'{_random_player(videos)}</section>')
+
+
+def poster_rows(slug):
+    """Event posters: one row with a deck of cards per category (arrows or a swipe bring the poster behind to the front),
+    centred in its column; under each deck the download link and the "Foto" / "Video" buttons of that event, which open
+    a window with its photos (one at a time) or one of its videos at random. A category without posters has no deck."""
+    data, cats = event_categories(slug)
+    decks = []
+    for cat in cats:
+        posters, name, base, folder = cat["posters"], cat["name"], cat["base"], cat["folder"]
+        if not posters:
             continue
         n = len(posters)
 
@@ -817,37 +825,41 @@ def poster_rows(slug):
             raw = next((f"stampa/{slug}/{folder}/{x.stem}{e}" for e in (".jpg", ".png") if (ROOT / "stampa" / slug / folder / f"{x.stem}{e}").is_file()), f"{base}/{x.name}")
             return raw, f"{slug}-{folder}-{x.stem}{Path(raw).suffix}"
 
-        if posters:
-            # a deck of cards: the posters piled up, the arrows (or a swipe) bring the one behind to the front
-            dl = [download(x) for x in posters]
-            cards = "".join(
-                f'<figure class="card{" far" if k > 3 else ""}" style="--d: {k}" data-dl="{dl[k][0]}" data-name="{dl[k][1]}"{"" if k == 0 else " aria-hidden=\"true\""}>'
-                f'{img(f"{base}/{x.name}", f"{name}, locandina {k + 1}")}</figure>' for k, x in enumerate(posters))
-            nav = ("" if n < 2 else
-                   f'<div class="poster-nav"><button type="button" data-step="-1" aria-label="Locandina precedente">&larr;</button>'
-                   f'<span class="poster-count" aria-live="polite">1 / {n}</span>'
-                   f'<button type="button" data-step="1" aria-label="Locandina successiva">&rarr;</button></div>')
-            link = ("" if cat.get("scarica") is False else
-                    f'<a class="poster-dl" href="{dl[0][0]}" download="{dl[0][1]}">Scarica<span class="dl-long"> la locandina</span> &darr;</a>')
-            decks.append(f'<div class="deck-col"><h2 class="small-title">{html.escape(name)}</h2>'
-                         f'<div class="deck" tabindex="0" style="--n: {n}" aria-label="{html.escape(name)}: locandine, frecce per sfogliare">{cards}</div>'
-                         f'<div class="deck-foot">{nav}{link}</div></div>')
-        gallery = ("" if not photos else
-                   '<div class="event-photos">' + "".join(img(f"{base}/foto/{x.name}", f"{name}, foto {k}") for k, x in enumerate(photos, 1)) + "</div>")
-        vids = f'<div class="page-videos-list event-videos">{"".join(videos)}</div>' if videos else ""
-        if gallery or vids:
-            rows.append(f'<article class="ev-cat"><h2 class="small-title">{html.escape(name)}</h2>{gallery}{vids}</article>')
-    if not (decks or rows):
+        dl = [download(x) for x in posters]
+        cards = "".join(
+            f'<figure class="card{" far" if k > 3 else ""}" style="--d: {k}" data-dl="{dl[k][0]}" data-name="{dl[k][1]}"{"" if k == 0 else " aria-hidden=\"true\""}>'
+            f'{img(f"{base}/{x.name}", f"{name}, locandina {k + 1}")}</figure>' for k, x in enumerate(posters))
+        nav = ("" if n < 2 else
+               f'<div class="poster-nav"><button type="button" data-step="-1" aria-label="Locandina precedente">&larr;</button>'
+               f'<span class="poster-count" aria-live="polite">1 / {n}</span>'
+               f'<button type="button" data-step="1" aria-label="Locandina successiva">&rarr;</button></div>')
+        link = ("" if not cat["scarica"] else
+                f'<a class="poster-dl" href="{dl[0][0]}" download="{dl[0][1]}">Scarica<span class="dl-long"> la locandina</span> &darr;</a>')
+        photos = json.dumps([{"src": p, "alt": f"{name}, foto {k}"} for k, p in enumerate(cat["photos"], 1)], ensure_ascii=False)
+        buttons = "".join([
+            f'<button type="button" class="ev-btn" data-kind="foto" data-title="{html.escape(name)}" data-items="{html.escape(photos)}">Foto</button>' if cat["photos"] else "",
+            f'<button type="button" class="ev-btn" data-kind="video" data-title="{html.escape(name)}" data-items="{html.escape(json.dumps(cat["videos"], ensure_ascii=False))}">Video</button>' if cat["videos"] else ""])
+        decks.append(f'<div class="deck-col"><h2 class="small-title">{html.escape(name)}</h2>'
+                     f'<div class="deck" tabindex="0" style="--n: {n}" aria-label="{html.escape(name)}: locandine, frecce per sfogliare">{cards}</div>'
+                     f'<div class="deck-foot">{nav}{link}</div>'
+                     + (f'<div class="ev-btns">{buttons}</div>' if buttons else "") + "</div>")
+    if not decks:
         return ""
     # poster size from /admin: "dimensione" piccole / medie / grandi = max width of each deck
     width = {"piccole": 220, "medie": 300, "grandi": 420}.get(_str(data.get("dimensione")), 300)
-    deck_row = f'<div class="deck-row" style="--cols: {len(decks)}; --deck-w: {width}px">{"".join(decks)}</div>' if decks else ""
-    return f'<section class="poster-cats" aria-label="Eventi">{deck_row}{"".join(rows)}</section>'
+    dialog = ('<dialog class="ev-dialog" aria-label="Foto e video dell\'evento"><div class="ev-dialog-head"><p class="ev-dialog-title">Evento</p>'
+              '<button type="button" class="ev-close" aria-label="Chiudi">&times;</button></div><div class="ev-dialog-body"></div></dialog>')
+    return (f'<section class="poster-cats" aria-label="Eventi"><div class="deck-row" style="--cols: {len(decks)}; --deck-w: {width}px">'
+            f'{"".join(decks)}</div>{dialog}</section>')
 
 
 def page_gallery(slug, title):
-    """The photos of "Foto della pagina" in /admin (img/<slug>/01.jpg ...), as a "Galleria" of five columns; none = no section."""
+    """The photos of "Foto della pagina" in /admin (img/<slug>/01.jpg ...), as a "Galleria" of five columns, plus the event
+    photos of categories that have no posters (so they have no "Foto" button); none = no section."""
     photos = [f"img/{slug}/{n:02d}.jpg" for n in range(1, slots(slug, 0) + 1) if exists(f"img/{slug}/{n:02d}.jpg")]
+    for cat in event_categories(slug)[1]:
+        if not cat["posters"]:
+            photos += cat["photos"]
     if not photos:
         return ""
     return ('<section class="page-gallery" aria-label="Galleria"><h2 class="small-title">Galleria</h2><div class="gallery-grid">'

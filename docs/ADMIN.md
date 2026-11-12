@@ -190,3 +190,7 @@ Quello che è vuoto non compare, e nemmeno una categoria tutta vuota.
 - Ordine della pagina (Bohème e Colectivo modì): testo, mazzi di locandine, foto e video per categoria, poi la
   sezione "Video" (con più video, un player con la lista sotto) e infine la "Galleria", cioè le foto di
   "Foto della pagina", cinque per riga.
+- Sotto ogni mazzo di locandine ci sono i pulsanti "Foto" e "Video" della categoria (compaiono solo se la categoria ne ha):
+  aprono una finestra con le foto una alla volta, o un video a caso con "Un altro video". La sezione "Video" più in
+  basso mostra un video alla volta, scelto a caso tra quelli del pannello Video e quelli di tutte le categorie.
+  Le foto di una categoria senza locandine finiscono nella Galleria.
