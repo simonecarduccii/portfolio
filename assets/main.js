@@ -359,6 +359,94 @@
   });
 })();
 
+// Videos one at a time: a random one when the page opens, "Un altro video" plays another (never the same twice in a row).
+function scRandomPlayer(box, autoplay) {
+  var list = [];
+  try { list = JSON.parse(box.getAttribute('data-videos') || '[]'); } catch (e) { return; }
+  if (!list.length) return;
+  var holder = box.querySelector('.video');
+  var caption = box.querySelector('.vr-caption');
+  var current = -1;
+  function play(auto) {
+    var i = current;
+    if (list.length > 1) { while (i === current) i = Math.floor(Math.random() * list.length); } else i = 0;
+    current = i;
+    var v = list[i];
+    if (/^https?:/.test(v.src)) {
+      holder.className = 'video';
+      holder.innerHTML = '';
+      var f = document.createElement('iframe');
+      f.src = v.src + (auto ? (v.src.indexOf('?') < 0 ? '?' : '&') + 'autoplay=1' : '');
+      f.title = v.title; f.loading = 'lazy'; f.allowFullscreen = true;
+      f.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture; encrypted-media');
+      holder.appendChild(f);
+    } else {
+      holder.className = 'video file';
+      holder.innerHTML = '';
+      var el = document.createElement('video');
+      el.src = v.src; el.controls = true; el.playsInline = true; el.preload = 'metadata';
+      holder.appendChild(el);
+      if (auto) el.play().catch(function () {});
+    }
+    if (caption) caption.textContent = v.title || '';
+  }
+  var next = box.querySelector('.vr-next');
+  if (next) next.addEventListener('click', function () { play(true); });
+  play(autoplay);
+}
+document.querySelectorAll('.page-videos .video-random').forEach(function (b) { scRandomPlayer(b, false); });
+
+// "Foto" / "Video" under each poster deck: a window with that event's photos (one at a time) or one of its videos.
+(function () {
+  var dlg = document.querySelector('.ev-dialog');
+  if (!dlg || typeof dlg.showModal !== 'function') {
+    document.querySelectorAll('.ev-btns').forEach(function (b) { b.hidden = true; });
+    return;
+  }
+  var title = dlg.querySelector('.ev-dialog-title');
+  var body = dlg.querySelector('.ev-dialog-body');
+  function esc(t) { var d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+  function photos(items) {
+    var i = 0;
+    body.innerHTML = '<img class="ev-photo" alt=""><div class="ev-photo-nav"><button type="button" data-s="-1" aria-label="Foto precedente">&larr;</button>' +
+      '<span class="poster-count"></span><button type="button" data-s="1" aria-label="Foto successiva">&rarr;</button></div>';
+    var im = body.querySelector('img'), count = body.querySelector('.poster-count');
+    function show() { im.src = items[i].src; im.alt = items[i].alt || ''; count.textContent = (i + 1) + ' / ' + items.length; }
+    body.querySelector('.ev-photo-nav').hidden = items.length < 2;
+    body.querySelector('.ev-photo-nav').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-s]'); if (!b) return;
+      i = (i + Number(b.getAttribute('data-s')) + items.length) % items.length; show();
+    });
+    body.onkeydown = function (e) {
+      if (e.key === 'ArrowRight') { i = (i + 1) % items.length; show(); }
+      if (e.key === 'ArrowLeft') { i = (i - 1 + items.length) % items.length; show(); }
+    };
+    show();
+  }
+  function videos(items) {
+    body.onkeydown = null;
+    body.innerHTML = '<div class="video-random"><div class="video"></div><div class="vr-foot"><p class="vr-caption"></p>' +
+      (items.length > 1 ? '<button type="button" class="vr-next">Un altro video &#8635;</button>' : '') + '</div></div>';
+    var box = body.firstChild;
+    box.setAttribute('data-videos', JSON.stringify(items));
+    scRandomPlayer(box, true);
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('.ev-btn');
+    if (!b) return;
+    var items = [];
+    try { items = JSON.parse(b.getAttribute('data-items') || '[]'); } catch (err) { return; }
+    if (!items.length) return;
+    title.textContent = b.getAttribute('data-title') + ' · ' + b.textContent;
+    if (b.getAttribute('data-kind') === 'foto') photos(items); else videos(items);
+    dlg.showModal();
+  });
+  dlg.addEventListener('keydown', function (e) { if (body.onkeydown) body.onkeydown(e); });
+  dlg.querySelector('.ev-close').addEventListener('click', function () { dlg.close(); });
+  dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+  dlg.addEventListener('close', function () { body.innerHTML = ''; }); // stops the video
+})();
+
 // Instagram embeds tell their real height with a message; size each frame to it so nothing is cut.
 window.addEventListener('message', function (e) {
   if (!/^https:\/\/www\.instagram\.com$/.test(e.origin)) return;
