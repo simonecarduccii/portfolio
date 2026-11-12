@@ -1382,20 +1382,33 @@ Testo da scrivere.
     const fold = (k, def) => h("button", { type: "button", class: "pc-fold", "aria-expanded": isOpen(k, def) ? "true" : "false",
       title: isOpen(k, def) ? "Chiudi" : "Apri", onclick: () => flip(k, def) }, isOpen(k, def) ? "▾" : "▸");
     // photo lists show one row until you ask for all of them
-    const ROW = 6, allShown = new WeakSet();
+    const ROW = 6, allShown = new WeakSet(), busy = new WeakMap();
     // one list of images (posters or event photos): upload, library, drag files in, reorder, remove
     const images = (arr, label, addLabel, keepRaw) => {
       const file = h("input", { type: "file", accept: "image/*", multiple: "", hidden: "" });
       const add = async (files) => {
-        for (const f of files) {
-          const ph = isImage(f) && await newPhoto(f, MAX_SIDE);
-          if (!ph) continue;
-          // posters keep the original too (JPEG or PNG up to 25 MB), for the download button
-          const ext = (f.name.match(/\.(jpe?g|png)$/i) || [])[1];
-          if (keepRaw && ext && f.size <= 25e6) ph.raw = { blob: f, ext: ext.toLowerCase() === "png" ? "png" : "jpg" };
-          arr.push(ph);
+        const imgs = files.filter(isImage);
+        if (!imgs.length) { if (files.length) alert("Questi file non sono immagini: carica foto JPEG, PNG o HEIC."); return; }
+        // big batches take a while: the button counts the photos being prepared, and they appear as they are ready
+        let k = 0, last = Date.now();
+        busy.set(arr, `Preparo le foto… 0/${imgs.length}`); draw();
+        try {
+          for (const f of imgs) {
+            const ph = await newPhoto(f, MAX_SIDE);
+            k++;
+            busy.set(arr, `Preparo le foto… ${k}/${imgs.length}`);
+            if (ph) {
+              // posters keep the original too (JPEG or PNG up to 25 MB), for the download button
+              const ext = (f.name.match(/\.(jpe?g|png)$/i) || [])[1];
+              if (keepRaw && ext && f.size <= 25e6) ph.raw = { blob: f, ext: ext.toLowerCase() === "png" ? "png" : "jpg" };
+              arr.push(ph);
+              changed();
+            }
+            if (Date.now() - last > 700) { last = Date.now(); draw(); }
+          }
+        } finally {
+          busy.delete(arr); draw(); changed();
         }
-        draw(); changed();
       };
       file.addEventListener("change", async () => { await add([...file.files]); file.value = ""; });
       const box = h("div", { class: "pc-images" },
@@ -1413,7 +1426,7 @@ Testo da scrivere.
         h("div", { class: "photo-btns" },
           arr.length > ROW ? h("button", { type: "button", class: "btn small pc-more", onclick: () => { if (allShown.has(arr)) allShown.delete(arr); else allShown.add(arr); draw(); } },
             allShown.has(arr) ? "Mostra solo una riga" : `Mostra tutte (${arr.length})`) : null,
-          h("label", { class: "btn small" }, file, addLabel),
+          busy.has(arr) ? h("span", { class: "btn small busy", "aria-live": "polite" }, busy.get(arr)) : h("label", { class: "btn small" }, file, addLabel),
           libButton(true, (picked) => { arr.push(...picked); draw(); changed(); })));
       dropZone(box, add);
       return box;
