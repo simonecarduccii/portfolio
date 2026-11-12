@@ -366,12 +366,12 @@ function scRandomPlayer(box, autoplay) {
   if (!list.length) return;
   var holder = box.querySelector('.video');
   var caption = box.querySelector('.vr-caption');
-  var current = -1;
+  // a random order, picked once: "Un altro video" and the arrows (data-vs) walk through it
+  var order = list.map(function (_, k) { return k; });
+  for (var k = order.length - 1; k > 0; k--) { var j = Math.floor(Math.random() * (k + 1)); var t = order[k]; order[k] = order[j]; order[j] = t; }
+  var at = 0;
   function play(auto) {
-    var i = current;
-    if (list.length > 1) { while (i === current) i = Math.floor(Math.random() * list.length); } else i = 0;
-    current = i;
-    var v = list[i];
+    var v = list[order[at]];
     if (/^https?:/.test(v.src)) {
       holder.className = 'video';
       holder.innerHTML = '';
@@ -391,7 +391,12 @@ function scRandomPlayer(box, autoplay) {
     if (caption) caption.textContent = v.title || '';
   }
   var next = box.querySelector('.vr-next');
-  if (next) next.addEventListener('click', function () { play(true); });
+  if (next) next.addEventListener('click', function () { at = (at + 1) % order.length; play(true); });
+  var sec = box.closest('.page-videos');
+  if (sec) sec.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-vs]'); if (!b) return;
+    at = (at + Number(b.getAttribute('data-vs')) + order.length) % order.length; play(true);
+  });
   play(autoplay);
 }
 document.querySelectorAll('.page-videos .video-random').forEach(function (b) { scRandomPlayer(b, false); });

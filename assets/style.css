@@ -611,3 +611,4 @@ a.ig-post:hover .ig-caption { color: var(--ink); text-decoration: underline; tex
 .back-link { font-size: var(--fs-band-link); line-height: 1; color: var(--ink); text-decoration: none; padding: 4px 4px 4px 0; }
 .back-link:hover, .back-link:focus-visible { color: var(--ink-2); }
 body.no-scroll { overflow: hidden; }
+.page-videos .g-head .small-title { margin: 0; }
