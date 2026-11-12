@@ -5,8 +5,20 @@
       "cartella": "pop-no-pop",
       "serate": [
         {
-          "nome": "Acto I (26/02/2026)",
-          "cartella": "acto-i-26-02-2026"
+          "cartella": "acto-i-26-02-2026",
+          "nome": "Acto I (26/02/2026)"
+        },
+        {
+          "cartella": "serata-2"
+        },
+        {
+          "cartella": "serata-3"
+        },
+        {
+          "cartella": "serata-4"
+        },
+        {
+          "cartella": "serata-5"
         }
       ]
     },
@@ -15,8 +27,8 @@
       "cartella": "die-neue-bruke",
       "serate": [
         {
-          "nome": "Die Neue Brüke I · 26/03",
           "cartella": "die-neue-bruke-i-26-03",
+          "nome": "Die Neue Brüke I · 26/03",
           "video": [
             {
               "url": "https://youtu.be/XwZf_MF1fxM",
@@ -29,8 +41,8 @@
           ]
         },
         {
-          "nome": "Die Neue Brüke II · 23/04",
           "cartella": "die-neue-bruke-ii-23-04",
+          "nome": "Die Neue Brüke II · 23/04",
           "video": [
             {
               "url": "https://youtu.be/rBSP5Guy_-c",
@@ -51,22 +63,27 @@
           ]
         },
         {
-          "nome": "Die Neue Brüke III · 28/05",
-          "cartella": "die-neue-bruke-iii-28-05"
+          "cartella": "die-neue-bruke-iii-28-05",
+          "nome": "Die Neue Brüke III · 28/05"
         }
       ]
     },
     {
       "nome": "Open Sound",
-      "cartella": "open-sound"
+      "cartella": "open-sound",
+      "serate": [
+        {
+          "cartella": "serata-1"
+        }
+      ]
     },
     {
       "nome": "Friday at Modì",
       "cartella": "friday-at-modi",
       "serate": [
         {
-          "nome": "Friday at Modì I",
           "cartella": "friday-at-modi-i",
+          "nome": "Friday at Modì I",
           "video": [
             {
               "url": "https://youtu.be/6ktb6A-vUho",

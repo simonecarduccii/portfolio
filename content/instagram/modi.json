@@ -3,17 +3,14 @@
   "post": [
     {
       "url": "https://www.instagram.com/reel/DYztnjrgOM8/?utm_source=ig_web_copy_link&srtk=MzRlODBiNWFlZA==",
-      "testo": "Graffito",
-      "visibile": true
-    },
-    {
-      "url": "https://www.instagram.com/reel/DXOvYxgq_Yt/?utm_source=ig_web_copy_link&mdxt=MzRlODBiNWFlZA==&srtk=MzRlODBiNWFlZA==",
-      "testo": "Computer",
       "visibile": true
     },
     {
       "url": "https://www.instagram.com/reel/DWABNHtADAU/?utm_source=ig_web_copy_link&cplk=MzRlODBiNWFlZA==&srtk=MzRlODBiNWFlZA==",
-      "testo": "Monachill",
+      "visibile": true
+    },
+    {
+      "url": "https://www.instagram.com/reel/DXOvYxgq_Yt/?utm_source=ig_web_copy_link&mdxt=MzRlODBiNWFlZA==&srtk=MzRlODBiNWFlZA==",
       "visibile": true
     }
   ]
