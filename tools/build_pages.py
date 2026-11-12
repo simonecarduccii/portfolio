@@ -810,10 +810,10 @@ def event_categories(slug):
     return data, cats
 
 
-def _random_player(videos, cls=""):
+def _random_player(videos, cls="", more=True):
     """One video at a time: the page picks one at random (assets/main.js), "Un altro video" picks another."""
     first = videos[0]
-    more = '<button type="button" class="vr-next">Un altro video &#8635;</button>' if len(videos) > 1 else ""
+    more = '<button type="button" class="vr-next">Un altro video &#8635;</button>' if more and len(videos) > 1 else ""
     if first["src"].startswith("http"):
         player = (f'<div class="video"><iframe src="{html.escape(first["src"])}" title="{html.escape(first["title"])}" loading="lazy" '
                   f'allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen></iframe></div>')
@@ -839,8 +839,12 @@ def page_videos(slug):
     if not videos:
         return ""
     title = _str(data.get("titolo")) or "Video"
-    return (f'<section class="page-videos" aria-label="{html.escape(title)}"><h2 class="small-title">{html.escape(title)}</h2>'
-            f'{_random_player(videos)}</section>')
+    # arrows top right (like the Galleria): the previous / next video; the first one is picked at random
+    nav = ('' if len(videos) < 2 else
+           '<div class="g-nav"><button type="button" data-vs="-1" aria-label="Video precedente">&larr;</button>'
+           '<button type="button" data-vs="1" aria-label="Video successivo">&rarr;</button></div>')
+    return (f'<section class="page-videos" aria-label="{html.escape(title)}"><div class="g-head"><h2 class="small-title">{html.escape(title)}</h2>{nav}</div>'
+            f'{_random_player(videos, "", False)}</section>')
 
 
 def poster_rows(slug):
@@ -943,8 +947,8 @@ def build_culture(i, p):
     </div>
   </section>
   {poster_rows(s)}
-  {instagram_posts(s)}
   {page_videos(s)}
+  {instagram_posts(s)}
   {page_gallery(s, p["title"])}
   <a class="next-project" href="{nxt["slug"]}.html"><span>Progetto successivo</span><span>{html.escape(nxt["title"])} ›</span></a>
 {band_archive()}"""
