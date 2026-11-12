@@ -1,6 +1,6 @@
-# Portfolio — Simone Carducci
+# Portfolio - Simone Carducci
 
-**Creative development — Editorial, Events & Cultural Projects**
+**Creative development - Editorial, Events & Cultural Projects**
 
 Portfolio personale: progetti editoriali, eventi, progetti culturali e un archivio di fotografia analogica.
 
@@ -12,7 +12,7 @@ Testi e foto si cambiano dal pannello **https://bohememag.it/portfolio/admin/**:
 
 ## Stato
 
-🚧 In fase di progettazione — vedi [docs/ROADMAP.md](docs/ROADMAP.md).
+🚧 In fase di progettazione - vedi [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Struttura del repository
 

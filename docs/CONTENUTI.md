@@ -10,7 +10,7 @@ Tono: prima persona, frasi brevi, fatti prima degli aggettivi. Niente "passione"
 
 ## Meta (SEO)
 
-- **Title home:** Simone Carducci — Editorial, Events & Cultural Projects
+- **Title home:** Simone Carducci - Editorial, Events & Cultural Projects
 - **Description home (max 155 caratteri):** Progetto e porto al pubblico progetti culturali: ho iniziato da con un magazine sull'arte emergente, un collettivo audiovisivo e con la fotografia su pellicola e non.
 - **Description About:** Chi è Simone Carducci: progetti creativi e culturali editoria, eventi, immagine e strumenti digitali.
 
@@ -40,8 +40,8 @@ Le intro di sezione qui sotto restano per meta description e versioni alternativ
 - **Lead:** Un magazine che ho fondato e un collettivo di cui ho curato la direzione creativa.
 
 Card:
-- **Bohème Magazine** · 2024 – in corso — Magazine indipendente sull'arte emergente e sulle opportunità per artisti. 5.022 follower in 26 mesi, partendo da zero.
-- **Colectivo modì** · 2025-2026 — Collettivo audiovisivo: serate, DJ set filmati in 4K e un podcast. Dalla consolle al montaggio, fino alla pubblicazione.
+- **Bohème Magazine** · 2024 - in corso - Magazine indipendente sull'arte emergente e sulle opportunità per artisti. 5.022 follower in 26 mesi, partendo da zero.
+- **Colectivo modì** · 2025-2026 - Collettivo audiovisivo: serate, DJ set filmati in 4K e un podcast. Dalla consolle al montaggio, fino alla pubblicazione.
 
 ### Archivio fotografico
 - **Eyebrow:** Archivio fotografico
@@ -56,9 +56,9 @@ Card:
 
 Card (titolo · anno):
 - Siculo · 2025
-- Papà che fanno i papà · 2025 – in corso
+- Papà che fanno i papà · 2025 - in corso
 - Place of Freedom · 2025
-- Faccioni · 2025 – in corso
+- Faccioni · 2025 - in corso
 
 ### Progetti con l'intelligenza artificiale (pagina ai.html e teaser in home)
 - **Eyebrow:** Progetti con l'AI
@@ -69,7 +69,7 @@ Card (titolo · anno):
 | --- | --- | --- | --- | --- |
 | Bohème Vedetta | Trova, legge e verifica i bandi per artisti. | Attivo dal 9 ottobre 2026 | Ideazione, progettazione, regole editoriali | Bohème Magazine |
 | Running Coach | Prepara e corregge il mio piano di corsa, io approvo. | In sviluppo | Ideazione, progettazione, test | Uso personale |
-| Progetto di lettura | Uno strumento di lettura per una persona di famiglia. | In sviluppo, privato | — | Uso familiare |
+| Progetto di lettura | Uno strumento di lettura per una persona di famiglia. | In sviluppo, privato | - | Uso familiare |
 
 Descrizioni lunghe (per la lista in ai.html):
 - **Bohème Vedetta:** Il motore che tiene aggiornato Bohème Magazine. Ogni settimana cerca nuove fonti, ogni tre ore legge i bandi di oltre 75 enti, fondazioni e festival e li prepara per la mia revisione prima che escano. La ricerca che prima richiedeva giorni diventa una lista pronta da controllare.
@@ -151,7 +151,7 @@ Fotografo, sviluppo e scannerizzo pellicole da anni: curo un vasto archivio pers
 
 ## Copyright
 
-- **Footer:** © 2025–2026 Simone Carducci. Tutti i diritti riservati. Testi e fotografie non possono essere riprodotti senza autorizzazione. P.Iva 18337621009
+- **Footer:** © 2025-2026 Simone Carducci. Tutti i diritti riservati. Testi e fotografie non possono essere riprodotti senza autorizzazione. P.Iva 18337621009
 - **Didascalia sotto le foto:** © 2025 Simone Carducci
 - Licenza diversa (es. Creative Commons): da decidere con Simone.
 
@@ -161,12 +161,12 @@ Schede complete in [`progetti/`](progetti/).
 
 | Progetto | Sezione | Anno | Scheda |
 | --- | --- | --- | --- |
-| Bohème Magazine | Cultura | 2024 – in corso | [boheme-magazine.md](progetti/boheme-magazine.md) |
+| Bohème Magazine | Cultura | 2024 - in corso | [boheme-magazine.md](progetti/boheme-magazine.md) |
 | Colectivo modì | Cultura | 2025-2026 | [colectivo-modi.md](progetti/colectivo-modi.md) |
 | Siculo | Fotografia | 2025 | [siculo.md](progetti/siculo.md) |
-| Papà che fanno i papà | Fotografia | 2025 – in corso | [papa-che-fanno-i-papa.md](progetti/papa-che-fanno-i-papa.md) |
+| Papà che fanno i papà | Fotografia | 2025 - in corso | [papa-che-fanno-i-papa.md](progetti/papa-che-fanno-i-papa.md) |
 | Place of Freedom | Fotografia | 2025 | [place-of-freedom.md](progetti/place-of-freedom.md) |
-| Faccioni | Fotografia | 2025 – in corso | [faccioni.md](progetti/faccioni.md) |
+| Faccioni | Fotografia | 2025 - in corso | [faccioni.md](progetti/faccioni.md) |
 | Bohème Vedetta | AI | 2026 | [ai-boheme-vedetta.md](progetti/ai-boheme-vedetta.md) |
-| Running Coach | AI | 2026 – in sviluppo | [ai-coaching-corsa.md](progetti/ai-coaching-corsa.md) |
+| Running Coach | AI | 2026 - in sviluppo | [ai-coaching-corsa.md](progetti/ai-coaching-corsa.md) |
 | Progetto di lettura | AI | privato | nessuna scheda pubblica |

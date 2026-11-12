@@ -4,7 +4,7 @@
 - **Fotografia:** Simone Carducci
 - **Supporto:** Digitale
 - **Fotocamera:** Sony A7C
-- **Pellicola:** –
+- **Pellicola:** -
 - **Lente:** Voigtlander 15mm f/4.5
 - **Luogo:** Torino
 
@@ -12,7 +12,7 @@
 
 Il 17 ottobre 2026 Torino scende in piazza contro il carovita. Un corteo pacifico e non, attraversato con un 15mm, a distanza di braccio da chi marcia e da chi lo ferma.
 
-## Testo in fondo, dopo le foto (80–150 parole)
+## Testo in fondo, dopo le foto (80-150 parole)
 
 Torino 17 segue la giornata dall’interno, senza prendere la distanza che di solito protegge chi guarda. Il grandangolo analogico impone di avvicinarsi, e la prossimità fa entrare nell’inquadratura i cartelli e gli striscioni (“Basta carovita, vogliamo dignità”), le facce di una generazione che rivendica di essere prima ancora che di apparire, e i momenti di svago che il racconto di una manifestazione tende a cancellare, come il cerchio che si apre attorno a un balafon.
 

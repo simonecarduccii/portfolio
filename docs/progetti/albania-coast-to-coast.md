@@ -4,14 +4,14 @@
 - **Fotografia:** Simone Carducci
 - **Supporto:** Digitale
 - **Fotocamera:** Fujifilm XF10
-- **Pellicola:** –
+- **Pellicola:** -
 - **Luogo:** Albania
 
 ## Intro in testata (max 40 parole)
 
 ㅤ
 
-## Testo in fondo, dopo le foto (80–150 parole)
+## Testo in fondo, dopo le foto (80-150 parole)
 
 ㅤ
 

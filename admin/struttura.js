@@ -28,7 +28,7 @@ const photoProject = (slug, doc, title, folderHint) => ({
     { label: "Lente (facoltativa)", file: P(doc), meta: "Lente", optional: true, after: "Pellicola" },
     { label: "Intro in alto (max 40 parole)", file: P(doc), section: "## Intro", rows: 4 },
     { label: "Testo in fondo, dopo le foto", file: P(doc), section: "## Testo", rows: 10 },
-    { label: "Crediti (vuoto = testo standard di Impostazioni · [ANNO] = anno del progetto · “–” = nessun credito)", file: P(doc), section: "## Crediti", rows: 2 },
+    { label: "Crediti (vuoto = testo standard di Impostazioni · [ANNO] = anno del progetto · “-” = nessun credito)", file: P(doc), section: "## Crediti", rows: 2 },
   ],
 });
 

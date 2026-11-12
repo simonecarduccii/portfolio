@@ -5,14 +5,14 @@
 - **Ambito:** Editoria, comunicazione culturale
 - **Formato:** Magazine su Instagram; sito dei bandi e app in progettazione
 - **Dove:** [@bohememag](https://instagram.com/bohememag) · bohememag.it (in arrivo)
-- **Pubblico:** Artisti e operatori culturali, 82% in Italia, soprattutto 25–44 anni
+- **Pubblico:** Artisti e operatori culturali, 82% in Italia, soprattutto 25-44 anni
 - **Immagine di copertina:** img/boheme/cover.jpg
 
 ## In breve
 
 Un magazine indipendente che racconta l'arte emergente e mette in fila le opportunità per chi la fa.
 
-## Testo pagina (mockup: 3–4 paragrafi da 60–90 parole, senza titoletti)
+## Testo pagina (mockup: 3-4 paragrafi da 60-90 parole, senza titoletti)
 
 Bohème è un magazine indipendente che ho fondato su Instagram nel luglio 2024. Racconta l'arte emergente e raccoglie le opportunità che contano per chi la fa: bandi, residenze, premi, open call, mostre. In Italia queste occasioni esistono, ma sono sparse tra decine di siti di enti, fondazioni e festival, e spesso arrivano tardi o incomplete. Bohème le cerca, le verifica e le racconta in un carosello che si legge in un minuto.
 

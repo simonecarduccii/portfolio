@@ -13,7 +13,7 @@
 
 Serate, DJ set e arte: un collettivo che filma la notte perché non finisca quando si accendono le luci.
 
-## Testo pagina (mockup: 3–4 paragrafi da 60–90 parole, senza titoletti)
+## Testo pagina (mockup: 3-4 paragrafi da 60-90 parole, senza titoletti)
 
 modì è un collettivo che tiene insieme musica, serate e video. Organizza DJ set, li filma e li pubblica come serie, così che una serata non finisca quando si spengono le luci. Intorno al collettivo si è formata una community di oltre 100 persone attive in progetti artistici e non, e le singole serate superavano i 500 partecipanti. Tra il 2025 e il 2026 ne ho curato la direzione creativa.
 
