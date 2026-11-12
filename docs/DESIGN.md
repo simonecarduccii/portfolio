@@ -1,4 +1,4 @@
-# Design — sistema visivo
+# Design - sistema visivo
 
 **Fonte di verità: il file Figma "Portfolio · Reference"** (https://www.figma.com/design/1in2vBv6lx4Z1XYs2d27b1).
 Il sito deve essere uguale alle pagine di quel file. Vedi sotto, "Figma → sito".
@@ -71,7 +71,7 @@ Misure prese dai mockup a 1366px:
 | `fact` | 600 | `clamp(13px, 1.1vw, 16px)` | 1.25 | 0 | Valori della scheda metadati |
 | `body` | 400 | `clamp(13px, 1vw, 15px)` | 1.55 | 0 | Testo dei progetti, giustificato a sinistra |
 | `nav` | 400 | `11px` | 1.3 | 0 | Header |
-| `caption` | 400 | `9–10px` | 1.3 | 0 | Didascalie delle foto e footer |
+| `caption` | 400 | `9-10px` | 1.3 | 0 | Didascalie delle foto e footer |
 | `index` | 400 | `11px` | 1.6 | 0 | Voci dell'indice nella pagina Archivio |
 
 Dettagli:
@@ -119,7 +119,7 @@ paesaggio in b/n, voce `Archivio` a sinistra e `›` a destra), che porta alla p
 
 ## Layout delle pagine
 
-### Home (`index.html`) — mockup "Desktop · Primary", prima tavola
+### Home (`index.html`) - mockup "Desktop · Primary", prima tavola
 
 1. **Hero** (banda, ≈ 500px a 1366): foto b/n di Bohème/modì a tutta larghezza.
    In basso a sinistra, uno sotto l'altro, i **progetti culturali** in `hero-title` MAIUSCOLO con
@@ -132,10 +132,10 @@ paesaggio in b/n, voce `Archivio` a sinistra e `›` a destra), che porta alla p
    `TUTTA LA MIA VITA` (→ archivio.html, indice). A destra `›`: cambia la foto a caso.
 3. **Ricerca visiva** (su paper): etichetta `section` "Ricerca visiva" in alto a sinistra, poi la
    **griglia sfalsata** dei quattro progetti fotografici, una foto per riga, alternate:
-   - Papà che fanno i papà: colonne 2–6
-   - Faccioni: colonne 7–11
-   - Place of Freedom: colonne 2–6
-   - Siculo: colonne 8–11 (più piccola)
+   - Papà che fanno i papà: colonne 2-6
+   - Faccioni: colonne 7-11
+   - Place of Freedom: colonne 2-6
+   - Siculo: colonne 8-11 (più piccola)
    Foto in 4:3, spazio verticale tra l'una e l'altra ≈ 100px, didascalia sotto ciascuna.
 4. **Progetti AI** (non nei mockup, aggiunta richiesta da Simone): stessa logica delle bande,
    oppure una piccola sezione su paper con l'etichetta `section` "Progetti con l'AI" e un elenco
@@ -143,18 +143,18 @@ paesaggio in b/n, voce `Archivio` a sinistra e `›` a destra), che porta alla p
    **prima** della banda Archivio.
 5. **Banda Archivio** + footer.
 
-### Progetto culturale (`boheme.html`, `modi.html`) — mockup, seconda tavola
+### Progetto culturale (`boheme.html`, `modi.html`) - mockup, seconda tavola
 
 1. **Hero** foto b/n a tutta larghezza (≈ 500px a 1366), senza testo sopra. Per modì può essere un
    video muto in loop (`img/modi/hero.mp4` + `hero-poster.jpg`).
 2. **Riga titolo** su paper: `page-title` MAIUSCOLO + `year` accanto, filetto sotto.
 3. **Scheda metadati** a 3 colonne (vedi Componenti).
-4. **Testo** in colonna centrata da 600px, stile `body`, 3–4 paragrafi.
+4. **Testo** in colonna centrata da 600px, stile `body`, 3-4 paragrafi.
 5. **Galleria** (non nei mockup): sotto il testo, nella stessa colonna, griglia a 2 colonne di
    immagini verticali 4:5 (caroselli Bohème, frame dei DJ set), gap 4px.
 6. **Banda Archivio** + footer.
 
-### Archivio (`archivio.html`) — mockup, terza tavola
+### Archivio (`archivio.html`) - mockup, terza tavola
 
 Una sola schermata (100svh), foto b/n a tutta pagina, header bianco sopra.
 - Al centro, l'**indice "Tutta la mia vita"** in tre colonne, stile `index`, bianco:
@@ -168,7 +168,7 @@ Una sola schermata (100svh), foto b/n a tutta pagina, header bianco sopra.
   pronte restano visibili ma non cliccabili, al 55%.
 - Footer in basso, sopra la foto, in bianco. Niente banda Archivio su questa pagina.
 
-### Progetto fotografico (`siculo.html` ecc.) — non nei mockup
+### Progetto fotografico (`siculo.html` ecc.) - non nei mockup
 
 Si tiene la logica dei mockup (paper, testo piccolo, foto protagoniste) con lo schema
 H&dM / Benoit P.:
@@ -180,7 +180,7 @@ H&dM / Benoit P.:
 4. "Altri progetti": le altre tre serie in fila, 4:3, con didascalia.
 5. Banda Archivio + footer.
 
-### Progetti AI (`ai.html`) — non nei mockup
+### Progetti AI (`ai.html`) - non nei mockup
 
 Su paper. Riga titolo `PROGETTI CON L'AI`, filetto, poi un elenco a righe (filetto tra le
 righe): titolo in `fact` · cosa fa in `body` · anno in `year`. Bohème Vedetta e Running Coach
@@ -188,7 +188,7 @@ cliccabili; **Lettura** in `--ink-2`, etichetta "privato", nessun link né immag
 Le schede dei singoli progetti usano lo schema della pagina culturale (hero, titolo, scheda,
 testo). Banda Archivio + footer.
 
-### About (`about`) — nei mockup è solo il link nell'header
+### About (`about`) - nei mockup è solo il link nell'header
 
 Su paper, stesso tono delle pagine progetto:
 1. Hero: ritratto su pellicola in b/n a tutta larghezza (o 4:5 a sinistra su mobile).
@@ -204,8 +204,8 @@ Su paper, stesso tono delle pagine progetto:
 ## Lunghezze dei testi (accordo con il copy)
 
 - Titoli progetto: brevi, scritti normali (il maiuscolo lo fa il CSS).
-- Pagine culturali: 3–4 paragrafi da 60–90 parole. Niente titoletti, come nel mockup.
-- Pagine foto: intro max 40 parole + testo in fondo 80–150 parole + crediti.
+- Pagine culturali: 3-4 paragrafi da 60-90 parole. Niente titoletti, come nel mockup.
+- Pagine foto: intro max 40 parole + testo in fondo 80-150 parole + crediti.
 - AI: "cosa fa" max 10 parole.
 - About: statement sotto le 20 parole.
 
@@ -217,11 +217,11 @@ Il designer fa anche da photo editor: sceglie, ordina ed esporta le foto quando 
 collegare. Il photo editor sceglie, ordina ed esporta le versioni web in `img/<progetto>/`.
 
 **Quante.**
-- Home: 2 hero b/n (una per Bohème, una per modì), 6–10 foto a colori per la banda pellicole,
+- Home: 2 hero b/n (una per Bohème, una per modì), 6-10 foto a colori per la banda pellicole,
   1 paesaggio b/n per la banda Archivio.
-- Progetti fotografici: 12–20 foto in sequenza + `cover.jpg` (4:3, per la griglia della home).
-- Bohème e modì: 1 hero b/n orizzontale, 4–6 immagini verticali per la galleria.
-- Archivio: 60–150 foto, di cui almeno 10 paesaggi b/n che reggono l'indice sopra.
+- Progetti fotografici: 12-20 foto in sequenza + `cover.jpg` (4:3, per la griglia della home).
+- Bohème e modì: 1 hero b/n orizzontale, 4-6 immagini verticali per la galleria.
+- Archivio: 60-150 foto, di cui almeno 10 paesaggi b/n che reggono l'indice sopra.
 
 **Come si sceglie.** Una foto entra solo se aggiunge qualcosa alla serie. Niente doppioni dello
 stesso momento. Si apre con l'immagine che dice di cosa parla il progetto e si chiude con quella che

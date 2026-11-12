@@ -5,7 +5,7 @@ Fonte: Figma "Portfolio · v2" https://www.figma.com/design/KDLICTFzFlNTRb5Yv0iQ
 ## Header (tutte le pagine)
 - Resta tutto com'è, ma **senza il secondo tag** "Editorial, Events & Cultural Projects": restano "Simone Carducci" · trattino · "Creative development" · about.
 
-## Footer (tutte le pagine) — AGGIORNATO 9/11 01:45: footer grande scuro
+## Footer (tutte le pagine) - AGGIORNATO 9/11 01:45: footer grande scuro
 Simone preferisce il footer scuro della prima versione. Componente "Footer grande" (6:2) in v2, alto 806 a 1366:
 - Sfondo #0E0E0D, padding 120 sopra, 40 sotto, 48 ai lati.
 - "SCRIVIMI" Hanken Grotesk Bold 150px, tracking -5%, line-height .9, colore #EEEDEA (mailto).

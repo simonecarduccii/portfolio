@@ -76,4 +76,4 @@ Dominio: _..._
 
 Portfolio che mi piacciono e perché:
 
-- _link_ — _cosa mi piace_
+- _link_ - _cosa mi piace_

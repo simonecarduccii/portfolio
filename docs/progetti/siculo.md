@@ -15,7 +15,7 @@ Testi segnaposto (lorem ipsum): servono a fissare struttura e lunghezze. Simone 
 
 Nasce tutto da un’espressione palermitana d’affetto che ho preso in prestito e fatto mia.
 
-## Testo in fondo, dopo le foto (80–150 parole)
+## Testo in fondo, dopo le foto (80-150 parole)
 
 Il progetto parte dalla lingua. “Vita mia” è un modo palermitano di dire a qualcuno che gli si vuole bene, una frase che ho sentito dai miei migliori amici e che ho portato nel mio vocabolario, usandola per chi amo. Ci si appropria di una parola come ci si appropria di un luogo: frequentandolo e lasciandosi cambiare. Le persone ritratte sono quegli amici, le loro famiglie, i cugini, i parenti e gli affetti più stretti, dentro una realtà in cui mi sono sentito a casa.
 

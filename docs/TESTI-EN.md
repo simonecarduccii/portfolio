@@ -5,15 +5,15 @@ Suggested use: an /en/ version of home, About and the two cultural projects, or 
 
 ## Home
 
-- **Title:** Simone Carducci — Editorial, Events & Cultural Projects
+- **Title:** Simone Carducci - Editorial, Events & Cultural Projects
 - **Description:** Simone Carducci designs cultural projects and brings them to an audience: a magazine on emerging art, an audiovisual collective, film photography.
 - **Hero subtitle:** I create cultural projects and take them from idea to audience: a magazine, a collective, film photography series, and the digital tools that keep them running.
 - **CTA:** See the work · Get in touch
 
 ### Cultural projects
 - **Lead:** A magazine I founded and a collective I was creative director of.
-- **Bohème Magazine** · 2024 – ongoing — An independent magazine on emerging art and opportunities for artists. 5,022 followers in 26 months, from zero.
-- **Colectivo modì** · 2026 — An audiovisual collective: nights out, DJ sets filmed in 4K, and a podcast. From the decks to the edit to release.
+- **Bohème Magazine** · 2024 - ongoing - An independent magazine on emerging art and opportunities for artists. 5,022 followers in 26 months, from zero.
+- **Colectivo modì** · 2026 - An audiovisual collective: nights out, DJ sets filmed in 4K, and a podcast. From the decks to the edit to release.
 
 ### Photo archive
 - **Eyebrow:** Photo archive
@@ -27,9 +27,9 @@ Suggested use: an /en/ version of home, About and the two cultural projects, or 
 ### Tools (AI projects)
 - **Eyebrow:** Projects built with AI
 - **Lead:** Tools I design with artificial intelligence to solve real problems, mine and those of the people I work with. I decide what they do, how they're used and when they stop; AI writes most of the code.
-- **Bohème Vedetta** · 2026 — The engine that finds, reads and checks open calls for artists from 75+ institutions, and feeds the magazine.
-- **Running Coach** · 2026 – in development — My running coach, towards a sub-4 marathon. It reads my data, adjusts the plan and sends it to my watch once I approve.
-- **Reading project** · in development, private — A reading tool designed for a member of my family. It is private: happy to talk about it in person.
+- **Bohème Vedetta** · 2026 - The engine that finds, reads and checks open calls for artists from 75+ institutions, and feeds the magazine.
+- **Running Coach** · 2026 - in development - My running coach, towards a sub-4 marathon. It reads my data, adjusts the plan and sends it to my watch once I approve.
+- **Reading project** · in development, private - A reading tool designed for a member of my family. It is private: happy to talk about it in person.
 
 ## About
 
@@ -55,7 +55,7 @@ Suggested use: an /en/ version of home, About and the two cultural projects, or 
 
 ## Bohème Magazine
 
-- **Role:** Founder; art and editorial direction · **Year:** 2024 – ongoing · **Field:** Publishing, cultural communication · **Format:** Instagram magazine; open-call website and app in design
+- **Role:** Founder; art and editorial direction · **Year:** 2024 - ongoing · **Field:** Publishing, cultural communication · **Format:** Instagram magazine; open-call website and app in design
 
 **A magazine for people who make art, and for those looking for it.** Bohème started on Instagram in 2024. It covers emerging art and gathers the opportunities that matter to artists: open calls, residencies, prizes, exhibitions. In Italy those opportunities exist, but they are scattered across dozens of institutional websites and often arrive late or incomplete. Bohème finds them, checks them, and tells them in a carousel you can read in a minute.
 
@@ -69,7 +69,7 @@ Suggested use: an /en/ version of home, About and the two cultural projects, or 
 
 ## Colectivo modì
 
-- **Role:** Creative director; filming and editing · **Year:** 2026 (January – August) · **Field:** Events, audiovisual production · **Formats:** filmed DJ sets, podcast, promo videos
+- **Role:** Creative director; filming and editing · **Year:** 2026 (January - August) · **Field:** Events, audiovisual production · **Formats:** filmed DJ sets, podcast, promo videos
 
 **A night, filmed in full.** modì brings together music, nights and video. We organise and film DJ sets, edit them in 4K and release them as series, so a night doesn't end when the lights go off. Alongside the nights there's a podcast that gives a voice to the people who build the scene.
 
