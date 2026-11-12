@@ -369,6 +369,7 @@
     if (node.texts) body.append(await textPanel(node));
     if (node.settings) body.append(await settingsPanel());
     if (node.headerFooter) body.append(await headerFooterPanel());
+    if (node.videos) body.append(await videosPanel(node));
     if (node.instagram) body.append(await instagramPanel(node));
     if (node.library) body.append(await libraryPanel());
     if (node.pagesList) body.append(await pagesPanel());
@@ -389,7 +390,7 @@
     if (seoKey(node)) body.append(await seoPanel(node));
     const hist = historyTargets(node);
     if (hist.whole.length || hist.prefixes.length || hist.fields.length) body.append(historyPanel(node, hist));
-    const editable = node.instagram || node.headerFooter || node.library || node.photos || node.facts || node.texts || node.homeList || node.settings || node.freePage || pageSlug(node) || node.switchKey || (node.children || []).some((c) => c.switchKey);
+    const editable = node.videos || node.instagram || node.headerFooter || node.library || node.photos || node.facts || node.texts || node.homeList || node.settings || node.freePage || pageSlug(node) || node.switchKey || (node.children || []).some((c) => c.switchKey);
     return h("div", {}, head, body, editable ? bar : null);
   }
 
@@ -1299,6 +1300,33 @@ Testo da scrivere.
       list);
   }
 
+  // Videos under a culture page: content/video/<slug>.json = {titolo, video: [{url, testo}]} (YouTube or Vimeo links).
+  async function videosPanel(node) {
+    const path = `content/video/${node.videos}.json`;
+    let data = {};
+    try { data = JSON.parse(await readText(path, true) || "{}") || {}; } catch (e) { data = {}; }
+    const vd = { path, dirty: false, titolo: typeof data.titolo === "string" ? data.titolo : "Video",
+      video: (Array.isArray(data.video) ? data.video : []).filter((x) => x && typeof x === "object").map((x) => ({ url: x.url || "", testo: x.testo || "" })) };
+    draft.vd = vd;
+    const changed = () => { vd.dirty = true; markDirty(); };
+    const title = h("input", { id: "vd-title", type: "text", placeholder: "Video" });
+    title.value = vd.titolo;
+    title.addEventListener("input", () => { vd.titolo = title.value; changed(); });
+    return h("section", { class: "panel" }, h("h2", {}, "Video (YouTube o Vimeo)"),
+      h("p", { class: "hint" }, "Incolla il link del video (su YouTube: Condividi → Copia link). Compaiono sotto le foto, nell'ordine della lista, ognuno con la sua didascalia se la scrivi. Senza video la sezione non compare."),
+      h("label", { class: "field", for: "vd-title" }, h("span", {}, "Titolo della sezione"), title),
+      rowsEditor(vd.video, [["url", "Link (https://youtu.be/…)"], ["testo", "Didascalia (facoltativa)"]], changed, "+ Aggiungi un video"));
+  }
+
+  async function videosChanges(out) {
+    const vd = draft.vd;
+    if (!vd || !vd.dirty) return;
+    const video = vd.video.map((v) => ({ url: v.url.trim(), testo: v.testo.trim() })).filter((v) => v.url)
+      .map((v) => (v.testo ? v : { url: v.url }));
+    const json = JSON.stringify({ titolo: vd.titolo.trim() || "Video", video }, null, 2) + "\n";
+    if (json !== (texts[vd.path] || "")) out[vd.path] = await blobFrom({ text: json });
+  }
+
   async function instagramChanges(out) {
     const ig = draft.ig;
     if (!ig || !ig.dirty) return;
@@ -1824,6 +1852,7 @@ Testo da scrivere.
           else out[ICON_FILE] = draft.icona.sha || (draft.icona.sha = await blobFrom({ blob: draft.icona.blob }));
         }
         await instagramChanges(out);
+        await videosChanges(out);
         // facts at the top of the page
         if (draft.facts && draft.facts.dirty) {
           const righe = draft.facts.rows.map((r) => ({ etichetta: r.etichetta.trim(), valore: r.valore.trim(), link: r.link.trim() }))
@@ -2236,6 +2265,7 @@ Testo da scrivere.
     if (node.freePage) { whole.add(`${PAGE_DIR}${node.freePage}.json`); prefixes.add(`img/${node.freePage}/`); }
     if (node.settings || node.headerFooter) whole.add(SITO_FILE);
     if (node.instagram) whole.add(`content/instagram/${node.instagram}.json`);
+    if (node.videos) whole.add(`content/video/${node.videos}.json`);
     if (node.id === "home" || node.homeList) whole.add("content/home.json");
     return { whole: [...whole], prefixes: [...prefixes], fields };
   }

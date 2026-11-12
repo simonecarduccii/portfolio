@@ -339,6 +339,10 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 @media (max-width: 640px) { .related-row { grid-auto-columns: calc((100% - var(--gutter)) / 2); } }
 
 /* Instagram posts under a culture page: three per row (one on phones), a tile with its own image or Instagram's embed. */
+.page-videos { padding: clamp(56px, 7vw, 104px) var(--pad) 0; }
+.page-videos .small-title { margin-bottom: 16px; }
+.page-videos-list { display: grid; gap: clamp(24px, 3vw, 40px); max-width: 1100px; }
+.page-video figcaption { margin-top: 8px; font-size: 14px; color: var(--ink-2); }
 .ig-posts { padding: clamp(56px, 7vw, 104px) var(--pad) var(--space-section); }
 .ig-posts .small-title { margin-bottom: 16px; }
 .ig-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gutter); align-items: start; }
