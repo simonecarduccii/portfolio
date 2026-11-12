@@ -2,7 +2,13 @@
   "categorie": [
     {
       "nome": "POP NO POP",
-      "cartella": "pop-no-pop"
+      "cartella": "pop-no-pop",
+      "serate": [
+        {
+          "nome": "Serata 1",
+          "cartella": "serata-1"
+        }
+      ]
     },
     {
       "nome": "Die Neue Brüke",

@@ -769,8 +769,23 @@ def event_categories(slug):
         if not folder or "/" in folder or ".." in folder:
             continue
         base = f"img/{slug}/{folder}"
+        # event photos divided by evening: "serate": [{"nome", "cartella"}] -> img/<slug>/<cartella>/foto/<serata>/01.jpg ...
+        # (photos straight in foto/ are an evening without a name)
+        serate = []
+        flat = [f"{base}/foto/{x.name}" for x in _numbered(ROOT / base / "foto")]
+        if flat:
+            serate.append({"name": "", "photos": flat})
+        for se in cat.get("serate") or []:
+            if not isinstance(se, dict):
+                continue
+            sf = _str(se.get("cartella"))
+            if not sf or "/" in sf or ".." in sf:
+                continue
+            ph = [f"{base}/foto/{sf}/{x.name}" for x in _numbered(ROOT / base / "foto" / sf)]
+            if ph:
+                serate.append({"name": _str(se.get("nome")), "photos": ph})
         cats.append({"name": name, "folder": folder, "base": base, "scarica": cat.get("scarica") is not False,
-                     "posters": _numbered(ROOT / base), "photos": [f"{base}/foto/{x.name}" for x in _numbered(ROOT / base / "foto")],
+                     "posters": _numbered(ROOT / base), "serate": serate, "photos": [p for se in serate for p in se["photos"]],
                      "videos": _video_items(cat.get("video"), name or "Video")})
     return data, cats
 
@@ -835,7 +850,8 @@ def poster_rows(slug):
                f'<button type="button" data-step="1" aria-label="Locandina successiva">&rarr;</button></div>')
         link = ("" if not cat["scarica"] else
                 f'<a class="poster-dl" href="{dl[0][0]}" download="{dl[0][1]}">Scarica<span class="dl-long"> la locandina</span> &darr;</a>')
-        photos = json.dumps([{"src": p, "alt": f"{name}, foto {k}"} for k, p in enumerate(cat["photos"], 1)], ensure_ascii=False)
+        photos = json.dumps([{"src": p, "alt": f"{name}{', ' + se['name'] if se['name'] else ''}, foto {k}", "serata": se["name"]}
+                             for se in cat["serate"] for k, p in enumerate(se["photos"], 1)], ensure_ascii=False)
         buttons = "".join([
             f'<button type="button" class="ev-btn" data-kind="foto" data-title="{html.escape(name)}" data-items="{html.escape(photos)}">Foto</button>' if cat["photos"] else "",
             f'<button type="button" class="ev-btn" data-kind="video" data-title="{html.escape(name)}" data-items="{html.escape(json.dumps(cat["videos"], ensure_ascii=False))}">Video</button>' if cat["videos"] else ""])
@@ -854,16 +870,31 @@ def poster_rows(slug):
 
 
 def page_gallery(slug, title):
-    """The photos of "Foto della pagina" in /admin (img/<slug>/01.jpg ...), as a "Galleria" of five columns, plus the event
-    photos of categories that have no posters (so they have no "Foto" button); none = no section."""
-    photos = [f"img/{slug}/{n:02d}.jpg" for n in range(1, slots(slug, 0) + 1) if exists(f"img/{slug}/{n:02d}.jpg")]
+    """"Galleria", the last section: 5 columns x 2 rows of photos in random order, arrows for the next ten (assets/main.js);
+    also the archive of the events. The photos of every evening of every category
+    (content/locandine) come first, divided by evening with buttons to show one at a time, then the photos of
+    "Foto della pagina" in /admin (img/<slug>/01.jpg ...); none = no section."""
+    groups = []
     for cat in event_categories(slug)[1]:
-        if not cat["posters"]:
-            photos += cat["photos"]
-    if not photos:
+        for se in cat["serate"]:
+            label = " · ".join(x for x in (cat["name"], se["name"]) if x)
+            groups.append((label, se["photos"]))
+    page_photos = [f"img/{slug}/{n:02d}.jpg" for n in range(1, slots(slug, 0) + 1) if exists(f"img/{slug}/{n:02d}.jpg")]
+    if page_photos:
+        groups.append(("Varie" if groups else "", page_photos))
+    if not groups:
         return ""
-    return ('<section class="page-gallery" aria-label="Galleria"><h2 class="small-title">Galleria</h2><div class="gallery-grid">'
-            + "".join(img(src, f"{title}, foto {k}") for k, src in enumerate(photos, 1)) + "</div></section>")
+    tiles = "".join(f'<div class="g-item" data-g="{gi}">{img(src, f"{label or title}, foto {k}")}</div>'
+                    for gi, (label, photos) in enumerate(groups) for k, src in enumerate(photos, 1))
+    chips = ""
+    if len(groups) > 1:
+        chips = ('<div class="g-filter" role="group" aria-label="Scegli la serata"><button type="button" aria-pressed="true" data-g="">Tutte</button>'
+                 + "".join(f'<button type="button" aria-pressed="false" data-g="{gi}">{html.escape(label)}</button>' for gi, (label, _) in enumerate(groups))
+                 + "</div>")
+    return (f'<section class="page-gallery" aria-label="Galleria"><h2 class="small-title">Galleria</h2>{chips}'
+            f'<div class="gallery-grid">{tiles}</div>'
+            '<div class="g-nav" hidden><button type="button" data-gs="-1" aria-label="Foto precedenti">&larr;</button>'
+            '<span class="poster-count" aria-live="polite">1 / 1</span><button type="button" data-gs="1" aria-label="Altre foto">&rarr;</button></div></section>')
 
 
 def build_culture(i, p):
