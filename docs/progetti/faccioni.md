@@ -4,9 +4,9 @@ Testi segnaposto (lorem ipsum): servono a fissare struttura e lunghezze. Simone 
 
 - **Anno:** 2025 - in corso
 - **Fotografia:** Simone Carducci
-- **Supporto:** Pellicola
-- **Fotocamera:** Leica CL, Chinon Auto 3001
-- **Pellicola:** Varie
+- **Supporto:** Varie
+- **Fotocamera:** Varie
+- **Pellicola:** 
 - **Luogo:** Europa
 - **Immagine di copertina:** img/faccioni/cover.jpg
 
@@ -20,4 +20,4 @@ Testi segnaposto (lorem ipsum): servono a fissare struttura e lunghezze. Simone 
 
 ## Crediti
 
-Fotografie e testo: Simone Carducci · 2025 - in corso · © 2025 Simone Carducci. Tutti i diritti riservati.
+FOTOGRAFIE E TESTO: SIMONE CARDUCCI · 2025 - in corso · © 2025-2026 SIMONE CARDUCCI. TUTTI I DIRITTI RISERVATI.
