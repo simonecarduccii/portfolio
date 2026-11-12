@@ -839,7 +839,9 @@ def poster_rows(slug):
             rows.append(f'<article class="ev-cat"><h2 class="small-title">{html.escape(name)}</h2>{gallery}{vids}</article>')
     if not (decks or rows):
         return ""
-    deck_row = f'<div class="deck-row" style="--cols: {len(decks)}">{"".join(decks)}</div>' if decks else ""
+    # poster size from /admin: "dimensione" piccole / medie / grandi = max width of each deck
+    width = {"piccole": 220, "medie": 300, "grandi": 420}.get(_str(data.get("dimensione")), 300)
+    deck_row = f'<div class="deck-row" style="--cols: {len(decks)}; --deck-w: {width}px">{"".join(decks)}</div>' if decks else ""
     return f'<section class="poster-cats" aria-label="Eventi">{deck_row}{"".join(rows)}</section>'
 
 

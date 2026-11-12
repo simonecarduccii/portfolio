@@ -1336,7 +1336,7 @@ Testo da scrivere.
       .map((p) => ({ orig: p, sha: tree[p], url: siteUrl(p) }));
     // print-quality original of a poster (for the download button): stampa/<slug>/<cartella>/NN.jpg or .png
     const rawOf = (p) => { const b = p.replace(/\.jpg$/, ""); const q = [".jpg", ".png"].map((e) => b + e).find((x) => tree[x]); return q ? { sha: tree[q], ext: q.slice(-3) } : null; };
-    const ps = { path, slug, dirty: false,
+    const ps = { path, slug, dirty: false, dimensione: ["piccole", "medie", "grandi"].includes(data.dimensione) ? data.dimensione : "medie",
       cats: (Array.isArray(data.categorie) ? data.categorie : []).filter((c) => c && typeof c === "object" && c.cartella).map((c) => ({
         nome: c.nome || "",
         scarica: c.scarica !== false,
@@ -1399,7 +1399,11 @@ Testo da scrivere.
           rowsEditor(cat.video, [["url", "Link (https://youtu.be/…)"], ["testo", "Didascalia (facoltativa)"]], changed, "+ Aggiungi un video")));
     }), h("button", { type: "button", class: "btn small", onclick: () => { ps.cats.push({ nome: "", scarica: true, locandine: [], foto: [], video: [] }); draw(); changed(); list.querySelector(".pc-cat:last-of-type input").focus(); } }, "+ Aggiungi una categoria"));
     draw();
+    const size = h("select", { id: "pc-size" }, [["piccole", "Piccole"], ["medie", "Medie"], ["grandi", "Grandi"]].map(([v, t]) => h("option", { value: v }, t)));
+    size.value = ps.dimensione;
+    size.addEventListener("change", () => { ps.dimensione = size.value; changed(); });
     return h("section", { class: "panel" }, h("h2", { id: "pc-title" }, "Eventi per categoria"),
+      h("label", { class: "field inline", for: "pc-size" }, h("span", {}, "Dimensione delle locandine"), size),
       h("p", { class: "hint" }, "Le locandine di tutte le categorie stanno su una riga, una colonna per categoria: ognuna è un mazzo di carte che si sfoglia con le frecce ← → (o con il dito). Sotto, per ogni categoria, le foto dell'evento e i video. L'ordine è quello qui sotto. Puoi trascinare le immagini dal Finder dentro un riquadro. Quello che è vuoto non compare sul sito, e nemmeno una categoria tutta vuota."),
       list);
   }
@@ -1442,7 +1446,7 @@ Testo da scrivere.
     // images of categories or places no longer used
     const mine = new RegExp(`^(img/${ps.slug}/[^/]+/(foto/)?\\d{2,}\\.jpg|stampa/${ps.slug}/[^/]+/\\d{2,}\\.(jpg|png))$`);
     Object.keys(tree).forEach((p) => { if (mine.test(p) && !used.has(p) && !(p in out)) out[p] = null; });
-    const json = JSON.stringify({ categorie }, null, 2) + "\n";
+    const json = JSON.stringify(ps.dimensione === "medie" ? { categorie } : { dimensione: ps.dimensione, categorie }, null, 2) + "\n";
     if (json !== (texts[ps.path] || "")) out[ps.path] = await blobFrom({ text: json });
   }
 
