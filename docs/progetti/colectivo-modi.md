@@ -15,7 +15,7 @@ Un collettivo che organizza serate, filma i DJ set e li pubblica, perché una se
 
 ## Testo pagina (mockup: 3–4 paragrafi da 60–90 parole, senza titoletti)
 
-modì è un collettivo che tiene insieme musica, serate e video. Organizza DJ set, li filma e li pubblica come serie, così che una serata non finisca quando si spengono le luci. Intorno al collettivo si è formata una community di oltre 100 persone attive in progetti artistici e non, e le serate hanno superato i 500 partecipanti. Tra il 2025 e il 2026 ne ho curato la direzione creativa.
+modì è un collettivo che tiene insieme musica, serate e video. Organizza DJ set, li filma e li pubblica come serie, così che una serata non finisca quando si spengono le luci. Intorno al collettivo si è formata una community di oltre 100 persone attive in progetti artistici e non, e le singole serate superavano i 500 partecipanti. Tra il 2025 e il 2026 ne ho curato la direzione creativa.
 
 Il mio lavoro partiva dall’identità: dare a modì un’immagine riconoscibile, dentro e fuori dalla pista. Ho definito la strategia creativa, il tono della comunicazione e l’aspetto di ogni contenuto, dalla fotografia ai formati editoriali alle campagne digitali. Da lì seguivo tutto il flusso, dalla ricerca al concept fino alla consegna, coordinando collaboratori e fornitori quando serviva.
 
