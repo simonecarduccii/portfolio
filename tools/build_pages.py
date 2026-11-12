@@ -828,7 +828,7 @@ def poster_rows(slug):
                    f'<span class="poster-count" aria-live="polite">1 / {n}</span>'
                    f'<button type="button" data-step="1" aria-label="Locandina successiva">&rarr;</button></div>')
             link = ("" if cat.get("scarica") is False else
-                    f'<a class="poster-dl" href="{dl[0][0]}" download="{dl[0][1]}">Scarica la locandina &darr;</a>')
+                    f'<a class="poster-dl" href="{dl[0][0]}" download="{dl[0][1]}">Scarica<span class="dl-long"> la locandina</span> &darr;</a>')
             decks.append(f'<div class="deck-col"><h2 class="small-title">{html.escape(name)}</h2>'
                          f'<div class="deck" tabindex="0" style="--n: {n}" aria-label="{html.escape(name)}: locandine, frecce per sfogliare">{cards}</div>'
                          f'<div class="deck-foot">{nav}{link}</div></div>')
@@ -875,9 +875,9 @@ def build_culture(i, p):
     </div>
   </section>
   {poster_rows(s)}
+  {instagram_posts(s)}
   {page_videos(s)}
   {page_gallery(s, p["title"])}
-  {instagram_posts(s)}
   <a class="next-project" href="{nxt["slug"]}.html"><span>Progetto successivo</span><span>{html.escape(nxt["title"])} ›</span></a>
 {band_archive()}"""
     page(file=f"{s}.html", title=p["title"], description=plain(lead), body=body, header="overlay", main_class="flush")
