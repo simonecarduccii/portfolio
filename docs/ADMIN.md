@@ -171,3 +171,5 @@ Una volta salvate, le colonne del footer non seguono più da sole i cambi fatti 
 - le foto: `img/<pagina>/ig-<codice del post>.jpg`.
 
 **Crediti standard** (Impostazioni → Crediti dei progetti fotografici). È il testo che compare in fondo a ogni progetto fotografico con il campo Crediti vuoto, e `[ANNO]` diventa l'anno del progetto. Si salva in `content/sito.json`, alla voce `crediti`. In un progetto puoi scrivere crediti diversi, oppure "–" per non mostrarli.
+
+**Video su Bohème e modì** (riquadro "Video (YouTube o Vimeo)"). Incolli il link di ogni video e, se vuoi, scrivi una didascalia. I video compaiono sotto le foto, nell'ordine della lista. Si salvano in `content/video/<pagina>.json`.

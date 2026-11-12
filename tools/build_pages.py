@@ -734,6 +734,31 @@ def instagram_posts(slug):
             f'<div class="ig-grid">{"".join(items)}</div></section>')
 
 
+def page_videos(slug):
+    """Videos under a culture page, set in /admin: content/video/<slug>.json
+    {"titolo": "Video", "video": [{"url": YouTube/Vimeo link, "testo": caption}]}; no videos = no section."""
+    f = ROOT / "content" / "video" / f"{slug}.json"
+    if not f.is_file():
+        return ""
+    try:
+        data = json.loads(f.read_text(encoding="utf-8"))
+    except ValueError:
+        return ""
+    items = []
+    for v in data.get("video") or []:
+        if not isinstance(v, dict):
+            continue
+        text = _str(v.get("testo"))
+        player = video_html(_str(v.get("url")), text or "Video")
+        if player:
+            items.append(f'<figure class="page-video">{player}' + (f"<figcaption>{inline(text)}</figcaption>" if text else "") + "</figure>")
+    if not items:
+        return ""
+    title = _str(data.get("titolo")) or "Video"
+    return (f'<section class="page-videos" aria-label="{html.escape(title)}"><h2 class="small-title">{html.escape(title)}</h2>'
+            f'<div class="page-videos-list">{"".join(items)}</div></section>')
+
+
 def build_culture(i, p):
     meta, notes, secs = parse_sheet(p["doc"])
     nxt = CULTURE[(i + 1) % len(CULTURE)]
@@ -757,6 +782,7 @@ def build_culture(i, p):
     </div>
     <div class="gallery col" aria-label="Immagini del progetto">{"".join(img(f"img/{s}/{n:02d}.jpg", f"{p['title']}, immagine {n}") for n in range(1, slots(s, 6) + 1) if exists(f"img/{s}/{n:02d}.jpg"))}</div>
   </section>
+  {page_videos(s)}
   {instagram_posts(s)}
   <a class="next-project" href="{nxt["slug"]}.html"><span>Progetto successivo</span><span>{html.escape(nxt["title"])} ›</span></a>
 {band_archive()}"""
