@@ -409,7 +409,11 @@ function scRandomPlayer(box, autoplay) {
       holder.appendChild(el);
       if (auto) el.play().catch(function () {});
     }
-    if (caption) caption.textContent = v.title || '';
+    if (caption) {
+      // the DJ, and under it the evening it played at
+      caption.textContent = v.title || '';
+      if (v.event) { var ev = document.createElement('span'); ev.className = 'vr-event'; ev.textContent = v.event; caption.appendChild(ev); }
+    }
   }
   var next = box.querySelector('.vr-next');
   if (next) next.addEventListener('click', function () { at = (at + 1) % order.length; play(true); });

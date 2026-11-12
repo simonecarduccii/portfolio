@@ -817,6 +817,16 @@ def event_categories(slug):
         if serate:
             serate[0]["photos"] = flat + serate[0]["photos"]
             serate[0]["videos"] = serate[0]["videos"] + old_videos
+        # each video knows its evening, shown under the DJ in the Video band ("DIE NEUE BRÜKE · Vol. I (26/03/2026)");
+        # a title that already ends with the event ("Novetik - Die Neue Brüke I") keeps only the DJ
+        for se in serate:
+            event = se["name"] if se["name"].casefold().startswith(name.casefold()) else " · ".join(x for x in (name, se["name"]) if x)
+            for v in se["videos"]:
+                dj, sep, rest = v["title"].rpartition(" - ")
+                if sep and dj and name and rest.casefold().startswith(name.casefold()):
+                    v["title"] = dj
+                if event and event != v["title"]:
+                    v["event"] = event
         cats.append({"name": name, "folder": folder, "base": base, "scarica": cat.get("scarica") is not False,
                      "posters": posters, "serate": serate,
                      "photos": [p for se in serate for p in se["photos"]],
@@ -834,7 +844,11 @@ def _random_player(videos, cls="", more=True):
     else:
         player = f'<div class="video file"><video src="{first["src"]}" controls playsinline preload="metadata"></video></div>'
     return (f'<div class="video-random{cls}" data-videos="{html.escape(json.dumps(videos, ensure_ascii=False))}">{player}'
-            f'<div class="vr-foot"><p class="vr-caption">{html.escape(first["title"])}</p>{more}</div></div>')
+            f'<div class="vr-foot"><p class="vr-caption">{html.escape(first["title"])}{_event(first)}</p>{more}</div></div>')
+
+
+def _event(v):
+    return f'<span class="vr-event">{html.escape(v["event"])}</span>' if v.get("event") else ""
 
 
 def page_videos(slug):

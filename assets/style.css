@@ -453,6 +453,8 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 .page-videos .vr-foot { max-width: 1100px; margin: 14px auto 0; }
 .vr-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-top: 10px; }
 .vr-caption { margin: 0; font-size: 14px; color: var(--ink-2); }
+.vr-event { display: block; margin-top: 2px; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-2); }
+.vr-caption:has(.vr-event) { color: var(--ink); }
 .vr-next { font: inherit; font-size: 14px; color: var(--ink); background: none; border: 0; padding: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; white-space: nowrap; }
 
 /* Instagram posts under a culture page: three per row (one on phones), a tile with its own image or Instagram's embed. */
