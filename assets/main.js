@@ -293,32 +293,54 @@
   });
 })();
 
-// Posters by category: one poster at a time; the arrows (or the keyboard arrows on the focused row) change it.
+// Posters by category: a deck of cards. The arrows, a swipe or the keyboard arrows on the focused deck bring the
+// poster behind to the front (and back); the download link follows the front poster.
 (function () {
-  document.querySelectorAll('.poster-cat').forEach(function (cat) {
-    var track = cat.querySelector('.poster-track');
-    var nav = cat.querySelector('.poster-nav');
-    if (!track || !nav) return;
-    var prev = nav.querySelector('[data-step="-1"]');
-    var next = nav.querySelector('[data-step="1"]');
-    var count = nav.querySelector('.poster-count');
-    var total = track.children.length;
-    function index() { return Math.round(track.scrollLeft / (track.clientWidth || 1)); }
-    function update() {
-      var i = index();
-      count.textContent = (i + 1) + ' / ' + total;
-      prev.disabled = i <= 0;
-      next.disabled = i >= total - 1;
+  document.querySelectorAll('.deck-col').forEach(function (col) {
+    var deck = col.querySelector('.deck');
+    var cards = deck ? [].slice.call(deck.querySelectorAll('.card')) : [];
+    var n = cards.length;
+    if (n < 2) return;
+    var count = col.querySelector('.poster-count');
+    var link = col.querySelector('.poster-dl');
+    var i = 0;
+    function show() {
+      cards.forEach(function (c, k) {
+        var d = (k - i + n) % n;
+        c.style.setProperty('--d', d);
+        c.classList.toggle('far', d > 3);
+        if (d === 0) c.removeAttribute('aria-hidden'); else c.setAttribute('aria-hidden', 'true');
+      });
+      if (count) count.textContent = (i + 1) + ' / ' + n;
+      if (link) { link.href = cards[i].getAttribute('data-dl'); link.setAttribute('download', cards[i].getAttribute('data-name')); }
     }
-    nav.addEventListener('click', function (e) {
-      var b = e.target.closest('button');
-      if (!b) return;
-      var i = Math.max(0, Math.min(total - 1, index() + Number(b.getAttribute('data-step'))));
-      track.scrollTo({ left: i * track.clientWidth, behavior: 'smooth' });
+    function step(s) {
+      if (s > 0) { // the front card slides away, then goes to the back
+        var front = cards[i];
+        front.classList.add('leaving');
+        setTimeout(function () { front.classList.remove('leaving'); }, 260);
+      }
+      i = (i + s + n) % n;
+      show();
+    }
+    col.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-step]');
+      if (b) step(Number(b.getAttribute('data-step')));
     });
-    track.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update);
-    update();
+    deck.addEventListener('click', function () { step(1); });
+    deck.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
+    });
+    var x0 = null;
+    deck.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+    deck.addEventListener('touchend', function (e) {
+      if (x0 === null) return;
+      var dx = e.changedTouches[0].clientX - x0;
+      x0 = null;
+      if (Math.abs(dx) > 40) step(dx < 0 ? 1 : -1);
+    });
+    show();
   });
 })();
 

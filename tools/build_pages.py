@@ -775,7 +775,7 @@ def poster_rows(slug):
     def numbered(d):
         return sorted((x for x in d.glob("[0-9][0-9]*.jpg") if x.stem.isdigit()), key=lambda x: int(x.stem)) if d.is_dir() else []
 
-    rows = []
+    rows, decks = [], []
     for cat in data.get("categorie") or []:
         if not isinstance(cat, dict):
             continue
@@ -797,29 +797,34 @@ def poster_rows(slug):
         n = len(posters)
 
         def download(x):
-            # print-quality original sent from /admin (stampa/...), else the web version; "scarica": false hides it
-            if cat.get("scarica") is False:
-                return ""
+            # print-quality original sent from /admin (stampa/...), else the web version
             raw = next((f"stampa/{slug}/{folder}/{x.stem}{e}" for e in (".jpg", ".png") if (ROOT / "stampa" / slug / folder / f"{x.stem}{e}").is_file()), f"{base}/{x.name}")
-            fname = f"{slug}-{folder}-{x.stem}{Path(raw).suffix}"
-            return f'<figcaption><a class="poster-dl" href="{raw}" download="{fname}">Scarica la locandina &darr;</a></figcaption>'
+            return raw, f"{slug}-{folder}-{x.stem}{Path(raw).suffix}"
 
-        nav = ("" if n < 2 else
-               f'<div class="poster-nav"><button type="button" data-step="-1" aria-label="Locandina precedente" disabled>&larr;</button>'
-               f'<span class="poster-count" aria-live="polite">1 / {n}</span>'
-               f'<button type="button" data-step="1" aria-label="Locandina successiva">&rarr;</button></div>')
-        track = ("" if not posters else
-                 f'<div class="poster-track" tabindex="0" aria-label="{html.escape(name)}: locandine">'
-                 + "".join(f'<figure class="poster">{img(f"{base}/{x.name}", f"{name}, locandina {k}")}{download(x)}</figure>' for k, x in enumerate(posters, 1))
-                 + "</div>")
+        if posters:
+            # a deck of cards: the posters piled up, the arrows (or a swipe) bring the one behind to the front
+            dl = [download(x) for x in posters]
+            cards = "".join(
+                f'<figure class="card{" far" if k > 3 else ""}" style="--d: {k}" data-dl="{dl[k][0]}" data-name="{dl[k][1]}"{"" if k == 0 else " aria-hidden=\"true\""}>'
+                f'{img(f"{base}/{x.name}", f"{name}, locandina {k + 1}")}</figure>' for k, x in enumerate(posters))
+            nav = ("" if n < 2 else
+                   f'<div class="poster-nav"><button type="button" data-step="-1" aria-label="Locandina precedente">&larr;</button>'
+                   f'<span class="poster-count" aria-live="polite">1 / {n}</span>'
+                   f'<button type="button" data-step="1" aria-label="Locandina successiva">&rarr;</button></div>')
+            link = ("" if cat.get("scarica") is False else
+                    f'<a class="poster-dl" href="{dl[0][0]}" download="{dl[0][1]}">Scarica la locandina &darr;</a>')
+            decks.append(f'<div class="deck-col"><h2 class="small-title">{html.escape(name)}</h2>'
+                         f'<div class="deck" tabindex="0" style="--n: {n}" aria-label="{html.escape(name)}: locandine, frecce per sfogliare">{cards}</div>'
+                         f'<div class="deck-foot">{nav}{link}</div></div>')
         gallery = ("" if not photos else
                    '<div class="event-photos">' + "".join(img(f"{base}/foto/{x.name}", f"{name}, foto {k}") for k, x in enumerate(photos, 1)) + "</div>")
         vids = f'<div class="page-videos-list event-videos">{"".join(videos)}</div>' if videos else ""
-        rows.append(f'<article class="ev-cat"><div class="poster-cat{"" if posters else " no-posters"}"><div class="poster-head">'
-                    f'<h2 class="small-title">{html.escape(name)}</h2>{nav}</div>{track}</div>{gallery}{vids}</article>')
-    if not rows:
+        if gallery or vids:
+            rows.append(f'<article class="ev-cat"><h2 class="small-title">{html.escape(name)}</h2>{gallery}{vids}</article>')
+    if not (decks or rows):
         return ""
-    return f'<section class="poster-cats" aria-label="Eventi">{"".join(rows)}</section>'
+    deck_row = f'<div class="deck-row" style="--cols: {len(decks)}">{"".join(decks)}</div>' if decks else ""
+    return f'<section class="poster-cats" aria-label="Eventi">{deck_row}{"".join(rows)}</section>'
 
 
 def build_culture(i, p):
