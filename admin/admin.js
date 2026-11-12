@@ -1295,7 +1295,7 @@ Testo da scrivere.
       const move = (d) => { const j = i + d; if (j < 0 || j >= ig.post.length) return; [ig.post[i], ig.post[j]] = [ig.post[j], ig.post[i]]; draw(); changed(); };
       return h("div", { class: "ig-item" + (pst.visibile ? "" : " off") },
         h("div", { class: "ig-thumb" }, vsrc ? h("video", { src: vsrc, muted: "", playsinline: "", preload: "metadata" })
-          : pst.img ? h("img", { src: pst.img.url, alt: "" }) : h("span", { class: "ph" }, "senza copertina: quella di Instagram")),
+          : pst.img ? h("img", { src: pst.img.url, alt: "" }) : h("span", { class: "ph" }, "senza copertina: player di Instagram")),
         h("div", { class: "ig-fields" }, url, cap,
           h("div", { class: "photo-btns" },
             h("label", { class: "btn small" }, vfile, pst.video ? "Cambia video" : "Carica il video"),
@@ -1311,7 +1311,7 @@ Testo da scrivere.
     }), h("button", { type: "button", class: "btn small", onclick: () => { ig.post.push({ url: "", testo: "", visibile: true, img: null, video: "" }); draw(); changed(); list.querySelector(".ig-item:last-of-type input").focus(); } }, "+ Aggiungi un post"));
     draw();
     return h("section", { class: "panel" }, h("h2", {}, "Post di Instagram"),
-      h("p", { class: "hint" }, "Incolla il link di ogni post (su Instagram: ··· → Copia link). Ogni post è una scheda verticale pulita, senza la cornice di Instagram: con “Carica la copertina” scegli l'immagine (altrimenti il sito prova a usare quella di Instagram, e se non la trova resta una scheda scura con ▶); un clic apre il post su Instagram. Con “Carica il video” (il file del reel, fino a 50 MB) il video gira direttamente nella scheda, senza audio finché non si preme “Audio”. Senza post la sezione non compare."),
+      h("p", { class: "hint" }, "Incolla il link di ogni post (su Instagram: ··· → Copia link). Senza altro, il sito mostra il post con il player di Instagram, che si guarda nella pagina. Con “Carica la copertina” il post diventa una scheda verticale pulita (copertina e ▶) che apre Instagram; con “Carica il video” (il file del reel, fino a 50 MB) il video gira nella scheda, senza audio finché non si preme “Audio”. I post stanno al centro. Senza post la sezione non compare."),
       h("label", { class: "field", for: "ig-title" }, h("span", {}, "Titolo della sezione"), title),
       list);
   }
