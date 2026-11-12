@@ -1260,6 +1260,7 @@ Testo da scrivere.
     const ig = {
       path, slug, dirty: false,
       titolo: typeof data.titolo === "string" ? data.titolo : "Su Instagram",
+      profilo: typeof data.profilo === "string" ? data.profilo : "",
       post: (Array.isArray(data.post) ? data.post : []).filter((x) => x && typeof x === "object").map((x) => ({
         url: x.url || "", testo: x.testo || "", visibile: x.visibile !== false,
         img: x.immagine && tree[x.immagine] ? { orig: x.immagine, url: siteUrl(x.immagine) } : null,
@@ -1271,6 +1272,9 @@ Testo da scrivere.
     const title = h("input", { id: "ig-title", type: "text", placeholder: "Su Instagram" });
     title.value = ig.titolo;
     title.addEventListener("input", () => { ig.titolo = title.value; changed(); });
+    const profile = h("input", { id: "ig-profile", type: "url", placeholder: "https://www.instagram.com/nomeprofilo/" });
+    profile.value = ig.profilo;
+    profile.addEventListener("input", () => { ig.profilo = profile.value.trim(); changed(); });
     const list = h("div", { class: "ig-list" });
     const draw = () => list.replaceChildren(...ig.post.map((pst, i) => {
       const url = h("input", { type: "url", placeholder: "Link del post (https://www.instagram.com/p/…)", "aria-label": "Link del post" });
@@ -1313,6 +1317,7 @@ Testo da scrivere.
     return h("section", { class: "panel" }, h("h2", {}, "Post di Instagram"),
       h("p", { class: "hint" }, "Incolla il link di ogni post (su Instagram: ··· → Copia link). Senza altro, il sito mostra il post con il player di Instagram, che si guarda nella pagina. Con “Carica la copertina” il post diventa una scheda verticale pulita (copertina e ▶) che apre Instagram; con “Carica il video” (il file del reel, fino a 50 MB) il video gira nella scheda, senza audio finché non si preme “Audio”. I post stanno al centro. Senza post la sezione non compare."),
       h("label", { class: "field", for: "ig-title" }, h("span", {}, "Titolo della sezione"), title),
+      h("label", { class: "field", for: "ig-profile" }, h("span", {}, "Link al profilo Instagram (compare accanto al titolo)"), profile),
       list);
   }
 
@@ -1612,7 +1617,7 @@ Testo da scrivere.
     // photos of posts that were removed or lost their photo
     Object.keys(tree).forEach((p) => { if (p.startsWith(`img/${ig.slug}/ig-`) && !used.has(p) && !(p in out)) out[p] = null; });
     Object.keys(tree).forEach((p) => { if (p.startsWith(`media/${ig.slug}/ig-`) && !usedMedia.has(p) && !(p in out)) out[p] = null; });
-    const json = JSON.stringify({ titolo: ig.titolo.trim() || "Su Instagram", post }, null, 2) + "\n";
+    const json = JSON.stringify({ titolo: ig.titolo.trim() || "Su Instagram", ...(ig.profilo ? { profilo: ig.profilo } : {}), post }, null, 2) + "\n";
     if (json !== (texts[ig.path] || "")) out[ig.path] = await blobFrom({ text: json });
   }
 
