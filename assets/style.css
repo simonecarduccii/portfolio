@@ -362,8 +362,34 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 .ev-cat { display: grid; gap: 16px; }
 .event-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gutter); }
 .event-photos .media { aspect-ratio: 3 / 2; }
-@media (max-width: 900px) { .deck-row { grid-template-columns: repeat(min(var(--cols), 2), minmax(0, 1fr)); } }
-@media (max-width: 560px) { .deck-row { grid-template-columns: 1fr; } .event-photos { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) {
+  .deck-row { gap: 12px; }
+  .deck { margin: 12px 12px 0 0; }
+  .card { transform: translate(calc(min(var(--d), 3) * 4px), calc(min(var(--d), 3) * -4px)) rotate(calc(min(var(--d), 3) * 1.6deg)); }
+  .deck-col .small-title { font-size: 13px; }
+  .deck-foot { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .poster-nav { gap: 6px; }
+  .poster-nav button { font-size: 16px; }
+  .poster-count, .poster-dl { font-size: 11px; }
+  .event-photos { grid-template-columns: 1fr 1fr; }
+}
+
+/* One player for several videos, with the list to choose from below it. */
+.video-player { display: grid; gap: 16px; max-width: 1100px; }
+.vp-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--gutter); }
+.vp-item { display: grid; gap: 6px; width: 100%; padding: 0; border: 0; background: none; font: inherit; font-size: 14px; color: var(--ink-2); text-align: left; cursor: pointer; }
+.vp-item img, .vp-ph { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: #111; color: #fff; opacity: .7; transition: opacity .2s; }
+.vp-ph { display: grid; place-items: center; font-size: 22px; }
+.vp-item:hover img, .vp-item[aria-current] img, .vp-item[aria-current] .vp-ph { opacity: 1; }
+.vp-item[aria-current] { color: var(--ink); }
+.vp-item[aria-current] span { text-decoration: underline; text-underline-offset: 3px; }
+/* "Galleria": the photos of the page, five columns (two on phones). */
+.page-gallery { padding: clamp(56px, 7vw, 104px) var(--pad) 0; }
+.page-gallery .small-title { margin-bottom: 16px; }
+.gallery-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.gallery-grid .media { aspect-ratio: 1; }
+@media (max-width: 900px) { .gallery-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 /* Instagram posts under a culture page: three per row (one on phones), a tile with its own image or Instagram's embed. */
 .page-videos { padding: clamp(56px, 7vw, 104px) var(--pad) 0; }
