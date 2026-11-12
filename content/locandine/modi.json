@@ -31,8 +31,8 @@
       "cartella": "die-neue-bruke",
       "serate": [
         {
-          "cartella": "die-neue-bruke-i-26-03",
-          "nome": "Die Neue Brüke I · 26/03",
+          "cartella": "vol-i-26-03-2026",
+          "nome": "Vol. I (26/03/2026)",
           "video": [
             {
               "url": "https://youtu.be/XwZf_MF1fxM",
@@ -45,8 +45,8 @@
           ]
         },
         {
-          "cartella": "die-neue-bruke-ii-23-04",
-          "nome": "Die Neue Brüke II · 23/04",
+          "cartella": "vol-ii-23-04-2026",
+          "nome": "Vol. II (23/04/2026)",
           "video": [
             {
               "url": "https://youtu.be/rBSP5Guy_-c",
@@ -67,8 +67,8 @@
           ]
         },
         {
-          "cartella": "die-neue-bruke-iii-28-05",
-          "nome": "Die Neue Brüke III · 28/05"
+          "cartella": "vol-iii-28-05-2026",
+          "nome": "Vol. III (28/05/2026)"
         }
       ]
     },
