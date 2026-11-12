@@ -967,6 +967,8 @@ Fotografie e testo: Simone Carducci · ${year}
     { title: "Contatti e link", hint: "Valgono in tutto il sito: footer, About, link di Lomography. Lascia LinkedIn vuoto per non mostrarlo.", fields: [
       ["contatti.email", "Email"], ["contatti.instagram", "Instagram (indirizzo completo)"],
       ["contatti.lomography", "Lomography (indirizzo completo)"], ["contatti.linkedin", "LinkedIn (indirizzo completo)"]] },
+    { title: "Progetti fotografici", hint: "La parola prima dell'anno nella riga sotto il titolo delle pagine (es. Marrakech · Ricerca visiva: 2026). Se svuoti il campo compare solo l'anno.", fields: [
+      ["etichette.ricerca_visiva", "Etichetta prima dell'anno", "vuoto = solo l'anno", "Ricerca visiva"]] },
     { title: "Bohème Magazine", fields: [["cultura.boheme.titolo", "Titolo"], ["cultura.boheme.anno", "Anno nella pagina"], ["cultura.boheme.anno_home", "Anno accanto al titolo in home"]] },
     { title: "Colectivo modì", fields: [["cultura.modi.titolo", "Titolo"], ["cultura.modi.anno", "Anno nella pagina"], ["cultura.modi.anno_home", "Anno accanto al titolo in home"]] },
     { title: "Progetti con l'AI (righe della lista)", hint: "In home e nella pagina Progetti con l'AI. Lettura resta privato: niente pagina e niente stato.", fields: [
@@ -1112,11 +1114,13 @@ Fotografie e testo: Simone Carducci · ${year}
     const wrap = h("div", {});
     SITO_FORM.forEach((g) => {
       const panel = h("section", { class: "panel" }, h("h2", {}, g.title), g.hint ? h("p", { class: "hint" }, g.hint) : null);
-      g.fields.forEach(([path, label, placeholder]) => {
+      g.fields.forEach(([path, label, placeholder, dflt]) => {
         const id = "s" + path.replace(/\W/g, "-");
         const input = h("input", { id, type: path.endsWith("email") ? "email" : path.startsWith("contatti.") && !path.endsWith("email") ? "url" : "text" });
         if (placeholder) input.placeholder = placeholder;
-        input.value = getPath(data, path) || "";
+        const cur = getPath(data, path);
+        // a field with a default shows it until changed; emptied, it stays empty on the site
+        input.value = dflt != null ? (typeof cur === "string" ? cur : dflt) : cur || "";
         input.addEventListener("input", () => { draft.sito[path] = input.value.trim(); markDirty(); });
         panel.append(h("label", { class: "field", for: id }, h("span", {}, label), input));
       });
