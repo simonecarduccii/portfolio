@@ -722,19 +722,22 @@ def instagram_posts(slug):
         text = str(post.get("testo", "")).strip()
         pic = str(post.get("immagine", "")).strip()
         vid = str(post.get("video", "")).strip()
+        label = html.escape(text or "Reel di Instagram")
+        caption = f'<span class="ig-caption">{html.escape(text) or "Guarda su Instagram"} &#8599;</span>'
+        play = '<span class="ig-ph" aria-hidden="true">Reel su Instagram</span><span class="ig-play" aria-hidden="true">&#9654;</span>'
         if VIDEO_FILE.fullmatch(vid) and exists(vid):
-            # the reel's own video file (uploaded in /admin): only the video, no Instagram frame around it
+            # the reel's own video file (uploaded in /admin): it plays silently in the card, a click turns the sound on/off
             poster = f' poster="{pic}"' if pic and exists(pic) else ""
-            items.append(f'<div class="ig-post ig-video"><div class="media"><video src="{vid}"{poster} autoplay muted loop playsinline controls preload="metadata" '
-                         f'aria-label="{html.escape(text or "Video del post su Instagram")}"></video></div>'
+            items.append(f'<div class="ig-post ig-card ig-video"><div class="media"><video src="{vid}"{poster} autoplay muted loop playsinline preload="metadata" '
+                         f'aria-label="{label}"></video><button type="button" class="ig-sound" aria-pressed="false">Audio</button></div>'
                          f'<a class="ig-caption" href="{link}" target="_blank" rel="noopener">{html.escape(text) or "Guarda su Instagram"} &#8599;</a></div>')
-        elif pic and exists(pic):
-            items.append(f'<a class="ig-post" href="{link}" target="_blank" rel="noopener">'
-                         f'<div class="media"><img src="{pic}" alt="{html.escape(text or "Post su Instagram")}" loading="lazy"{focus(pic)}></div>'
-                         f'<span class="ig-caption">{html.escape(text) or "Apri su Instagram"} &#8599;</span></a>')
         else:
-            items.append(f'<div class="ig-post ig-embed"><iframe src="https://www.instagram.com/{kind}/{code}/embed/" title="{html.escape(text or "Post su Instagram")}" loading="lazy" scrolling="no" allowtransparency="true"></iframe>'
-                         + (f'<span class="ig-caption">{html.escape(text)}</span>' if text else "") + '</div>')
+            # a clean 9:16 card: the cover set in /admin, else the post's own cover from Instagram (if it doesn't load,
+            # a plain dark card); a click opens the post on Instagram. No Instagram frame around it.
+            cover = (f'<img src="{pic}" alt="{label}" loading="lazy"{focus(pic)}>' if pic and exists(pic) else
+                     f'<img src="https://www.instagram.com/{kind}/{code}/media/?size=l" alt="{label}" loading="lazy" referrerpolicy="no-referrer" '
+                     'onerror="this.parentNode.classList.add(\'no-cover\');this.remove()">')
+            items.append(f'<a class="ig-post ig-card" href="{link}" target="_blank" rel="noopener"><div class="media">{cover}{play}</div>{caption}</a>')
     if not items:
         return ""
     title = str(data.get("titolo", "")).strip() or "Su Instagram"
