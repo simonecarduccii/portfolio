@@ -9,16 +9,20 @@
           "nome": "Acto I (26/02/2026)"
         },
         {
-          "cartella": "serata-2"
+          "cartella": "acto-ii-12-03-2026",
+          "nome": "Acto II (12/03/2026)"
         },
         {
-          "cartella": "serata-3"
+          "cartella": "acto-iv-14-05-2026",
+          "nome": "Acto IV (14/05/2026)"
         },
         {
-          "cartella": "serata-4"
+          "cartella": "acto-iii-16-04-2026",
+          "nome": "Acto III (16/04/2026)"
         },
         {
-          "cartella": "serata-5"
+          "cartella": "acto-v-21-05-2026",
+          "nome": "Acto V (21/05/2026)"
         }
       ]
     },
