@@ -495,7 +495,6 @@ Testo da scrivere.
 
 ## Crediti
 
-Fotografie e testo: Simone Carducci · ${year}
 `;
   const unsaved = () => draft.dirty && !confirm("Ci sono modifiche non salvate in questa scheda: se continui le perdi. Continuare?");
   const asJson = (v) => JSON.stringify(v, null, 2) + "\n";
@@ -969,6 +968,8 @@ Fotografie e testo: Simone Carducci · ${year}
       ["contatti.lomography", "Lomography (indirizzo completo)"], ["contatti.linkedin", "LinkedIn (indirizzo completo)"]] },
     { title: "Progetti fotografici", hint: "La parola prima dell'anno nella riga sotto il titolo delle pagine (es. Marrakech · Ricerca visiva: 2026). Se svuoti il campo compare solo l'anno.", fields: [
       ["etichette.ricerca_visiva", "Etichetta prima dell'anno", "vuoto = solo l'anno", "Ricerca visiva"]] },
+    { title: "Crediti dei progetti fotografici", hint: "Il testo in fondo a ogni progetto fotografico che non ha crediti suoi (campo Crediti vuoto). [ANNO] diventa l'anno del progetto. Nel campo Crediti di un progetto puoi scrivere un testo diverso, oppure “–” per non mostrarli.", fields: [
+      ["crediti", "Testo standard", "", "FOTOGRAFIE E TESTO: SIMONE CARDUCCI · [ANNO] · © [ANNO] SIMONE CARDUCCI. TUTTI I DIRITTI RISERVATI."]] },
     { title: "Bohème Magazine", fields: [["cultura.boheme.titolo", "Titolo"], ["cultura.boheme.anno", "Anno nella pagina"], ["cultura.boheme.anno_home", "Anno accanto al titolo in home"]] },
     { title: "Colectivo modì", fields: [["cultura.modi.titolo", "Titolo"], ["cultura.modi.anno", "Anno nella pagina"], ["cultura.modi.anno_home", "Anno accanto al titolo in home"]] },
     { title: "Progetti con l'AI (righe della lista)", hint: "In home e nella pagina Progetti con l'AI. Lettura resta privato: niente pagina e niente stato.", fields: [

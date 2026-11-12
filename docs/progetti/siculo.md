@@ -23,4 +23,4 @@ Le immagini seguono l’esperienza nell’ordine in cui è stata vissuta, in un 
 
 ## Crediti
 
-FOTOGRAFIE E TESTO: SIMONE CARDUCCI · 2025 · © 2025 SIMONE CARDUCCI. TUTTI I DIRITTI RISERVATI.
+

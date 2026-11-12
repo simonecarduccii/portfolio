@@ -33,6 +33,8 @@ BUILDING = {s for s in SITO.get("in_costruzione", []) if isinstance(s, str) and 
 FOOT = {"copyright": "© 2025-2026 Simone Carducci. Tutti i diritti riservati.", "credito": "Developed by me",
         "piva": "P.Iva 18337621009", **{k: v for k, v in SITO.get("footer", {}).items() if isinstance(v, str)}}
 CV = "assets/cv-simone-carducci.pdf"
+CREDITS_DEFAULT = "FOTOGRAFIE E TESTO: SIMONE CARDUCCI · [ANNO] · © [ANNO] SIMONE CARDUCCI. TUTTI I DIRITTI RISERVATI."
+CREDITS = SITO["crediti"] if isinstance(SITO.get("crediti"), str) else CREDITS_DEFAULT
 # Global style from /admin -> Impostazioni -> Stile (content/sito.json "stile"); empty = the Figma design.
 # Only fonts that have 400-700 and an italic 400 on Google Fonts, so the same weights load for each.
 FONT_CHOICES = ["Hanken Grotesk", "Inter", "Work Sans", "DM Sans", "Instrument Sans", "Public Sans"]  # list agreed with 1 · Designer
@@ -779,6 +781,11 @@ def build_photo(i, p):
     # label before the year: content/sito.json "etichette" {"ricerca_visiva": …}; empty = just the year
     label = str(SITO.get("etichette", {}).get("ricerca_visiva", "Ricerca visiva")).strip()
     meta_lines = [x for x in [place, f"{label}: {year}" if label else year] if x]
+    # credits: the project's own, or the standard text of /admin -> Impostazioni ("crediti" in sito.json);
+    # [ANNO] becomes the project year, "–" hides them
+    if not credits.strip():
+        credits = CREDITS
+    credits = "" if not strip_verify(credits).strip(" –—-") else credits.replace("[ANNO]", year)
     blank = lambda v: not strip_verify(v).strip(" –—-")  # noqa: E731  an empty field or "–" is not shown
     digital = "digital" in meta.get("Supporto", "").lower()
     tech = [f"{k}: {inline(meta[k])}" for k in ("Supporto", "Fotocamera", "Pellicola", "Lente")
@@ -837,7 +844,7 @@ def build_photo(i, p):
     {note}
     {render_blocks(long_text)}
     <div class="credits label">{"".join(f"<span>{t}</span>" for t in tech)}</div>
-    <p class="copy label">{inline(credits) if credits else f"© {p['year']} Simone Carducci. Fotografie su pellicola, non riproducibili senza autorizzazione."}</p>
+    {f'<p class="copy label">{inline(credits)}</p>' if credits else ""}
   </section>
   <section class="related" aria-label="Altri progetti">
     <div class="related-head"><h2 class="small-title">Altri progetti</h2><span class="related-nav" hidden><button type="button" data-rel-step="-1" aria-label="Progetti precedenti">&larr;</button><button type="button" data-rel-step="1" aria-label="Progetti successivi">&rarr;</button></span></div>

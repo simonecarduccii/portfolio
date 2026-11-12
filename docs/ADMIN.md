@@ -169,3 +169,5 @@ Una volta salvate, le colonne del footer non seguono più da sole i cambi fatti 
 **Post di Instagram** (Bohème e modì, riquadro "Post di Instagram"). Incolla il link di ogni post e, se vuoi, aggiungi una foto (caricata o presa dalla libreria) e una didascalia. Puoi riordinare i post, nasconderli con l'interruttore "Visibile" e toglierli. Con la foto il post diventa un riquadro che porta a Instagram; senza foto il sito mostra il post di Instagram. Senza post la sezione non compare. Dove sono salvati:
 - la lista dei post: `content/instagram/<pagina>.json`;
 - le foto: `img/<pagina>/ig-<codice del post>.jpg`.
+
+**Crediti standard** (Impostazioni → Crediti dei progetti fotografici). È il testo che compare in fondo a ogni progetto fotografico con il campo Crediti vuoto, e `[ANNO]` diventa l'anno del progetto. Si salva in `content/sito.json`, alla voce `crediti`. In un progetto puoi scrivere crediti diversi, oppure "–" per non mostrarli.
