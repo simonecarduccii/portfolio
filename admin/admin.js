@@ -1391,7 +1391,7 @@ Testo da scrivere.
               if (!empty && !confirm(`Togliere la categoria “${cat.nome || "senza nome"}” con tutte le sue immagini e i video?`)) return;
               ps.cats.splice(ci, 1); draw(); changed(); } }, "×"))),
         empty ? h("p", { class: "hint" }, "Ancora vuota: sul sito non compare finché non aggiungi qualcosa.") : null,
-        images(cat.locandine, "Locandine (una alla volta, con le frecce ← →)", "+ Carica locandine", true),
+        images(cat.locandine, "Locandine (il mazzo: la prima è davanti)", "+ Carica locandine", true),
         cat.locandine.length ? h("div", { class: "head-switch" }, toggle(cat.scarica, (v) => { cat.scarica = v; changed(); }),
           h("small", {}, "Locandine scaricabili (pulsante “Scarica” sotto ognuna, in qualità originale per la stampa)")) : null,
         images(cat.foto, "Foto dell'evento", "+ Carica foto"),
@@ -1400,7 +1400,7 @@ Testo da scrivere.
     }), h("button", { type: "button", class: "btn small", onclick: () => { ps.cats.push({ nome: "", scarica: true, locandine: [], foto: [], video: [] }); draw(); changed(); list.querySelector(".pc-cat:last-of-type input").focus(); } }, "+ Aggiungi una categoria"));
     draw();
     return h("section", { class: "panel" }, h("h2", { id: "pc-title" }, "Eventi per categoria"),
-      h("p", { class: "hint" }, "Ogni categoria (es. una serie di serate) è un blocco della pagina, nell'ordine qui sotto: le locandine una alla volta con le frecce ← →, poi le foto dell'evento e i video. Puoi trascinare le immagini dal Finder dentro un riquadro. Quello che è vuoto non compare sul sito, e nemmeno una categoria tutta vuota."),
+      h("p", { class: "hint" }, "Le locandine di tutte le categorie stanno su una riga, una colonna per categoria: ognuna è un mazzo di carte che si sfoglia con le frecce ← → (o con il dito). Sotto, per ogni categoria, le foto dell'evento e i video. L'ordine è quello qui sotto. Puoi trascinare le immagini dal Finder dentro un riquadro. Quello che è vuoto non compare sul sito, e nemmeno una categoria tutta vuota."),
       list);
   }
 

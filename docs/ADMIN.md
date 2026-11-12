@@ -177,7 +177,7 @@ Una volta salvate, le colonne del footer non seguono più da sole i cambi fatti 
 ## Eventi per categoria (pagine Bohème e Colectivo modì)
 
 Pannello "Eventi per categoria": ogni categoria (es. POP NO POP, Die Neue Brüke) è un blocco della pagina con
-le locandine una alla volta (frecce ← →), le foto dell'evento e i video (YouTube/Vimeo, es. i DJ set).
+le locandine a mazzo di carte (una colonna per categoria, tutte su una riga, frecce ← → o swipe), le foto dell'evento e i video (YouTube/Vimeo, es. i DJ set).
 Quello che è vuoto non compare, e nemmeno una categoria tutta vuota.
 
 - Dati: `content/locandine/<pagina>.json` = `{categorie: [{nome, cartella, video: [{url, testo}], scarica}]}`.
