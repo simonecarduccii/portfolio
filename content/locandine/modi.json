@@ -77,7 +77,25 @@
       "cartella": "open-sound",
       "serate": [
         {
-          "cartella": "serata-1"
+          "cartella": "serata-1",
+          "video": [
+            {
+              "url": "https://youtu.be/qVlntlNna44",
+              "testo": "Karolis Kaminskas"
+            },
+            {
+              "url": "https://youtu.be/BrgRhSSM3xY",
+              "testo": "Capitan Aleman"
+            },
+            {
+              "url": "https://youtu.be/643125imRoY",
+              "testo": "Novetik"
+            },
+            {
+              "url": "https://youtu.be/Km3GQk7xxa8",
+              "testo": "Simo!"
+            }
+          ]
         }
       ]
     },
