@@ -1,6 +1,6 @@
 # Running Coach
 
-- **Anno:** 2026 – in sviluppo
+- **Anno:** 2026 - in sviluppo
 - **Ruolo:** Ideazione, progettazione dell'esperienza, regole di allenamento; sviluppo con Claude Code
 - **Ambito:** Sport, strumenti personali
 - **Tecnologie:** Python (solo libreria standard), HTML/CSS/JS senza librerie, Intervals.icu, Garmin, Apple Salute, OpenStreetMap, Open-Meteo, Claude

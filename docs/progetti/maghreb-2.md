@@ -4,12 +4,12 @@
 - **Fotografia:** Simone Carducci
 - **Supporto:** Digitale
 - **Fotocamera:** Ricoh GR 2013
-- **Pellicola:** –
+- **Pellicola:** -
 - **Luogo:** Marrakech
 
 ## Intro in testata (max 40 parole)
 
-## Testo in fondo, dopo le foto (80–150 parole)
+## Testo in fondo, dopo le foto (80-150 parole)
 
 ## Crediti
 

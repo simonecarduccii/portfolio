@@ -4,7 +4,7 @@ Contesto per Claude Code su questo progetto.
 
 ## Progetto
 
-Portfolio personale di Simone Carducci (Creative development — Editorial, Events & Cultural Projects).
+Portfolio personale di Simone Carducci (Creative development - Editorial, Events & Cultural Projects).
 La versione attuale è su Figma Sites: https://simonecarducci.figma.site. I documenti in `docs/` sono la fonte di verità:
 leggi `docs/BRIEF.md` prima di proporre scelte tecniche o di design, e prendi i testi da
 `docs/CONTENUTI.md` e `docs/progetti/` invece di inventarli.

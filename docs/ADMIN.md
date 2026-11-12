@@ -50,7 +50,7 @@ Il triangolino ▸ / ▾ accanto a un ramo lo apre o lo chiude (il browser se lo
 - **Testo tra le foto** (progetti fotografici): sotto la *Sequenza della pagina*, *+ Aggiungi testo* aggiunge un riquadro di testo;
   spostalo con ↑ ↓ o trascinandolo tra le foto, × lo toglie. Sul sito il testo compare tra le foto, in colonna come i testi della pagina,
   e il layout riparte dopo ogni testo. È `testi` (`{dopo: foto prima del testo, testo}`) in `content/layout/<pagina>.json`.
-- **Scheda tecnica** (progetti fotografici): un campo vuoto o con “–” non compare sul sito. Se il supporto è *Digitale*, *Pellicola*
+- **Scheda tecnica** (progetti fotografici): un campo vuoto o con “-” non compare sul sito. Se il supporto è *Digitale*, *Pellicola*
   sparisce (anche dal pannello); *Lente* è facoltativa.
 - **Scheda dati in alto** (Bohème, modì, progetti con l'AI): le voci sotto il titolo (Year, Creative direction, Where…).
   Puoi cambiare etichetta e valore, aggiungere voci (*+ Aggiungi voce*), toglierle (×) e spostarle (↑ ↓). Ogni voce ha un *Link* facoltativo:
@@ -170,7 +170,7 @@ Una volta salvate, le colonne del footer non seguono più da sole i cambi fatti 
 - la lista dei post: `content/instagram/<pagina>.json`;
 - le foto: `img/<pagina>/ig-<codice del post>.jpg`.
 
-**Crediti standard** (Impostazioni → Crediti dei progetti fotografici). È il testo che compare in fondo a ogni progetto fotografico con il campo Crediti vuoto, e `[ANNO]` diventa l'anno del progetto. Si salva in `content/sito.json`, alla voce `crediti`. In un progetto puoi scrivere crediti diversi, oppure "–" per non mostrarli.
+**Crediti standard** (Impostazioni → Crediti dei progetti fotografici). È il testo che compare in fondo a ogni progetto fotografico con il campo Crediti vuoto, e `[ANNO]` diventa l'anno del progetto. Si salva in `content/sito.json`, alla voce `crediti`. In un progetto puoi scrivere crediti diversi, oppure "-" per non mostrarli.
 
 **Video su Bohème e modì** (riquadro "Video (YouTube o Vimeo)"). Incolli il link di ogni video e, se vuoi, scrivi una didascalia. I video compaiono sotto le foto, nell'ordine della lista. Si salvano in `content/video/<pagina>.json`.
 

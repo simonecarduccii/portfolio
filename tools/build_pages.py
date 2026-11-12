@@ -349,7 +349,7 @@ def share_image(key):
 # icon uploaded as content/icona/icona.png (square PNG); without it the black SC monogram in assets/.
 _tab = SITO.get("scheda") if isinstance(SITO.get("scheda"), dict) else {}
 HOME_TITLE = (_tab.get("titolo") or "").strip() if isinstance(_tab.get("titolo"), str) else ""
-HOME_TITLE = HOME_TITLE or f"{SITE} — Creative Development"
+HOME_TITLE = HOME_TITLE or f"{SITE} - Creative Development"
 
 
 def icon_links(prefix=""):
@@ -390,7 +390,7 @@ def page(*, file, title, description, body, current=None, header="", body_class=
     if file[:-5] in BUILDING:
         body, header, main_class = building(title), "", "notfound"
         robots = '\n<meta name="robots" content="noindex">'
-    full_title = f"{title} — {SITE}" if title != SITE else HOME_TITLE
+    full_title = f"{title} - {SITE}" if title != SITE else HOME_TITLE
     full_title = _str(seo.get("titolo")) or full_title
     url = SITE_URL + ("" if key == "index" else file)
     header_name, header_tag, header_menu = header_parts()
@@ -435,7 +435,7 @@ def page(*, file, title, description, body, current=None, header="", body_class=
 </body>
 </html>
 """
-    (ROOT / file).write_text(version_media(drop_empty(out)), encoding="utf-8")
+    (ROOT / file).write_text(version_media(drop_empty(no_long_dashes(out))), encoding="utf-8")
     print("wrote", file)
 
 
@@ -965,16 +965,16 @@ def build_photo(i, p):
     long_text = section(secs, "Testo")
     credits = first_text(section(secs, "Crediti"))
     place = strip_verify(meta.get("Luogo", ""))
-    year = re.sub(r"\s*[–—]\s*", " - ", meta.get("Anno", p["year"]))  # short hyphen, as typed in /admin
+    year = re.sub(r"\s*[\u2013\u2014]\s*", " - ", meta.get("Anno", p["year"]))  # short hyphen, as typed in /admin
     # label before the year: content/sito.json "etichette" {"ricerca_visiva": …}; empty = just the year
     label = str(SITO.get("etichette", {}).get("ricerca_visiva", "Ricerca visiva")).strip()
     meta_lines = [x for x in [place, f"{label}: {year}" if label else year] if x]
     # credits: the project's own, or the standard text of /admin -> Impostazioni ("crediti" in sito.json);
-    # [ANNO] becomes the project year, "–" hides them
+    # [ANNO] becomes the project year, "-" hides them
     if not credits.strip():
         credits = CREDITS
-    credits = "" if not strip_verify(credits).strip(" –—-") else credits.replace("[ANNO]", year)
-    blank = lambda v: not strip_verify(v).strip(" –—-")  # noqa: E731  an empty field or "–" is not shown
+    credits = "" if not strip_verify(credits).strip(" \u2013\u2014-") else credits.replace("[ANNO]", year)
+    blank = lambda v: not strip_verify(v).strip(" \u2013\u2014-")  # noqa: E731  an empty field or "-" is not shown
     digital = "digital" in meta.get("Supporto", "").lower()
     tech = [f"{k}: {inline(meta[k])}" for k in ("Supporto", "Fotocamera", "Pellicola", "Lente")
             if k in meta and not blank(meta[k]) and not (k == "Pellicola" and digital)]
@@ -1073,7 +1073,7 @@ def build_ai_detail(p):
     lead = first_text(section(secs, "In breve"))
     parts = [f"<h2>{inline(t)}</h2>\n{render_blocks(b)}" for t, b in secs if not t.startswith("In breve")]
     s = p["slug"]
-    year = re.sub(r"\s*[–-].*$", "", meta.get("Anno", "2026"))
+    year = re.sub(r"\s*[\u2013-].*$", "", meta.get("Anno", "2026"))
     body = f"""  <section class="p-hero short bw">
     {img(f"img/{s}/cover.jpg", p["title"], eager=True)}
   </section>
@@ -1377,6 +1377,11 @@ def build_free(p):
 def git_blob_sha(path):
     data = path.read_bytes()
     return hashlib.sha1(b"blob %d\0" % len(data) + data).hexdigest()
+
+
+def no_long_dashes(text):
+    """Simone wants no long dashes on the site: every em dash and en dash becomes a plain hyphen."""
+    return text.replace("\u2014", "-").replace("\u2013", "-")
 
 
 def version_admin():

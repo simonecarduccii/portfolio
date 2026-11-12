@@ -14,7 +14,7 @@ Testi segnaposto (lorem ipsum): servono a fissare struttura e lunghezze. Simone 
 
 ㅤ
 
-## Testo in fondo, dopo le foto (80–150 parole)
+## Testo in fondo, dopo le foto (80-150 parole)
 
 ㅤ
 

@@ -483,15 +483,15 @@
 - **Anno:** ${year}
 - **Fotografia:** Simone Carducci
 - **Supporto:** Pellicola
-- **Fotocamera:** –
-- **Pellicola:** –
-- **Luogo:** –
+- **Fotocamera:** -
+- **Pellicola:** -
+- **Luogo:** -
 
 ## Intro in testata (max 40 parole)
 
 Testo da scrivere.
 
-## Testo in fondo, dopo le foto (80–150 parole)
+## Testo in fondo, dopo le foto (80-150 parole)
 
 Testo da scrivere.
 
@@ -846,7 +846,7 @@ Testo da scrivere.
             h("small", { class: "hint" }, "Per una coppia di foto affiancate: layout Griglia con 2 foto.")];
         }
         case "altri": return [h("p", { class: "hint" }, "Si riempie da solo con i progetti di Ricerca visiva accesi in home (al massimo 3).")];
-        case "successivo": return [select("Porta a", b.pagina || "", [["", "— scegli una pagina —"], ...linkTargets(slug)], (v) => { b.pagina = v; }),
+        case "successivo": return [select("Porta a", b.pagina || "", [["", "- scegli una pagina -"], ...linkTargets(slug)], (v) => { b.pagina = v; }),
           field("Scritta a sinistra", b.testo, (v) => { b.testo = v; }, { placeholder: "Progetto successivo" })];
         case "fascia": return [select("Quale", b.variante || "archivio", [["pellicole", "Pellicole (a colori)"], ["archivio", "Archivio (bianco e nero)"]], (v) => { b.variante = v; })];
         default: return [];
@@ -856,7 +856,7 @@ Testo da scrivere.
     const list = h("div", { class: "blocks" });
     const adder = (at) => {
       const sel = h("select", { "aria-label": "Aggiungi un blocco" }, h("option", { value: "" }, "+ Aggiungi un blocco qui…"),
-        BLOCKS.map((t) => h("option", { value: t.tipo }, `${t.name} — ${t.note}`)));
+        BLOCKS.map((t) => h("option", { value: t.tipo }, `${t.name} - ${t.note}`)));
       sel.addEventListener("change", () => {
         const t = BLOCKS.find((x) => x.tipo === sel.value);
         if (!t) return;
@@ -963,14 +963,14 @@ Testo da scrivere.
   // the page an element has of its own (not the home, not a section of it)
   const pageSlug = (n) => (n && n.page && !n.noPage && !n.page.includes("#") && n.page !== "index.html" ? n.page.replace(/\.html$/, "") : null);
   const SITO_FORM = [
-    { title: "Scheda del browser", hint: "Il titolo che compare nella scheda del browser sulla home (e su Google, se non lo cambi in “Google e condivisione” della Home). Le altre pagine mostrano “Nome pagina — Simone Carducci”. Vuoto = Simone Carducci — Creative Development.", fields: [
-      ["scheda.titolo", "Titolo della home", "Simone Carducci — Creative Development"]] },
+    { title: "Scheda del browser", hint: "Il titolo che compare nella scheda del browser sulla home (e su Google, se non lo cambi in “Google e condivisione” della Home). Le altre pagine mostrano “Nome pagina - Simone Carducci”. Vuoto = Simone Carducci - Creative Development.", fields: [
+      ["scheda.titolo", "Titolo della home", "Simone Carducci - Creative Development"]] },
     { title: "Contatti e link", hint: "Valgono in tutto il sito: footer, About, link di Lomography. Lascia LinkedIn vuoto per non mostrarlo.", fields: [
       ["contatti.email", "Email"], ["contatti.instagram", "Instagram (indirizzo completo)"],
       ["contatti.lomography", "Lomography (indirizzo completo)"], ["contatti.linkedin", "LinkedIn (indirizzo completo)"]] },
     { title: "Progetti fotografici", hint: "La parola prima dell'anno nella riga sotto il titolo delle pagine (es. Marrakech · Ricerca visiva: 2026). Se svuoti il campo compare solo l'anno.", fields: [
       ["etichette.ricerca_visiva", "Etichetta prima dell'anno", "vuoto = solo l'anno", "Ricerca visiva"]] },
-    { title: "Crediti dei progetti fotografici", hint: "Il testo in fondo a ogni progetto fotografico che non ha crediti suoi (campo Crediti vuoto). [ANNO] diventa l'anno del progetto. Nel campo Crediti di un progetto puoi scrivere un testo diverso, oppure “–” per non mostrarli.", fields: [
+    { title: "Crediti dei progetti fotografici", hint: "Il testo in fondo a ogni progetto fotografico che non ha crediti suoi (campo Crediti vuoto). [ANNO] diventa l'anno del progetto. Nel campo Crediti di un progetto puoi scrivere un testo diverso, oppure “-” per non mostrarli.", fields: [
       ["crediti", "Testo standard", "", "FOTOGRAFIE E TESTO: SIMONE CARDUCCI · [ANNO] · © [ANNO] SIMONE CARDUCCI. TUTTI I DIRITTI RISERVATI."]] },
     { title: "Bohème Magazine", fields: [["cultura.boheme.titolo", "Titolo"], ["cultura.boheme.anno", "Anno nella pagina"], ["cultura.boheme.anno_home", "Anno accanto al titolo in home"]] },
     { title: "Colectivo modì", fields: [["cultura.modi.titolo", "Titolo"], ["cultura.modi.anno", "Anno nella pagina"], ["cultura.modi.anno_home", "Anno accanto al titolo in home"]] },
@@ -1724,7 +1724,7 @@ Testo da scrivere.
       const sync = () => { label.hidden = re.test(src.value); };
       src.addEventListener("input", sync); sync();
     });
-    panel.append(h("p", { class: "hint" }, "**grassetto**, _corsivo_, [testo del link](https://...). Un rigo vuoto separa i paragrafi. Un campo vuoto (o “–”) non compare sul sito."));
+    panel.append(h("p", { class: "hint" }, "**grassetto**, _corsivo_, [testo del link](https://...). Un rigo vuoto separa i paragrafi. Un campo vuoto (o “-”) non compare sul sito."));
     return panel;
   }
 

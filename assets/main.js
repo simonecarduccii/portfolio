@@ -1,4 +1,4 @@
-// Simone Carducci — portfolio. Small, dependency-free interactions.
+// Simone Carducci - portfolio. Small, dependency-free interactions.
 
 // Header: transparent over a full-bleed hero, solid after 40px of scroll.
 (function () {
@@ -68,7 +68,7 @@
     if (info) {
       var n = 'N. ' + (photo.n || String(i + 1).padStart(4, '0'));
       info.textContent = [n, photo.film, [photo.place, photo.year].filter(Boolean).join(', ')]
-        .filter(Boolean).join(' — ');
+        .filter(Boolean).join(' - ');
     }
   }
 
