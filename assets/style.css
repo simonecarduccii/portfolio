@@ -355,6 +355,9 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 .ev-dialog-body { padding: 0 16px 16px; }
 .ev-photo { display: block; width: 100%; max-height: 74vh; object-fit: contain; background: #111; }
 .ev-dialog .vr-foot, .ev-photo-nav { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 10px; }
+.ev-photo-mid { display: flex; align-items: baseline; gap: 16px; }
+.ev-dl { font-size: 14px; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.page-gallery .g-item img { cursor: zoom-in; }
 .ev-photo-nav button { font: inherit; font-size: var(--fs-band-link); background: none; border: 0; color: var(--ink); cursor: pointer; padding: 4px; }
 .deck { position: relative; aspect-ratio: 3 / 4; margin: 24px 24px 0 0; outline: none; touch-action: pan-y; cursor: pointer; }
 .deck:focus-visible { outline: 2px solid var(--ink); outline-offset: 6px; }

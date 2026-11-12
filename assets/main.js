@@ -400,6 +400,14 @@ document.querySelectorAll('.page-videos .video-random').forEach(function (b) { s
 // then a grid of all its photos (click one to see it large) or the list of its DJ sets (click one to watch it).
 (function () {
   var dlg = document.querySelector('.ev-dialog');
+  // pages with a Galleria but no poster decks: the same window, made here
+  if (!dlg && document.querySelector('.page-gallery') && typeof HTMLDialogElement === 'function') {
+    dlg = document.createElement('dialog');
+    dlg.className = 'ev-dialog';
+    dlg.setAttribute('aria-label', 'Foto');
+    dlg.innerHTML = '<div class="ev-dialog-head"><p class="ev-dialog-title"></p><button type="button" class="ev-close" aria-label="Chiudi">&times;</button></div><div class="ev-dialog-body"></div>';
+    document.body.appendChild(dlg);
+  }
   if (!dlg || typeof dlg.showModal !== 'function') {
     document.querySelectorAll('.ev-btns').forEach(function (b) { b.hidden = true; });
     return;
@@ -412,7 +420,7 @@ document.querySelectorAll('.page-videos .video-random').forEach(function (b) { s
   // header: "POP NO POP · Foto" then the evening, with a link back to the step before
   function head(back, parts) {
     title.innerHTML = (back ? '<button type="button" class="ev-back" aria-label="Indietro">&larr;</button>' : '') +
-      parts.map(esc).join(' <span class="ev-sep">·</span> ');
+      parts.filter(Boolean).map(esc).join(' <span class="ev-sep">·</span> ');
     var bb = title.querySelector('.ev-back');
     if (bb) bb.addEventListener('click', back);
     body.onkeydown = null;
@@ -448,11 +456,18 @@ document.querySelectorAll('.page-videos .video-random').forEach(function (b) { s
   }
   function photo(se, i, backToList) {
     var items = se.photos;
-    head(function () { grid(se, backToList); }, [ev.name, se.name]);
+    head(backToList === undefined ? null : function () { grid(se, backToList); }, [ev.name, se.name]);
     body.innerHTML = '<img class="ev-photo" alt=""><div class="ev-photo-nav"><button type="button" data-s="-1" aria-label="Foto precedente">&larr;</button>' +
-      '<span class="poster-count"></span><button type="button" data-s="1" aria-label="Foto successiva">&rarr;</button></div>';
-    var im = body.querySelector('img'), count = body.querySelector('.poster-count');
-    function show() { im.src = items[i].src; im.alt = items[i].alt || ''; count.textContent = (i + 1) + ' / ' + items.length; }
+      '<span class="ev-photo-mid"><span class="poster-count"></span><a class="ev-dl" download>Scarica &darr;</a></span>' +
+      '<button type="button" data-s="1" aria-label="Foto successiva">&rarr;</button></div>';
+    var im = body.querySelector('img'), count = body.querySelector('.poster-count'), dl = body.querySelector('.ev-dl');
+    function show() {
+      im.src = items[i].src; im.alt = items[i].alt || ''; count.textContent = (i + 1) + ' / ' + items.length;
+      // the photo as it is on the site (the largest version there is), with a readable file name
+      var clean = items[i].src.split('?')[0];
+      dl.href = clean;
+      dl.setAttribute('download', clean.replace(/^img\//, '').replace(/\//g, '-'));
+    }
     var nav = body.querySelector('.ev-photo-nav');
     nav.hidden = items.length < 2;
     nav.addEventListener('click', function (e) {
@@ -496,6 +511,16 @@ document.querySelectorAll('.page-videos .video-random').forEach(function (b) { s
     if (!serate.length) return;
     ev = { name: b.getAttribute('data-title'), kind: kind, label: b.textContent, serate: serate };
     pickSerata();
+    dlg.showModal();
+  });
+  // Galleria: a click on a photo opens it large, with arrows for the other photos on screen and "Scarica"
+  document.addEventListener('click', function (e) {
+    var tile = e.target.closest('.page-gallery .g-item');
+    if (!tile || !tile.querySelector('img')) return;
+    var tiles = [].slice.call(tile.parentNode.querySelectorAll('.g-item')).filter(function (t) { return !t.hidden && t.querySelector('img'); });
+    var items = tiles.map(function (t) { var im = t.querySelector('img'); return { src: im.getAttribute('src'), alt: im.alt }; });
+    ev = { name: 'Galleria', kind: 'foto', label: 'Foto', serate: [] };
+    photo({ name: '', photos: items }, Math.max(0, tiles.indexOf(tile)));
     dlg.showModal();
   });
   dlg.addEventListener('keydown', function (e) { if (body.onkeydown) body.onkeydown(e); });
