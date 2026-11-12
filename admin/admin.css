@@ -378,3 +378,4 @@ body.no-preview .preview { display: none; }
 .pc-images h4 { margin: 0; font-size: 13px; font-weight: 600; }
 .pc-seq { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
 .pc-seq li { aspect-ratio: 3 / 4; cursor: default; }
+.btn.small.busy { opacity: .7; cursor: progress; }
