@@ -356,9 +356,17 @@ body.no-preview .preview { display: none; }
 .pc-head .row-tools { display: flex; gap: 2px; }
 .pc-head .row-tools button { border: 1px solid var(--rule); background: #fff; border-radius: 6px; width: 30px; height: 34px; cursor: pointer; }
 .pc-head .row-tools button:disabled { opacity: .35; cursor: default; }
-.pc-serata { border-top: 1px solid var(--rule); padding-top: 14px; margin-top: 14px; }
-.pc-serata .pc-head input { font-weight: 500; }
-.pc-thumb { width: 36px; height: 48px; object-fit: cover; border-radius: 3px; flex: none; }
+.pc-serate { display: grid; gap: 14px; margin-top: 8px; padding-top: 16px; border-top: 2px solid var(--ink); }
+.pc-serate-title { margin: 0; font-size: 18px; }
+.pc-serata { border: 1px solid var(--rule); border-radius: 10px; padding: 14px; display: grid; gap: 12px; background: #fafaf8; }
+.pc-serata-head { display: flex; gap: 12px; align-items: center; }
+.pc-serata-name { flex: 1; display: grid; gap: 4px; }
+.pc-serata-name input { padding: 8px 10px; border: 1px solid var(--rule); border-radius: 6px; font: inherit; font-weight: 600; background: #fff; }
+.pc-serata .row-tools button { border: 1px solid var(--rule); background: #fff; border-radius: 6px; width: 30px; height: 34px; cursor: pointer; }
+.pc-thumb { width: 60px; height: 80px; object-fit: cover; border-radius: 4px; flex: none; }
+.pc-thumb-add { display: grid; place-items: center; text-align: center; font-size: 11px; border: 1px dashed var(--ink-2, #888); color: var(--ink-2, #666); cursor: pointer; background: #fff; }
+.pc-thumb-add input { display: none; }
+.pc-new-serata { justify-self: start; background: var(--ink); color: var(--paper); font-weight: 600; padding: 10px 20px; }
 .pc-num { font-size: 12px; color: var(--ink-2, #666); white-space: nowrap; }
 .pc-images { display: grid; gap: 8px; }
 .pc-images.over { outline: 2px dashed #888; outline-offset: 4px; }

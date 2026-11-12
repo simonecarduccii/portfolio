@@ -1416,18 +1416,41 @@ Testo da scrivere.
       const nPhotos = serate.reduce((n, x) => n + x.foto.length, 0);
       const nVideos = serate.reduce((n, x) => n + x.video.filter((v) => v.url.trim()).length, 0);
       const empty = !cat.locandine.length && !nPhotos && !nVideos;
+      // one card per evening: its poster (or a slot to add one), name and date, photos, one video per DJ set
       const serataBox = (se, si, poster, remove) => {
-        const nm = h("input", { type: "text", placeholder: `Nome della serata (es. ${cat.nome || "POP NO POP"} I · 26/02)`, "aria-label": "Nome della serata" });
+        const nm = h("input", { type: "text", placeholder: `Nome e data (es. ${cat.nome || "POP NO POP"} · Acto I · 26/02/2026)`, "aria-label": "Nome e data della serata" });
         nm.value = se.nome;
         nm.addEventListener("input", () => { se.nome = nm.value; changed(); });
+        let thumb;
+        if (poster) thumb = h("img", { class: "pc-thumb", src: poster.url, alt: "Locandina della serata" });
+        else {
+          const pf = h("input", { type: "file", accept: "image/*", hidden: "" });
+          pf.addEventListener("change", async () => {
+            const f = pf.files[0];
+            const ph = f && isImage(f) && await newPhoto(f, MAX_SIDE);
+            if (!ph) return;
+            const ext = (f.name.match(/\.(jpe?g|png)$/i) || [])[1];
+            if (ext && f.size <= 25e6) ph.raw = { blob: f, ext: ext.toLowerCase() === "png" ? "png" : "jpg" };
+            ph.serata = se;
+            cat.extra.splice(cat.extra.indexOf(se), 1);
+            cat.locandine.push(ph);
+            draw(); changed();
+          });
+          thumb = h("label", { class: "pc-thumb pc-thumb-add", title: "Aggiungi la locandina di questa serata" }, pf, "+ Locandina");
+        }
         return h("div", { class: "pc-serata" },
-          h("div", { class: "pc-head" },
-            poster ? h("img", { class: "pc-thumb", src: poster.url, alt: "" }) : null,
-            h("span", { class: "pc-num" }, `Serata ${si + 1}`), nm,
-            remove ? h("div", { class: "row-tools" }, h("button", { type: "button", title: "Togli la serata", onclick: remove }, "×")) : null),
-          images(se.foto, "Foto della serata", "+ Carica foto"),
-          h("div", { class: "pc-images" }, h("h4", {}, "Video della serata", h("small", { class: "muted" }, " · un link YouTube per ogni DJ set")),
-            rowsEditor(se.video, [["url", "Link (https://youtu.be/…)"], ["testo", "DJ (es. Novetik)"]], changed, "+ Aggiungi un DJ set")));
+          h("div", { class: "pc-serata-head" }, thumb,
+            h("div", { class: "pc-serata-name" }, h("span", { class: "pc-num" }, `Serata ${si + 1}`), nm),
+            h("div", { class: "row-tools" }, h("button", { type: "button", title: poster ? "Togli la serata e la sua locandina" : "Togli la serata", onclick: remove }, "×"))),
+          images(se.foto, "Foto", "+ Carica foto"),
+          h("div", { class: "pc-images" }, h("h4", {}, "Video", h("small", { class: "muted" }, " · un link YouTube per ogni DJ (4 DJ = 4 link)")),
+            rowsEditor(se.video, [["url", "Link YouTube (https://youtu.be/…)"], ["testo", "DJ (es. Novetik)"]], changed, "+ Aggiungi il video di un DJ")));
+      };
+      const removeSerata = (se, poster) => () => {
+        const has = se.foto.length || se.video.some((v) => v.url.trim());
+        if ((has || poster) && !confirm(`Togliere la serata “${se.nome || "senza nome"}”${poster ? ", la sua locandina" : ""} con le sue foto e i video?`)) return;
+        if (poster) cat.locandine.splice(cat.locandine.indexOf(poster), 1); else cat.extra.splice(cat.extra.indexOf(se), 1);
+        draw(); changed();
       };
       return h("div", { class: "pc-cat" + (empty ? " empty" : "") },
         h("div", { class: "pc-head" }, name,
@@ -1441,14 +1464,16 @@ Testo da scrivere.
         images(cat.locandine, "Locandine (il mazzo: la prima è davanti)", "+ Carica locandine", true),
         cat.locandine.length ? h("div", { class: "head-switch" }, toggle(cat.scarica, (v) => { cat.scarica = v; changed(); }),
           h("small", {}, "Locandine scaricabili (pulsante “Scarica” sotto ognuna, in qualità originale per la stampa)")) : null,
-        h("div", { class: "pc-images pc-serate" },
-          h("h4", {}, "Serate", h("small", { class: "muted" }, ` · ${nPhotos} foto, ${nVideos} video`)),
-          h("p", { class: "hint" }, "Una serata per ogni locandina, nello stesso ordine: aggiungi una locandina e compare la sua serata, spostala e la serata la segue. Per ogni serata le foto e un link YouTube per ogni DJ (4 DJ = 4 link). Sul sito, “Foto” e “Video” sotto le locandine fanno scegliere prima la serata; la sezione Video e la Galleria prendono tutto da qui."),
-          ...cat.locandine.map((l, i) => serataBox(l.serata, i, l, null)),
-          ...cat.extra.map((se, k) => serataBox(se, cat.locandine.length + k, null, () => {
-            if ((se.foto.length || se.video.some((v) => v.url.trim())) && !confirm(`Togliere la serata “${se.nome || "senza nome"}” con le sue foto e i video?`)) return;
-            cat.extra.splice(k, 1); draw(); changed(); })),
-          cat.locandine.length ? null : h("button", { type: "button", class: "btn small", onclick: () => { cat.extra.push({ nome: "", foto: [], video: [] }); draw(); changed(); } }, "+ Aggiungi una serata senza locandina")));
+        h("div", { class: "pc-serate" },
+          h("h3", { class: "pc-serate-title" }, "Serate", h("small", { class: "muted" }, ` · ${serate.length} · ${nPhotos} foto, ${nVideos} video`)),
+          h("p", { class: "hint" }, "Ogni serata ha la sua locandina (la stessa del mazzo qui sopra, nello stesso ordine), le sue foto e i video dei DJ. Carichi una locandina nel mazzo e la sua serata compare qui; con “Crea una nuova serata” parti dalla serata e la locandina la aggiungi dopo. Sul sito “Foto” e “Video” fanno scegliere prima la serata; la sezione Video e la Galleria prendono tutto da qui."),
+          ...cat.locandine.map((l, i) => serataBox(l.serata, i, l, removeSerata(l.serata, l))),
+          ...cat.extra.map((se, k) => serataBox(se, cat.locandine.length + k, null, removeSerata(se, null))),
+          h("button", { type: "button", class: "btn pc-new-serata", onclick: () => {
+            cat.extra.push({ nome: "", foto: [], video: [] }); draw(); changed();
+            const cards = list.querySelectorAll(".pc-cat")[ci].querySelectorAll(".pc-serata");
+            const last = cards[cards.length - 1]; if (last) { last.scrollIntoView({ block: "center" }); last.querySelector("input[type=text]").focus(); }
+          } }, "+ Crea una nuova serata")));
     }), h("button", { type: "button", class: "btn small", onclick: () => { ps.cats.push({ nome: "", scarica: true, locandine: [], extra: [] }); draw(); changed(); list.querySelector(".pc-cat:last-of-type input").focus(); } }, "+ Aggiungi una categoria"));
     draw();
     const size = h("select", { id: "pc-size" }, [["piccole", "Piccole"], ["medie", "Medie"], ["grandi", "Grandi"]].map(([v, t]) => h("option", { value: v }, t)));
@@ -1456,7 +1481,7 @@ Testo da scrivere.
     size.addEventListener("change", () => { ps.dimensione = size.value; changed(); });
     return h("section", { class: "panel" }, h("h2", { id: "pc-title" }, "Eventi per categoria"),
       h("label", { class: "field inline", for: "pc-size" }, h("span", {}, "Dimensione delle locandine"), size),
-      h("p", { class: "hint" }, "Le locandine di tutte le categorie stanno su una riga, una colonna per categoria: ognuna è un mazzo di carte che si sfoglia con le frecce ← → (o con il dito). Sotto, per ogni categoria, le foto dell'evento e i video. L'ordine è quello qui sotto. Puoi trascinare le immagini dal Finder dentro un riquadro. Quello che è vuoto non compare sul sito, e nemmeno una categoria tutta vuota."),
+      h("p", { class: "hint" }, "Ogni categoria (es. POP NO POP) è un mazzo di locandine sul sito, una colonna per categoria. Dentro ogni categoria ci sono le sue serate: una per locandina, ognuna con le sue foto e i video dei DJ. Puoi trascinare le immagini dal Finder dentro un riquadro. Quello che è vuoto non compare sul sito."),
       list);
   }
 
