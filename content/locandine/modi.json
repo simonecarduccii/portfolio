@@ -1,0 +1,20 @@
+{
+  "categorie": [
+    {
+      "nome": "POP NO POP",
+      "cartella": "pop-no-pop"
+    },
+    {
+      "nome": "Die Neue Brüke",
+      "cartella": "die-neue-bruke"
+    },
+    {
+      "nome": "Open Sound",
+      "cartella": "open-sound"
+    },
+    {
+      "nome": "Friday at Modì",
+      "cartella": "friday-at-modi"
+    }
+  ]
+}

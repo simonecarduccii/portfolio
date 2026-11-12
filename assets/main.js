@@ -293,6 +293,35 @@
   });
 })();
 
+// Posters by category: one poster at a time; the arrows (or the keyboard arrows on the focused row) change it.
+(function () {
+  document.querySelectorAll('.poster-cat').forEach(function (cat) {
+    var track = cat.querySelector('.poster-track');
+    var nav = cat.querySelector('.poster-nav');
+    if (!track || !nav) return;
+    var prev = nav.querySelector('[data-step="-1"]');
+    var next = nav.querySelector('[data-step="1"]');
+    var count = nav.querySelector('.poster-count');
+    var total = track.children.length;
+    function index() { return Math.round(track.scrollLeft / (track.clientWidth || 1)); }
+    function update() {
+      var i = index();
+      count.textContent = (i + 1) + ' / ' + total;
+      prev.disabled = i <= 0;
+      next.disabled = i >= total - 1;
+    }
+    nav.addEventListener('click', function (e) {
+      var b = e.target.closest('button');
+      if (!b) return;
+      var i = Math.max(0, Math.min(total - 1, index() + Number(b.getAttribute('data-step'))));
+      track.scrollTo({ left: i * track.clientWidth, behavior: 'smooth' });
+    });
+    track.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  });
+})();
+
 // Instagram embeds tell their real height with a message; size each frame to it so nothing is cut.
 window.addEventListener('message', function (e) {
   if (!/^https:\/\/www\.instagram\.com$/.test(e.origin)) return;

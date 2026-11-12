@@ -346,3 +346,18 @@ body.no-preview .preview { display: none; }
 .ig-item .row-tools { display: flex; gap: 2px; }
 .ig-item .row-tools button { border: 1px solid var(--rule); background: #fff; border-radius: 6px; width: 30px; height: 34px; cursor: pointer; }
 .ig-item .row-tools button:disabled { opacity: .35; cursor: default; }
+
+/* Eventi per categoria (content/locandine) */
+.pc-list { display: grid; gap: 16px; }
+.pc-cat { border: 1px solid var(--rule); border-radius: 10px; padding: 12px; display: grid; gap: 12px; background: #fff; }
+.pc-cat.empty { background: #fafaf8; }
+.pc-head { display: flex; gap: 8px; align-items: center; }
+.pc-head input { flex: 1; padding: 8px 10px; border: 1px solid var(--rule); border-radius: 6px; font: inherit; font-weight: 600; }
+.pc-head .row-tools { display: flex; gap: 2px; }
+.pc-head .row-tools button { border: 1px solid var(--rule); background: #fff; border-radius: 6px; width: 30px; height: 34px; cursor: pointer; }
+.pc-head .row-tools button:disabled { opacity: .35; cursor: default; }
+.pc-images { display: grid; gap: 8px; }
+.pc-images.over { outline: 2px dashed #888; outline-offset: 4px; }
+.pc-images h4 { margin: 0; font-size: 13px; font-weight: 600; }
+.pc-seq { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+.pc-seq li { aspect-ratio: 3 / 4; cursor: default; }

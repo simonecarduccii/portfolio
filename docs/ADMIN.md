@@ -173,3 +173,17 @@ Una volta salvate, le colonne del footer non seguono più da sole i cambi fatti 
 **Crediti standard** (Impostazioni → Crediti dei progetti fotografici). È il testo che compare in fondo a ogni progetto fotografico con il campo Crediti vuoto, e `[ANNO]` diventa l'anno del progetto. Si salva in `content/sito.json`, alla voce `crediti`. In un progetto puoi scrivere crediti diversi, oppure "–" per non mostrarli.
 
 **Video su Bohème e modì** (riquadro "Video (YouTube o Vimeo)"). Incolli il link di ogni video e, se vuoi, scrivi una didascalia. I video compaiono sotto le foto, nell'ordine della lista. Si salvano in `content/video/<pagina>.json`.
+
+## Eventi per categoria (pagine Bohème e Colectivo modì)
+
+Pannello "Eventi per categoria": ogni categoria (es. POP NO POP, Die Neue Brüke) è un blocco della pagina con
+le locandine una alla volta (frecce ← →), le foto dell'evento e i video (YouTube/Vimeo, es. i DJ set).
+Quello che è vuoto non compare, e nemmeno una categoria tutta vuota.
+
+- Dati: `content/locandine/<pagina>.json` = `{categorie: [{nome, cartella, video: [{url, testo}], scarica}]}`.
+- Locandine: `img/<pagina>/<cartella>/01.jpg …`; foto dell'evento: `img/<pagina>/<cartella>/foto/01.jpg …`.
+- Download: sotto ogni locandina c'è "Scarica la locandina", con l'originale caricato (JPEG/PNG fino a 25 MB,
+  in `stampa/<pagina>/<cartella>/01.jpg`); senza originale si scarica la versione del sito. L'interruttore
+  "Locandine scaricabili" lo spegne per una categoria (`"scarica": false`).
+- Spostando le immagini, ognuna tiene il file che aveva quando il pannello è stato aperto: una modifica fatta
+  altrove nel frattempo non le rimescola (vale anche per "Foto della pagina").
