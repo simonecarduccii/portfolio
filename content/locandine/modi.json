@@ -68,7 +68,25 @@
         },
         {
           "cartella": "vol-iii-28-05-2026",
-          "nome": "Vol. III (28/05/2026)"
+          "nome": "Vol. III (28/05/2026)",
+          "video": [
+            {
+              "url": "https://youtu.be/gwKDnltakKU",
+              "testo": "Florian b2b Paolo"
+            },
+            {
+              "url": "https://youtu.be/uwismtfbvVk",
+              "testo": "Novetik"
+            },
+            {
+              "url": "https://youtu.be/HOR34toOqZQ",
+              "testo": "Simo!"
+            },
+            {
+              "url": "https://youtu.be/3dCKYqRb_bw",
+              "testo": "Maïwenn B2B Merlin"
+            }
+          ]
         }
       ]
     },
