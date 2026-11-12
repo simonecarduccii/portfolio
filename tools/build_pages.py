@@ -756,7 +756,11 @@ def instagram_posts(slug):
     if not items:
         return ""
     title = str(data.get("titolo", "")).strip() or "Su Instagram"
-    return (f'<section class="ig-posts" aria-label="{html.escape(title)}"><h2 class="small-title">{html.escape(title)}</h2>'
+    # the link to the Instagram profile, beside the title: "@colectivomodi ↗"
+    prof = re.match(r"https?://(?:www\.)?instagram\.com/([A-Za-z0-9._]+)/?(?:[?#].*)?$", str(data.get("profilo", "")).strip())
+    profile = (f'<a class="ig-profile" href="https://www.instagram.com/{prof.group(1)}/" target="_blank" rel="noopener">@{prof.group(1)} &#8599;</a>'
+               if prof and prof.group(1) not in ("p", "reel", "tv") else "")
+    return (f'<section class="ig-posts" aria-label="{html.escape(title)}"><div class="g-head"><h2 class="small-title">{html.escape(title)}</h2>{profile}</div>'
             f'<div class="ig-grid">{"".join(items)}</div></section>')
 
 

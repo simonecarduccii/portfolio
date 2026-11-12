@@ -615,3 +615,6 @@ a.ig-post:hover .ig-caption { color: var(--ink); text-decoration: underline; tex
 body.no-scroll { overflow: hidden; }
 .page-videos .g-head .small-title { margin: 0; }
 .ev-djs li[hidden], .page-videos[hidden] { display: none; }
+.ig-posts .g-head .small-title { margin: 0; }
+.ig-profile { font-size: 14px; color: var(--ink-2); text-decoration: none; }
+.ig-profile:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
