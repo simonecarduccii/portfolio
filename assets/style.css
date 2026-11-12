@@ -340,8 +340,8 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 
 /* Events by category under a culture page (content/locandine): one row with a deck of posters per category
    (the arrows or a swipe bring the poster behind to the front), then each category's event photos and videos. */
-.poster-cats { padding: clamp(56px, 7vw, 104px) var(--pad) 0; display: grid; gap: clamp(48px, 6vw, 88px); }
-.deck-row { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: clamp(32px, 4vw, 64px); align-items: start; }
+.poster-cats { padding: clamp(40px, 5vw, 64px) var(--pad) 0; display: grid; gap: clamp(48px, 6vw, 88px); }
+.deck-row { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, calc(var(--deck-w, 300px) + 24px))); justify-content: center; gap: clamp(24px, 3vw, 48px); align-items: start; }
 .deck-col { display: grid; gap: 16px; min-width: 0; width: 100%; max-width: calc(var(--deck-w, 300px) + 24px); justify-self: center; text-align: center; }
 .deck-col .deck { margin-left: 0; }
 .ev-btns { display: flex; justify-content: center; gap: 10px; margin-right: 24px; }
@@ -400,25 +400,42 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 .vp-item[aria-current] { color: var(--ink); }
 .vp-item[aria-current] span { text-decoration: underline; text-underline-offset: 3px; }
 /* "Galleria": the photos of the page, five columns (two on phones). */
-.page-gallery { padding: clamp(56px, 7vw, 104px) var(--pad) 0; }
+.page-gallery { padding: clamp(40px, 5vw, 64px) var(--pad) 0; }
 .page-gallery .small-title { margin-bottom: 16px; }
 .gallery-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
 .gallery-grid .media { aspect-ratio: 1; }
+.g-item[hidden] { display: none; }
+.g-nav { display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 16px; }
+.g-nav[hidden] { display: none; }
+.g-nav button { font: inherit; font-size: var(--fs-band-link); line-height: 1; color: var(--ink); background: none; border: 0; padding: 4px; cursor: pointer; }
+.g-filter { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.g-filter button { font: inherit; font-size: 13px; color: var(--ink); background: none; border: 1px solid var(--rule); border-radius: 999px; padding: 5px 14px; cursor: pointer; }
+.g-filter button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg, #fafaf9); }
+.ev-serate { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.ev-serate button { font: inherit; font-size: 13px; color: var(--ink); background: none; border: 1px solid var(--rule); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+.ev-serate button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg, #fafaf9); }
 @media (max-width: 900px) { .gallery-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 560px) { .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 /* One video at a time, picked at random; "Un altro video" picks another. */
 .video-random { max-width: 1100px; }
+/* Video section: YouTube "theater mode", a full-width black band with the 16:9 player centred in it. */
+.page-videos .video-random { max-width: none; }
+.page-videos .video-random > .video { margin: 0 calc(-1 * var(--pad)); aspect-ratio: auto; height: min(56.25vw, 78svh); background: #000; }
+.page-videos .video-random > .video iframe { left: 50%; right: auto; width: min(100%, calc(78svh * 16 / 9)); transform: translateX(-50%); }
+.page-videos .video-random > .video.file { display: flex; justify-content: center; }
+.page-videos .video-random > .video video { width: auto; max-width: 100%; height: 100%; max-height: none; }
+.page-videos .vr-foot { max-width: 1100px; margin-left: auto; margin-right: auto; }
 .vr-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-top: 10px; }
 .vr-caption { margin: 0; font-size: 14px; color: var(--ink-2); }
 .vr-next { font: inherit; font-size: 14px; color: var(--ink); background: none; border: 0; padding: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; white-space: nowrap; }
 
 /* Instagram posts under a culture page: three per row (one on phones), a tile with its own image or Instagram's embed. */
-.page-videos { padding: clamp(56px, 7vw, 104px) var(--pad) 0; }
+.page-videos { padding: clamp(40px, 5vw, 64px) var(--pad) 0; }
 .page-videos .small-title { margin-bottom: 16px; }
 .page-videos-list { display: grid; gap: clamp(24px, 3vw, 40px); max-width: 1100px; }
 .page-video figcaption { margin-top: 8px; font-size: 14px; color: var(--ink-2); }
-.ig-posts { padding: clamp(56px, 7vw, 104px) var(--pad) 0; }
+.ig-posts { padding: clamp(40px, 5vw, 64px) var(--pad) 0; }
 .ig-posts .small-title { margin-bottom: 16px; }
 .ig-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gutter); align-items: start; }
 .ig-post { display: block; }

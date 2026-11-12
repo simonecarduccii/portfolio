@@ -1313,8 +1313,8 @@ Testo da scrivere.
     const title = h("input", { id: "vd-title", type: "text", placeholder: "Video" });
     title.value = vd.titolo;
     title.addEventListener("input", () => { vd.titolo = title.value; changed(); });
-    return h("section", { class: "panel" }, h("h2", {}, "Video (YouTube o Vimeo)"),
-      h("p", { class: "hint" }, "Incolla il link del video (su YouTube: Condividi → Copia link). Compaiono sotto le locandine: con più video c'è un solo player e sotto la lista per scegliere quale guardare, nell'ordine qui sotto, con la didascalia se la scrivi. Senza video la sezione non compare."),
+    return h("section", { class: "panel" }, h("h2", {}, node.posters ? "Sezione video" : "Video (YouTube o Vimeo)"),
+      h("p", { class: "hint" }, node.posters ? "La sezione Video della pagina mostra un video alla volta, scelto a caso tra quelli delle serate (in “Eventi per categoria”) e quelli che aggiungi qui sotto (facoltativi, per i video che non sono di una serata). Qui scegli anche il titolo della sezione." : "Incolla il link del video (su YouTube: Condividi → Copia link). La pagina ne mostra uno alla volta, scelto a caso, con “Un altro video”. Senza video la sezione non compare."),
       h("label", { class: "field", for: "vd-title" }, h("span", {}, "Titolo della sezione"), title),
       rowsEditor(vd.video, [["url", "Link (https://youtu.be/…)"], ["testo", "Didascalia (facoltativa)"]], changed, "+ Aggiungi un video"));
   }
@@ -1341,7 +1341,12 @@ Testo da scrivere.
         nome: c.nome || "",
         scarica: c.scarica !== false,
         locandine: filesOf(`img/${slug}/${c.cartella}`).map((f) => ({ ...f, raw: rawOf(f.orig.replace(/^img\//, "stampa/")) })),
-        foto: filesOf(`img/${slug}/${c.cartella}/foto`),
+        // event photos divided by evening: img/<slug>/<cartella>/foto/<serata>/01.jpg ... (older photos straight in foto/ become one evening)
+        serate: [
+          ...(filesOf(`img/${slug}/${c.cartella}/foto`).length ? [{ nome: "Serata", foto: filesOf(`img/${slug}/${c.cartella}/foto`) }] : []),
+          ...(Array.isArray(c.serate) ? c.serate : []).filter((x) => x && typeof x === "object" && x.cartella)
+            .map((x) => ({ nome: x.nome || "", foto: filesOf(`img/${slug}/${c.cartella}/foto/${x.cartella}`) })),
+        ],
         video: (Array.isArray(c.video) ? c.video : []).filter((v) => v && typeof v === "object").map((v) => ({ url: v.url || "", testo: v.testo || "" })),
       })) };
     draft.posters = ps;
@@ -1381,7 +1386,8 @@ Testo da scrivere.
       name.value = cat.nome;
       name.addEventListener("input", () => { cat.nome = name.value; changed(); });
       const moveCat = (d) => { const j = ci + d; if (j < 0 || j >= ps.cats.length) return; [ps.cats[ci], ps.cats[j]] = [ps.cats[j], ps.cats[ci]]; draw(); changed(); };
-      const empty = !cat.locandine.length && !cat.foto.length && !cat.video.some((v) => v.url.trim());
+      const nPhotos = cat.serate.reduce((n, x) => n + x.foto.length, 0);
+      const empty = !cat.locandine.length && !nPhotos && !cat.video.some((v) => v.url.trim());
       return h("div", { class: "pc-cat" + (empty ? " empty" : "") },
         h("div", { class: "pc-head" }, name,
           h("div", { class: "row-tools" },
@@ -1394,10 +1400,28 @@ Testo da scrivere.
         images(cat.locandine, "Locandine (il mazzo: la prima è davanti)", "+ Carica locandine", true),
         cat.locandine.length ? h("div", { class: "head-switch" }, toggle(cat.scarica, (v) => { cat.scarica = v; changed(); }),
           h("small", {}, "Locandine scaricabili (pulsante “Scarica” sotto ognuna, in qualità originale per la stampa)")) : null,
-        images(cat.foto, "Foto dell'evento", "+ Carica foto"),
+        h("div", { class: "pc-images pc-serate" },
+          h("h4", {}, "Foto delle serate", h("small", { class: "muted" }, nPhotos ? ` · ${nPhotos}` : " · nessuna: non compare")),
+          h("p", { class: "hint" }, "Una serata per ogni evento (es. “Acto I · 26/02/2026”): sul sito le foto restano divise per serata, nel pulsante “Foto” sotto le locandine e nella Galleria, che fa da archivio."),
+          ...cat.serate.map((se, si) => {
+            const nm = h("input", { type: "text", placeholder: "Nome della serata (es. Acto I · 26/02/2026)", "aria-label": "Nome della serata" });
+            nm.value = se.nome;
+            nm.addEventListener("input", () => { se.nome = nm.value; changed(); });
+            const mv = (d) => { const j = si + d; if (j < 0 || j >= cat.serate.length) return; [cat.serate[si], cat.serate[j]] = [cat.serate[j], cat.serate[si]]; draw(); changed(); };
+            return h("div", { class: "pc-serata" },
+              h("div", { class: "pc-head" }, nm,
+                h("div", { class: "row-tools" },
+                  h("button", { type: "button", title: "Sposta su", disabled: si === 0 ? true : null, onclick: () => mv(-1) }, "↑"),
+                  h("button", { type: "button", title: "Sposta giù", disabled: si === cat.serate.length - 1 ? true : null, onclick: () => mv(1) }, "↓"),
+                  h("button", { type: "button", title: "Togli la serata", onclick: () => {
+                    if (se.foto.length && !confirm(`Togliere la serata “${se.nome || "senza nome"}” e le sue ${se.foto.length} foto?`)) return;
+                    cat.serate.splice(si, 1); draw(); changed(); } }, "×"))),
+              images(se.foto, "Foto", "+ Carica foto"));
+          }),
+          h("button", { type: "button", class: "btn small", onclick: () => { cat.serate.push({ nome: "", foto: [] }); draw(); changed(); } }, "+ Aggiungi una serata")),
         h("div", { class: "pc-images" }, h("h4", {}, "Video (YouTube o Vimeo, es. i DJ set)"),
           rowsEditor(cat.video, [["url", "Link (https://youtu.be/…)"], ["testo", "Didascalia (facoltativa)"]], changed, "+ Aggiungi un video")));
-    }), h("button", { type: "button", class: "btn small", onclick: () => { ps.cats.push({ nome: "", scarica: true, locandine: [], foto: [], video: [] }); draw(); changed(); list.querySelector(".pc-cat:last-of-type input").focus(); } }, "+ Aggiungi una categoria"));
+    }), h("button", { type: "button", class: "btn small", onclick: () => { ps.cats.push({ nome: "", scarica: true, locandine: [], serate: [], video: [] }); draw(); changed(); list.querySelector(".pc-cat:last-of-type input").focus(); } }, "+ Aggiungi una categoria"));
     draw();
     const size = h("select", { id: "pc-size" }, [["piccole", "Piccole"], ["medie", "Medie"], ["grandi", "Grandi"]].map(([v, t]) => h("option", { value: v }, t)));
     size.value = ps.dimensione;
@@ -1412,7 +1436,7 @@ Testo da scrivere.
     const ps = draft.posters;
     if (!ps || !ps.dirty) return;
     const used = new Set(), names = new Set(), categorie = [];
-    await uploadAll(ps.cats.flatMap((c) => [...c.locandine, ...c.foto]).filter((f) => f.blob && !f.sha));
+    await uploadAll(ps.cats.flatMap((c) => [...c.locandine, ...c.serate.flatMap((x) => x.foto)]).filter((f) => f.blob && !f.sha));
     await uploadAll(ps.cats.flatMap((c) => c.locandine.map((f) => f.raw)).filter((r) => r && r.blob && !r.sha));
     const place = (arr, dir) => arr.forEach((f, i) => {
       const target = `${dir}/${String(i + 1).padStart(2, "0")}.jpg`;
@@ -1425,7 +1449,8 @@ Testo da scrivere.
     for (const cat of ps.cats) {
       const nome = cat.nome.trim();
       const video = cat.video.map((v) => ({ url: v.url.trim(), testo: v.testo.trim() })).filter((v) => v.url).map((v) => (v.testo ? v : { url: v.url }));
-      if (!nome && !cat.locandine.length && !cat.foto.length && !video.length) continue;
+      const nPhotos = cat.serate.reduce((n, x) => n + x.foto.length, 0);
+      if (!nome && !cat.locandine.length && !nPhotos && !video.length) continue;
       const base = catFolder(nome || "categoria");
       let folder = base, k = 2;
       while (names.has(folder)) folder = `${base}-${k++}`;
@@ -1441,10 +1466,21 @@ Testo da scrivere.
         used.add(target);
         if (tree[target] !== f.raw.sha) out[target] = f.raw.sha;
       });
-      place(cat.foto, `img/${ps.slug}/${folder}/foto`);
+      const serate = [], sNames = new Set();
+      cat.serate.forEach((se, si) => {
+        const sn = se.nome.trim();
+        if (!sn && !se.foto.length) return;
+        const sb = catFolder(sn || `serata-${si + 1}`);
+        let sf = sb, sk = 2;
+        while (sNames.has(sf)) sf = `${sb}-${sk++}`;
+        sNames.add(sf);
+        serate.push({ nome: sn || `Serata ${si + 1}`, cartella: sf });
+        place(se.foto, `img/${ps.slug}/${folder}/foto/${sf}`);
+      });
+      if (serate.length) entry.serate = serate;
     }
     // images of categories or places no longer used
-    const mine = new RegExp(`^(img/${ps.slug}/[^/]+/(foto/)?\\d{2,}\\.jpg|stampa/${ps.slug}/[^/]+/\\d{2,}\\.(jpg|png))$`);
+    const mine = new RegExp(`^(img/${ps.slug}/[^/]+/(foto/([^/]+/)?)?\\d{2,}\\.jpg|stampa/${ps.slug}/[^/]+/\\d{2,}\\.(jpg|png))$`);
     Object.keys(tree).forEach((p) => { if (mine.test(p) && !used.has(p) && !(p in out)) out[p] = null; });
     const json = JSON.stringify(ps.dimensione === "medie" ? { categorie } : { dimensione: ps.dimensione, categorie }, null, 2) + "\n";
     if (json !== (texts[ps.path] || "")) out[ps.path] = await blobFrom({ text: json });

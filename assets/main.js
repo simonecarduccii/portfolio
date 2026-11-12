@@ -408,10 +408,25 @@ document.querySelectorAll('.page-videos .video-random').forEach(function (b) { s
   function esc(t) { var d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
   function photos(items) {
     var i = 0;
-    body.innerHTML = '<img class="ev-photo" alt=""><div class="ev-photo-nav"><button type="button" data-s="-1" aria-label="Foto precedente">&larr;</button>' +
+    // evenings: buttons to jump to the first photo of each one
+    var names = [];
+    items.forEach(function (it, k) { if (names.indexOf(it.serata || '') < 0) names.push(it.serata || ''); });
+    var chips = names.length > 1 ? '<div class="ev-serate">' + names.map(function (n, k) {
+      return '<button type="button" data-serata="' + k + '">' + esc(n || 'Senza nome') + '</button>'; }).join('') + '</div>' : '';
+    body.innerHTML = chips + '<img class="ev-photo" alt=""><div class="ev-photo-nav"><button type="button" data-s="-1" aria-label="Foto precedente">&larr;</button>' +
       '<span class="poster-count"></span><button type="button" data-s="1" aria-label="Foto successiva">&rarr;</button></div>';
     var im = body.querySelector('img'), count = body.querySelector('.poster-count');
-    function show() { im.src = items[i].src; im.alt = items[i].alt || ''; count.textContent = (i + 1) + ' / ' + items.length; }
+    function show() {
+      im.src = items[i].src; im.alt = items[i].alt || ''; count.textContent = (i + 1) + ' / ' + items.length;
+      var cur = names.indexOf(items[i].serata || '');
+      body.querySelectorAll('[data-serata]').forEach(function (b) { b.setAttribute('aria-pressed', Number(b.getAttribute('data-serata')) === cur ? 'true' : 'false'); });
+    }
+    body.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-serata]'); if (!b) return;
+      var n = names[Number(b.getAttribute('data-serata'))];
+      for (var k = 0; k < items.length; k++) if ((items[k].serata || '') === n) { i = k; break; }
+      show();
+    });
     body.querySelector('.ev-photo-nav').hidden = items.length < 2;
     body.querySelector('.ev-photo-nav').addEventListener('click', function (e) {
       var b = e.target.closest('[data-s]'); if (!b) return;
@@ -445,6 +460,39 @@ document.querySelectorAll('.page-videos .video-random').forEach(function (b) { s
   dlg.querySelector('.ev-close').addEventListener('click', function () { dlg.close(); });
   dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
   dlg.addEventListener('close', function () { body.innerHTML = ''; }); // stops the video
+})();
+
+// Galleria: ten photos at a time (5 x 2) in random order, arrows for the others; the buttons show one evening only.
+(function () {
+  document.querySelectorAll('.page-gallery').forEach(function (sec) {
+    var grid = sec.querySelector('.gallery-grid');
+    var bar = sec.querySelector('.g-filter');
+    var nav = sec.querySelector('.g-nav');
+    if (!grid) return;
+    var all = [].slice.call(grid.querySelectorAll('.g-item'));
+    for (var k = all.length - 1; k > 0; k--) { var j = Math.floor(Math.random() * (k + 1)); var t = all[k]; all[k] = all[j]; all[j] = t; }
+    all.forEach(function (el) { grid.appendChild(el); });
+    var PER = 10, page = 0, g = '';
+    function shown() { return all.filter(function (el) { return g === '' || el.getAttribute('data-g') === g; }); }
+    function draw() {
+      var list = shown(), pages = Math.max(1, Math.ceil(list.length / PER));
+      page = (page + pages) % pages;
+      all.forEach(function (el) { el.hidden = true; });
+      list.slice(page * PER, page * PER + PER).forEach(function (el) { el.hidden = false; });
+      if (nav) { nav.hidden = pages < 2; nav.querySelector('.poster-count').textContent = (page + 1) + ' / ' + pages; }
+    }
+    if (nav) nav.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-gs]'); if (!b) return;
+      page += Number(b.getAttribute('data-gs')); draw();
+    });
+    if (bar) bar.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      g = b.getAttribute('data-g'); page = 0;
+      bar.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      draw();
+    });
+    draw();
+  });
 })();
 
 // Instagram embeds tell their real height with a message; size each frame to it so nothing is cut.
