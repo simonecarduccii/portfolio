@@ -42,6 +42,13 @@
       "formato": "3:2"
     },
     {
+      "id": "vincere-il-mondiale",
+      "titolo": "Vincere il mondiale",
+      "anno": "2026",
+      "pagina": "vincere-il-mondiale",
+      "visibile": true
+    },
+    {
       "id": "siculo",
       "titolo": "Vita mia",
       "anno": "2025",
@@ -64,13 +71,6 @@
       "pagina": "albania-coast-to-coast",
       "visibile": true,
       "formato": "3:2"
-    },
-    {
-      "id": "vincere-il-mondiale",
-      "titolo": "Vincere il mondiale",
-      "anno": "2026",
-      "pagina": "vincere-il-mondiale",
-      "visibile": true
     }
   ]
 }
