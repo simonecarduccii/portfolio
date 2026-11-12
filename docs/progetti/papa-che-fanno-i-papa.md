@@ -7,7 +7,7 @@ Testi segnaposto (lorem ipsum): servono a fissare struttura e lunghezze. Simone 
 - **Supporto:** Varie
 - **Fotocamera:** Varie
 - **Pellicola:** 
-- **Luogo:** Torino - Granada - Marrakech
+- **Luogo:** Luoghi vari
 - **Immagine di copertina:** img/papa-che-fanno-i-papa/cover.jpg
 
 ## Intro in testata (max 40 parole)
