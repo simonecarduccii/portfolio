@@ -1295,14 +1295,14 @@ Testo da scrivere.
       const move = (d) => { const j = i + d; if (j < 0 || j >= ig.post.length) return; [ig.post[i], ig.post[j]] = [ig.post[j], ig.post[i]]; draw(); changed(); };
       return h("div", { class: "ig-item" + (pst.visibile ? "" : " off") },
         h("div", { class: "ig-thumb" }, vsrc ? h("video", { src: vsrc, muted: "", playsinline: "", preload: "metadata" })
-          : pst.img ? h("img", { src: pst.img.url, alt: "" }) : h("span", { class: "ph" }, "senza video né foto: si vede il post di Instagram, con la sua cornice")),
+          : pst.img ? h("img", { src: pst.img.url, alt: "" }) : h("span", { class: "ph" }, "senza copertina: quella di Instagram")),
         h("div", { class: "ig-fields" }, url, cap,
           h("div", { class: "photo-btns" },
             h("label", { class: "btn small" }, vfile, pst.video ? "Cambia video" : "Carica il video"),
             pst.video ? h("button", { type: "button", class: "btn small", onclick: () => { pst.video = ""; draw(); changed(); } }, "Togli il video") : null,
-            h("label", { class: "btn small" }, file, pst.img ? "Cambia foto" : "Carica una foto"),
+            h("label", { class: "btn small" }, file, pst.img ? "Cambia copertina" : "Carica la copertina"),
             libButton(false, ([p]) => { pst.img = p; draw(); changed(); }),
-            pst.img ? h("button", { type: "button", class: "btn small", onclick: () => { pst.img = null; draw(); changed(); } }, "Togli la foto") : null,
+            pst.img ? h("button", { type: "button", class: "btn small", onclick: () => { pst.img = null; draw(); changed(); } }, "Togli la copertina") : null,
             h("span", { class: "head-switch" }, toggle(pst.visibile, (v) => { pst.visibile = v; changed(); draw(); }), h("small", {}, "Visibile")))),
         h("div", { class: "row-tools" },
           h("button", { type: "button", title: "Sposta su", disabled: i === 0 ? true : null, onclick: () => move(-1) }, "↑"),
@@ -1311,7 +1311,7 @@ Testo da scrivere.
     }), h("button", { type: "button", class: "btn small", onclick: () => { ig.post.push({ url: "", testo: "", visibile: true, img: null, video: "" }); draw(); changed(); list.querySelector(".ig-item:last-of-type input").focus(); } }, "+ Aggiungi un post"));
     draw();
     return h("section", { class: "panel" }, h("h2", {}, "Post di Instagram"),
-      h("p", { class: "hint" }, "Incolla il link di ogni post (su Instagram: ··· → Copia link). Con “Carica il video” (il file del reel, fino a 50 MB) il sito mostra solo il video, senza la cornice di Instagram, con sotto il link al post; la foto, se c'è, fa da copertina. Con solo una foto il post diventa un riquadro che porta a Instagram; senza niente il sito mostra il post di Instagram con la sua cornice. I post stanno al centro. Senza post la sezione non compare."),
+      h("p", { class: "hint" }, "Incolla il link di ogni post (su Instagram: ··· → Copia link). Ogni post è una scheda verticale pulita, senza la cornice di Instagram: con “Carica la copertina” scegli l'immagine (altrimenti il sito prova a usare quella di Instagram, e se non la trova resta una scheda scura con ▶); un clic apre il post su Instagram. Con “Carica il video” (il file del reel, fino a 50 MB) il video gira direttamente nella scheda, senza audio finché non si preme “Audio”. Senza post la sezione non compare."),
       h("label", { class: "field", for: "ig-title" }, h("span", {}, "Titolo della sezione"), title),
       list);
   }

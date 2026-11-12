@@ -548,6 +548,16 @@ document.querySelectorAll('.page-videos .video-random').forEach(function (b) { s
   });
 })();
 
+// Social: a reel uploaded as a file plays silently; "Audio" turns the sound on (and off).
+document.addEventListener('click', function (e) {
+  var b = e.target.closest('.ig-sound');
+  if (!b) return;
+  var v = b.parentNode.querySelector('video');
+  v.muted = !v.muted;
+  if (!v.muted) v.play();
+  b.setAttribute('aria-pressed', v.muted ? 'false' : 'true');
+});
+
 // Instagram embeds tell their real height with a message; size each frame to it so nothing is cut.
 window.addEventListener('message', function (e) {
   if (!/^https:\/\/www\.instagram\.com$/.test(e.origin)) return;
