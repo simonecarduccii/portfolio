@@ -369,6 +369,7 @@
     if (node.texts) body.append(await textPanel(node));
     if (node.settings) body.append(await settingsPanel());
     if (node.headerFooter) body.append(await headerFooterPanel());
+    if (node.posters) body.append(await postersPanel(node));
     if (node.videos) body.append(await videosPanel(node));
     if (node.instagram) body.append(await instagramPanel(node));
     if (node.library) body.append(await libraryPanel());
@@ -390,7 +391,7 @@
     if (seoKey(node)) body.append(await seoPanel(node));
     const hist = historyTargets(node);
     if (hist.whole.length || hist.prefixes.length || hist.fields.length) body.append(historyPanel(node, hist));
-    const editable = node.videos || node.instagram || node.headerFooter || node.library || node.photos || node.facts || node.texts || node.homeList || node.settings || node.freePage || pageSlug(node) || node.switchKey || (node.children || []).some((c) => c.switchKey);
+    const editable = node.posters || node.videos || node.instagram || node.headerFooter || node.library || node.photos || node.facts || node.texts || node.homeList || node.settings || node.freePage || pageSlug(node) || node.switchKey || (node.children || []).some((c) => c.switchKey);
     return h("div", {}, head, body, editable ? bar : null);
   }
 
@@ -1318,6 +1319,133 @@ Testo da scrivere.
       rowsEditor(vd.video, [["url", "Link (https://youtu.be/…)"], ["testo", "Didascalia (facoltativa)"]], changed, "+ Aggiungi un video"));
   }
 
+  // Posters by category under a culture page: content/locandine/<slug>.json = {categorie: [{nome, cartella}]},
+  // images in img/<slug>/<cartella>/01.jpg ... (one row per category on the page, arrows to change poster;
+  // a category without images is hidden). Each image keeps the file it had when the panel opened, so a change
+  // made elsewhere in the meantime can't shuffle them.
+  const catFolder = (t) => (t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40)) || "categoria";
+
+  async function postersPanel(node) {
+    const slug = node.posters;
+    const path = `content/locandine/${slug}.json`;
+    let data = {};
+    try { data = JSON.parse(await readText(path, true) || "{}") || {}; } catch (e) { data = {}; }
+    const filesOf = (dir) => Object.keys(tree).filter((p) => p.startsWith(dir + "/") && /^\d{2,}\.jpg$/.test(p.slice(dir.length + 1)))
+      .sort((a, b) => parseInt(a.split("/").pop(), 10) - parseInt(b.split("/").pop(), 10))
+      .map((p) => ({ orig: p, sha: tree[p], url: siteUrl(p) }));
+    // print-quality original of a poster (for the download button): stampa/<slug>/<cartella>/NN.jpg or .png
+    const rawOf = (p) => { const b = p.replace(/\.jpg$/, ""); const q = [".jpg", ".png"].map((e) => b + e).find((x) => tree[x]); return q ? { sha: tree[q], ext: q.slice(-3) } : null; };
+    const ps = { path, slug, dirty: false,
+      cats: (Array.isArray(data.categorie) ? data.categorie : []).filter((c) => c && typeof c === "object" && c.cartella).map((c) => ({
+        nome: c.nome || "",
+        scarica: c.scarica !== false,
+        locandine: filesOf(`img/${slug}/${c.cartella}`).map((f) => ({ ...f, raw: rawOf(f.orig.replace(/^img\//, "stampa/")) })),
+        foto: filesOf(`img/${slug}/${c.cartella}/foto`),
+        video: (Array.isArray(c.video) ? c.video : []).filter((v) => v && typeof v === "object").map((v) => ({ url: v.url || "", testo: v.testo || "" })),
+      })) };
+    draft.posters = ps;
+    const changed = () => { ps.dirty = true; markDirty(); };
+    const list = h("div", { class: "pc-list" });
+    // one list of images (posters or event photos): upload, library, drag files in, reorder, remove
+    const images = (arr, label, addLabel, keepRaw) => {
+      const file = h("input", { type: "file", accept: "image/*", multiple: "", hidden: "" });
+      const add = async (files) => {
+        for (const f of files) {
+          const ph = isImage(f) && await newPhoto(f, MAX_SIDE);
+          if (!ph) continue;
+          // posters keep the original too (JPEG or PNG up to 25 MB), for the download button
+          const ext = (f.name.match(/\.(jpe?g|png)$/i) || [])[1];
+          if (keepRaw && ext && f.size <= 25e6) ph.raw = { blob: f, ext: ext.toLowerCase() === "png" ? "png" : "jpg" };
+          arr.push(ph);
+        }
+        draw(); changed();
+      };
+      file.addEventListener("change", async () => { await add([...file.files]); file.value = ""; });
+      const box = h("div", { class: "pc-images" },
+        h("h4", {}, label, h("small", { class: "muted" }, arr.length ? ` · ${arr.length}` : " · nessuna: non compare")),
+        arr.length ? h("ol", { class: "seq pc-seq" }, arr.map((f, i) => h("li", {},
+          h("img", { src: f.url, alt: "" }),
+          h("span", { class: "num" }, String(i + 1)),
+          h("div", { class: "tools" },
+            h("button", { type: "button", title: "Prima", onclick: () => { if (i) { arr.splice(i - 1, 0, arr.splice(i, 1)[0]); draw(); changed(); } } }, "←"),
+            h("button", { type: "button", title: "Togli", onclick: () => { arr.splice(i, 1); draw(); changed(); } }, "×"),
+            h("button", { type: "button", title: "Dopo", onclick: () => { if (i < arr.length - 1) { arr.splice(i + 1, 0, arr.splice(i, 1)[0]); draw(); changed(); } } }, "→"))))) : null,
+        h("div", { class: "photo-btns" }, h("label", { class: "btn small" }, file, addLabel),
+          libButton(true, (picked) => { arr.push(...picked); draw(); changed(); })));
+      dropZone(box, add);
+      return box;
+    };
+    const draw = () => list.replaceChildren(...ps.cats.map((cat, ci) => {
+      const name = h("input", { type: "text", placeholder: "Nome della categoria (es. POP NO POP)", "aria-label": "Nome della categoria" });
+      name.value = cat.nome;
+      name.addEventListener("input", () => { cat.nome = name.value; changed(); });
+      const moveCat = (d) => { const j = ci + d; if (j < 0 || j >= ps.cats.length) return; [ps.cats[ci], ps.cats[j]] = [ps.cats[j], ps.cats[ci]]; draw(); changed(); };
+      const empty = !cat.locandine.length && !cat.foto.length && !cat.video.some((v) => v.url.trim());
+      return h("div", { class: "pc-cat" + (empty ? " empty" : "") },
+        h("div", { class: "pc-head" }, name,
+          h("div", { class: "row-tools" },
+            h("button", { type: "button", title: "Sposta su", disabled: ci === 0 ? true : null, onclick: () => moveCat(-1) }, "↑"),
+            h("button", { type: "button", title: "Sposta giù", disabled: ci === ps.cats.length - 1 ? true : null, onclick: () => moveCat(1) }, "↓"),
+            h("button", { type: "button", title: "Togli la categoria", onclick: () => {
+              if (!empty && !confirm(`Togliere la categoria “${cat.nome || "senza nome"}” con tutte le sue immagini e i video?`)) return;
+              ps.cats.splice(ci, 1); draw(); changed(); } }, "×"))),
+        empty ? h("p", { class: "hint" }, "Ancora vuota: sul sito non compare finché non aggiungi qualcosa.") : null,
+        images(cat.locandine, "Locandine (una alla volta, con le frecce ← →)", "+ Carica locandine", true),
+        cat.locandine.length ? h("div", { class: "head-switch" }, toggle(cat.scarica, (v) => { cat.scarica = v; changed(); }),
+          h("small", {}, "Locandine scaricabili (pulsante “Scarica” sotto ognuna, in qualità originale per la stampa)")) : null,
+        images(cat.foto, "Foto dell'evento", "+ Carica foto"),
+        h("div", { class: "pc-images" }, h("h4", {}, "Video (YouTube o Vimeo, es. i DJ set)"),
+          rowsEditor(cat.video, [["url", "Link (https://youtu.be/…)"], ["testo", "Didascalia (facoltativa)"]], changed, "+ Aggiungi un video")));
+    }), h("button", { type: "button", class: "btn small", onclick: () => { ps.cats.push({ nome: "", scarica: true, locandine: [], foto: [], video: [] }); draw(); changed(); list.querySelector(".pc-cat:last-of-type input").focus(); } }, "+ Aggiungi una categoria"));
+    draw();
+    return h("section", { class: "panel" }, h("h2", { id: "pc-title" }, "Eventi per categoria"),
+      h("p", { class: "hint" }, "Ogni categoria (es. una serie di serate) è un blocco della pagina, nell'ordine qui sotto: le locandine una alla volta con le frecce ← →, poi le foto dell'evento e i video. Puoi trascinare le immagini dal Finder dentro un riquadro. Quello che è vuoto non compare sul sito, e nemmeno una categoria tutta vuota."),
+      list);
+  }
+
+  async function postersChanges(out) {
+    const ps = draft.posters;
+    if (!ps || !ps.dirty) return;
+    const used = new Set(), names = new Set(), categorie = [];
+    await uploadAll(ps.cats.flatMap((c) => [...c.locandine, ...c.foto]).filter((f) => f.blob && !f.sha));
+    await uploadAll(ps.cats.flatMap((c) => c.locandine.map((f) => f.raw)).filter((r) => r && r.blob && !r.sha));
+    const place = (arr, dir) => arr.forEach((f, i) => {
+      const target = `${dir}/${String(i + 1).padStart(2, "0")}.jpg`;
+      used.add(target);
+      // same place as when the panel opened: leave the file as it is now (the Action may have optimised it);
+      // otherwise use the file the image had when the panel opened, so a change made elsewhere can't shuffle them
+      if (f.orig === target && tree[target]) return;
+      if (f.sha && tree[target] !== f.sha) out[target] = f.sha;
+    });
+    for (const cat of ps.cats) {
+      const nome = cat.nome.trim();
+      const video = cat.video.map((v) => ({ url: v.url.trim(), testo: v.testo.trim() })).filter((v) => v.url).map((v) => (v.testo ? v : { url: v.url }));
+      if (!nome && !cat.locandine.length && !cat.foto.length && !video.length) continue;
+      const base = catFolder(nome || "categoria");
+      let folder = base, k = 2;
+      while (names.has(folder)) folder = `${base}-${k++}`;
+      names.add(folder);
+      const entry = { nome: nome || "Senza nome", cartella: folder };
+      if (!cat.scarica) entry.scarica = false;
+      if (video.length) entry.video = video;
+      categorie.push(entry);
+      place(cat.locandine, `img/${ps.slug}/${folder}`);
+      cat.locandine.forEach((f, i) => {
+        if (!f.raw || !f.raw.sha) return;
+        const target = `stampa/${ps.slug}/${folder}/${String(i + 1).padStart(2, "0")}.${f.raw.ext}`;
+        used.add(target);
+        if (tree[target] !== f.raw.sha) out[target] = f.raw.sha;
+      });
+      place(cat.foto, `img/${ps.slug}/${folder}/foto`);
+    }
+    // images of categories or places no longer used
+    const mine = new RegExp(`^(img/${ps.slug}/[^/]+/(foto/)?\\d{2,}\\.jpg|stampa/${ps.slug}/[^/]+/\\d{2,}\\.(jpg|png))$`);
+    Object.keys(tree).forEach((p) => { if (mine.test(p) && !used.has(p) && !(p in out)) out[p] = null; });
+    const json = JSON.stringify({ categorie }, null, 2) + "\n";
+    if (json !== (texts[ps.path] || "")) out[ps.path] = await blobFrom({ text: json });
+  }
+
   async function videosChanges(out) {
     const vd = draft.vd;
     if (!vd || !vd.dirty) return;
@@ -1487,13 +1615,13 @@ Testo da scrivere.
 
     const coverPath = ph.kind === "serie" ? `${ph.dir}/cover.jpg` : ph.file;
     const state = {
-      cover: tree[coverPath] ? { orig: coverPath, url: siteUrl(coverPath) } : null,
+      cover: tree[coverPath] ? { orig: coverPath, sha0: tree[coverPath], url: siteUrl(coverPath) } : null,
       seq: [],
       removed: [],
     };
     if (ph.kind === "serie") {
       Object.keys(tree).filter((p) => p.startsWith(ph.dir + "/") && /^\d{2,}\.jpg$/.test(p.slice(ph.dir.length + 1)))
-        .sort().forEach((p) => state.seq.push({ orig: p, url: siteUrl(p) }));
+        .sort().forEach((p) => state.seq.push({ orig: p, sha0: tree[p], url: siteUrl(p) }));
     }
     // Page layout (photo projects): big cover on/off and one of the standard layouts (LAYOUTS)
     let layout = null;
@@ -1853,6 +1981,7 @@ Testo da scrivere.
         }
         await instagramChanges(out);
         await videosChanges(out);
+        await postersChanges(out);
         // facts at the top of the page
         if (draft.facts && draft.facts.dirty) {
           const righe = draft.facts.rows.map((r) => ({ etichetta: r.etichetta.trim(), valore: r.valore.trim(), link: r.link.trim() }))
@@ -1908,7 +2037,9 @@ Testo da scrivere.
           const seqPhotos = state.seq.filter((it) => !it.text);
           const fresh = [state.cover, ...seqPhotos].filter((it) => it && it.blob && !it.sha);
           await uploadAll(fresh);
-          const shaOf = (it) => (it.orig && tree[it.orig]) || it.sha;
+          // a moved photo takes the file its old place had when the panel opened: if that place changed elsewhere in the
+          // meantime (Mac folder, another tab), the current file there is a different photo
+          const shaOf = (it) => (it.orig && (it.sha0 || tree[it.orig])) || it.sha;
           if (state.cover && state.cover.orig !== coverPath && shaOf(state.cover)) out[coverPath] = shaOf(state.cover);
           if (n.photos.kind === "serie") {
             const dir = n.photos.dir;
@@ -1971,8 +2102,8 @@ Testo da scrivere.
       draft.dirty = false;
       if (draft.photos) { // what was saved is now the online version
         const { state, coverPath, node: n } = draft.photos;
-        if (state.cover) state.cover.orig = coverPath;
-        state.seq.filter((it) => !it.text).forEach((it, i) => { it.orig = `${n.photos.dir}/${String(i + 1).padStart(2, "0")}.jpg`; });
+        if (state.cover) { state.cover.orig = coverPath; state.cover.sha0 = tree[coverPath]; }
+        state.seq.filter((it) => !it.text).forEach((it, i) => { it.orig = `${n.photos.dir}/${String(i + 1).padStart(2, "0")}.jpg`; it.sha0 = tree[it.orig]; });
       }
       if (draft.home || Object.keys(draft.switches).length) { await applyHome(); renderNav(); }
       if (draft.builder) { await applyPages(); renderNav(); }
@@ -2266,6 +2397,7 @@ Testo da scrivere.
     if (node.settings || node.headerFooter) whole.add(SITO_FILE);
     if (node.instagram) whole.add(`content/instagram/${node.instagram}.json`);
     if (node.videos) whole.add(`content/video/${node.videos}.json`);
+    if (node.posters) { whole.add(`content/locandine/${node.posters}.json`); prefixes.add(`img/${node.posters}/`); prefixes.add(`stampa/${node.posters}/`); }
     if (node.id === "home" || node.homeList) whole.add("content/home.json");
     return { whole: [...whole], prefixes: [...prefixes], fields };
   }

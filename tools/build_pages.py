@@ -759,6 +759,69 @@ def page_videos(slug):
             f'<div class="page-videos-list">{"".join(items)}</div></section>')
 
 
+def poster_rows(slug):
+    """Events by category under a culture page, set in /admin: content/locandine/<slug>.json
+    {"categorie": [{"nome": "POP NO POP", "cartella": "pop-no-pop", "video": [{"url", "testo"}]}]}.
+    Posters are img/<slug>/<cartella>/01.jpg ... (one at a time, with arrows), event photos
+    img/<slug>/<cartella>/foto/01.jpg ...; whatever is missing is left out, and so is an empty category."""
+    f = ROOT / "content" / "locandine" / f"{slug}.json"
+    if not f.is_file():
+        return ""
+    try:
+        data = json.loads(f.read_text(encoding="utf-8"))
+    except ValueError:
+        return ""
+
+    def numbered(d):
+        return sorted((x for x in d.glob("[0-9][0-9]*.jpg") if x.stem.isdigit()), key=lambda x: int(x.stem)) if d.is_dir() else []
+
+    rows = []
+    for cat in data.get("categorie") or []:
+        if not isinstance(cat, dict):
+            continue
+        name, folder = _str(cat.get("nome")), _str(cat.get("cartella"))
+        if not folder or "/" in folder or ".." in folder:
+            continue
+        base = f"img/{slug}/{folder}"
+        posters, photos = numbered(ROOT / base), numbered(ROOT / base / "foto")
+        videos = []
+        for v in cat.get("video") or []:
+            if not isinstance(v, dict):
+                continue
+            text = _str(v.get("testo"))
+            player = video_html(_str(v.get("url")), text or name or "Video")
+            if player:
+                videos.append(f'<figure class="page-video">{player}' + (f"<figcaption>{inline(text)}</figcaption>" if text else "") + "</figure>")
+        if not (posters or photos or videos):
+            continue
+        n = len(posters)
+
+        def download(x):
+            # print-quality original sent from /admin (stampa/...), else the web version; "scarica": false hides it
+            if cat.get("scarica") is False:
+                return ""
+            raw = next((f"stampa/{slug}/{folder}/{x.stem}{e}" for e in (".jpg", ".png") if (ROOT / "stampa" / slug / folder / f"{x.stem}{e}").is_file()), f"{base}/{x.name}")
+            fname = f"{slug}-{folder}-{x.stem}{Path(raw).suffix}"
+            return f'<figcaption><a class="poster-dl" href="{raw}" download="{fname}">Scarica la locandina &darr;</a></figcaption>'
+
+        nav = ("" if n < 2 else
+               f'<div class="poster-nav"><button type="button" data-step="-1" aria-label="Locandina precedente" disabled>&larr;</button>'
+               f'<span class="poster-count" aria-live="polite">1 / {n}</span>'
+               f'<button type="button" data-step="1" aria-label="Locandina successiva">&rarr;</button></div>')
+        track = ("" if not posters else
+                 f'<div class="poster-track" tabindex="0" aria-label="{html.escape(name)}: locandine">'
+                 + "".join(f'<figure class="poster">{img(f"{base}/{x.name}", f"{name}, locandina {k}")}{download(x)}</figure>' for k, x in enumerate(posters, 1))
+                 + "</div>")
+        gallery = ("" if not photos else
+                   '<div class="event-photos">' + "".join(img(f"{base}/foto/{x.name}", f"{name}, foto {k}") for k, x in enumerate(photos, 1)) + "</div>")
+        vids = f'<div class="page-videos-list event-videos">{"".join(videos)}</div>' if videos else ""
+        rows.append(f'<article class="ev-cat"><div class="poster-cat{"" if posters else " no-posters"}"><div class="poster-head">'
+                    f'<h2 class="small-title">{html.escape(name)}</h2>{nav}</div>{track}</div>{gallery}{vids}</article>')
+    if not rows:
+        return ""
+    return f'<section class="poster-cats" aria-label="Eventi">{"".join(rows)}</section>'
+
+
 def build_culture(i, p):
     meta, notes, secs = parse_sheet(p["doc"])
     nxt = CULTURE[(i + 1) % len(CULTURE)]
@@ -782,6 +845,7 @@ def build_culture(i, p):
     </div>
     <div class="gallery col" aria-label="Immagini del progetto">{"".join(img(f"img/{s}/{n:02d}.jpg", f"{p['title']}, immagine {n}") for n in range(1, slots(s, 6) + 1) if exists(f"img/{s}/{n:02d}.jpg"))}</div>
   </section>
+  {poster_rows(s)}
   {page_videos(s)}
   {instagram_posts(s)}
   <a class="next-project" href="{nxt["slug"]}.html"><span>Progetto successivo</span><span>{html.escape(nxt["title"])} ›</span></a>

@@ -338,6 +338,32 @@ mark.verify { background: none; color: #b0461f; font-size: .85em; }
 .related-row .media { aspect-ratio: 4 / 3; }
 @media (max-width: 640px) { .related-row { grid-auto-columns: calc((100% - var(--gutter)) / 2); } }
 
+/* Posters by category under a culture page (content/locandine): one row per category, one poster at a time, arrows to change it. */
+.poster-cats { padding: clamp(56px, 7vw, 104px) var(--pad) 0; display: grid; gap: clamp(48px, 6vw, 88px); }
+.poster-cat { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 460px); gap: var(--gutter); align-items: start; }
+.poster-head { display: flex; flex-direction: column; gap: 16px; }
+.poster-nav { display: flex; align-items: center; gap: 16px; }
+.poster-nav button { font: inherit; font-size: var(--fs-band-link); line-height: 1; color: var(--ink); background: none; border: 0; padding: 4px; cursor: pointer; }
+.poster-nav button:disabled { color: var(--rule); cursor: default; }
+.poster-count { font-size: 14px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.poster-track { display: grid; grid-auto-flow: column; grid-auto-columns: 100%; overflow-x: auto; scroll-snap-type: x mandatory;
+  scroll-behavior: smooth; scrollbar-width: none; }
+.poster-track::-webkit-scrollbar { display: none; }
+.poster-track:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+.poster { margin: 0; scroll-snap-align: start; }
+.poster .media { aspect-ratio: auto; background: none; }
+.poster .media::after { display: none; }
+.poster .media img { position: static; display: block; width: 100%; height: auto; }
+.poster figcaption { margin-top: 10px; font-size: 14px; }
+.poster-dl { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.poster-dl:hover { color: var(--ink-2); }
+.poster-cat.no-posters { grid-template-columns: 1fr; }
+.ev-cat { display: grid; gap: clamp(24px, 3vw, 40px); }
+.event-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gutter); }
+.event-photos .media { aspect-ratio: 3 / 2; }
+@media (max-width: 640px) { .event-photos { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 640px) { .poster-cat { grid-template-columns: 1fr; } .poster-head { flex-direction: row; justify-content: space-between; align-items: baseline; } }
+
 /* Instagram posts under a culture page: three per row (one on phones), a tile with its own image or Instagram's embed. */
 .page-videos { padding: clamp(56px, 7vw, 104px) var(--pad) 0; }
 .page-videos .small-title { margin-bottom: 16px; }
