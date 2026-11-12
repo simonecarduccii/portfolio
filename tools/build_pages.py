@@ -701,8 +701,9 @@ _IG = re.compile(r"https?://(?:www\.)?instagram\.com/(?:[\w.]+/)?(p|reel|tv)/([\
 
 def instagram_posts(slug):
     """Instagram posts under a culture page: content/instagram/<slug>.json
-    {"titolo": "Su Instagram", "post": [{"url": "https://www.instagram.com/p/…/", "immagine": "img/<slug>/ig-01.jpg", "testo": ""}]}.
-    A post with its own image is a tile linking to Instagram; without one it is Instagram's embed of the post."""
+    {"titolo": "Su Instagram", "post": [{"url": "https://www.instagram.com/p/…/", "video": "media/<slug>/ig-….mp4", "immagine": "img/<slug>/ig-01.jpg", "testo": ""}]}.
+    A post with its video file shows just that video; with its own image it is a tile linking to Instagram;
+    with neither it is Instagram's embed of the post. Centred on the page."""
     f = ROOT / "content" / "instagram" / f"{slug}.json"
     if not f.is_file():
         return ""
@@ -720,7 +721,14 @@ def instagram_posts(slug):
         link = f"https://www.instagram.com/{kind}/{code}/"
         text = str(post.get("testo", "")).strip()
         pic = str(post.get("immagine", "")).strip()
-        if pic and exists(pic):
+        vid = str(post.get("video", "")).strip()
+        if VIDEO_FILE.fullmatch(vid) and exists(vid):
+            # the reel's own video file (uploaded in /admin): only the video, no Instagram frame around it
+            poster = f' poster="{pic}"' if pic and exists(pic) else ""
+            items.append(f'<div class="ig-post ig-video"><div class="media"><video src="{vid}"{poster} autoplay muted loop playsinline controls preload="metadata" '
+                         f'aria-label="{html.escape(text or "Video del post su Instagram")}"></video></div>'
+                         f'<a class="ig-caption" href="{link}" target="_blank" rel="noopener">{html.escape(text) or "Guarda su Instagram"} &#8599;</a></div>')
+        elif pic and exists(pic):
             items.append(f'<a class="ig-post" href="{link}" target="_blank" rel="noopener">'
                          f'<div class="media"><img src="{pic}" alt="{html.escape(text or "Post su Instagram")}" loading="lazy"{focus(pic)}></div>'
                          f'<span class="ig-caption">{html.escape(text) or "Apri su Instagram"} &#8599;</span></a>')
