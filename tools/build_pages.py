@@ -1059,18 +1059,21 @@ def build_photo(i, p):
         for q in others)
     first = f'  <div class="photo-first">{img(f"img/{s}/cover.jpg", p["title"], eager=True)}</div>\n' if lay.get("copertina", True) is not False else ""
     note = draft_note(inline(notes[0])) if notes else (draft_note() if "DA VERIFICARE" in str(secs) else "")
-    body = f"""  <div class="p-title-row page-head">{back("index.html#ricerca-visiva")}<h1 class="p-title">{html.escape(p["title"])}<sup class="yr">{html.escape(year)}</sup></h1></div>
-  <div class="photo-intro">
-    <p>{inline(intro)}</p>
-    <p class="meta">{" · ".join(html.escape(x) for x in meta_lines)}</p>
-  </div>
-{first}{seq}  <section class="photo-text">
+    text = f"""  <section class="photo-text{' text-top' if lay.get('testo_sopra') else ''}">
     {note}
     {render_blocks(long_text)}
     <div class="credits label">{"".join(f"<span>{t}</span>" for t in tech)}</div>
     {f'<p class="copy label">{inline(credits)}</p>' if credits else ""}
   </section>
-  <section class="related" aria-label="Altri progetti">
+"""
+    # content/layout/<slug>.json "testo_sopra": true puts the text and credits before the photos (pages with many photos)
+    top = bool(lay.get("testo_sopra"))
+    body = f"""  <div class="p-title-row page-head">{back("index.html#ricerca-visiva")}<h1 class="p-title">{html.escape(p["title"])}<sup class="yr">{html.escape(year)}</sup></h1></div>
+  <div class="photo-intro">
+    <p>{inline(intro)}</p>
+    <p class="meta">{" · ".join(html.escape(x) for x in meta_lines)}</p>
+  </div>
+{text if top else ""}{first}{seq}{"" if top else text}  <section class="related" aria-label="Altri progetti">
     <div class="related-head"><h2 class="small-title">Altri progetti</h2><span class="related-nav" hidden><button type="button" data-rel-step="-1" aria-label="Progetti precedenti">&larr;</button><button type="button" data-rel-step="1" aria-label="Progetti successivi">&rarr;</button></span></div>
     <div class="related-row">{related}</div>
   </section>
