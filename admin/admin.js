@@ -1951,11 +1951,12 @@ Testo da scrivere.
       return h("label", {}, h("span", {}, label), sel);
     }));
     const NAMES = { testo: "Testo del progetto", crediti: "Crediti" };
+    const FEW = 8, allPhotos = new WeakSet();
     const draw = () => {
       normalize();
       const schema = schemaOf(state);
       const cs = cards();
-      let photoNo = 0;
+
       const total = state.seq.filter(isPhoto).length;
       box.replaceChildren(...cs.map(([a, b], c) => {
         const it = state.seq[a];
@@ -1967,14 +1968,16 @@ Testo da scrivere.
             state.seq.splice(a, b - a); draw(); markDirty(); } }, "×") : null);
         if (it.sep) {
           const n = b - a - 1;
+          // long photo sections show two rows until you ask for all of them
+          const short = n > FEW && !allPhotos.has(it);
           const places = schema ? placeAll(schema, n) : [];
           const grid = h("ol", { class: schema ? "seq lay lay-custom" : `seq lay lay-${state.layout}` },
-            ...state.seq.slice(a + 1, b).map((p, k) => {
+            ...state.seq.slice(a + 1, short ? a + 1 + FEW : b).map((p, k) => {
               const i = a + 1 + k, pl = places[k];
               const cls = [k % 2 ? "alt" : "", k % 3 === 0 ? "wide" : ""].filter(Boolean).join(" ");
               const li = h("li", { draggable: "true", class: cls || null, style: pl ? `grid-column: ${pl[0]} / span ${pl[1]}; grid-row: ${pl[2]}` : null },
                 h("img", { src: p.url, alt: "" }),
-                h("span", { class: "num" }, String(++photoNo).padStart(2, "0")),
+                h("span", { class: "num" }, String(state.seq.slice(0, i + 1).filter(isPhoto).length).padStart(2, "0")),
                 h("span", { class: "tools" },
                   h("button", { type: "button", title: "Prima", onclick: () => movePhoto(i, i - 1) }, "←"),
                   h("button", { type: "button", title: "Dopo", onclick: () => movePhoto(i, i + 1) }, "→"),
@@ -1990,6 +1993,8 @@ Testo da scrivere.
             h("div", { class: "sec-head" }, h("strong", {}, "Foto"), h("small", { class: "muted" }, n ? ` · ${n} di ${total}` : " · ancora vuota: non compare"), tools(true)),
             n ? grid : null,
             h("div", { class: "photo-btns" },
+              n > FEW ? h("button", { type: "button", class: "btn small", onclick: () => { if (allPhotos.has(it)) allPhotos.delete(it); else allPhotos.add(it); draw(); } },
+                short ? `Mostra tutte (${n})` : "Mostra meno") : null,
               h("label", { class: "btn small" }, "+ Aggiungi foto qui",
                 h("input", { type: "file", accept: "image/*", multiple: true, hidden: true, onchange: (e) => addAt(b, [...e.target.files]) })),
               libButton(true, (list) => { state.seq.splice(b, 0, ...list); draw(); markDirty(); })));
