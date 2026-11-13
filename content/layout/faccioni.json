@@ -1,5 +1,15 @@
 {
   "copertina": false,
   "layout": "griglia",
-  "testo_sopra": true
+  "testo_sopra": true,
+  "testi": [
+    {
+      "dopo": 0,
+      "blocco": "testo"
+    },
+    {
+      "dopo": 42,
+      "blocco": "crediti"
+    }
+  ]
 }
