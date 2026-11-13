@@ -1775,12 +1775,22 @@ Testo da scrivere.
       state.layout = known ? layout.layout : LAYOUTS[0].id;
       // texts between the photos: {dopo: photos before it, testo}
       // and videos: {dopo, video}
-      const tx = (Array.isArray(layout.testi) ? layout.testi : []).filter((t) => t && (typeof t.testo === "string" || typeof t.video === "string"))
-        .map((t) => ({ dopo: Math.max(0, Math.min(state.seq.length, parseInt(t.dopo, 10) || 0)), testo: t.testo, video: t.video }));
+      // sections (blocco): the project text and the credits; "separa" starts a new photo section
+      const tx = (Array.isArray(layout.testi) ? layout.testi : [])
+        .filter((t) => t && (typeof t.testo === "string" || typeof t.video === "string" || t.blocco === "testo" || t.blocco === "crediti" || t.separa))
+        .map((t) => ({ ...t, dopo: Math.max(0, Math.min(state.seq.length, parseInt(t.dopo, 10) || 0)) }));
+      const nPhotos = state.seq.length;
+      // pages saved before the sections: the project text and the credits sit after the photos (or above them, "testo_sopra")
+      for (const b of ["testo", "crediti"]) if (!tx.some((t) => t.blocco === b)) tx.push({ blocco: b, dopo: layout.testo_sopra ? 0 : nPhotos });
+      tx.sort((a, b) => a.dopo - b.dopo);
+      const opts = (t) => Object.fromEntries(TEXT_OPTS.map(([k]) => [k, typeof t[k] === "string" ? t[k] : ""]));
       for (let k = tx.length - 1; k >= 0; k--) {
+        const t = tx[k];
         let at = 0, seen = 0;
-        while (at < state.seq.length && seen < tx[k].dopo) { if (!state.seq[at].text) seen++; at++; }
-        state.seq.splice(at, 0, typeof tx[k].video === "string" ? { text: true, video: tx[k].video } : { text: true, testo: tx[k].testo });
+        while (at < state.seq.length && seen < t.dopo) { if (!state.seq[at].text) seen++; at++; }
+        state.seq.splice(at, 0, t.separa ? { text: true, sep: true }
+          : t.blocco ? { text: true, blocco: t.blocco, ...opts(t) }
+          : typeof t.video === "string" ? { text: true, video: t.video } : { text: true, testo: t.testo, ...opts(t) });
       }
     }
     draft.photos = { node, state, coverPath, layout };
@@ -1795,6 +1805,7 @@ Testo da scrivere.
         } })),
       libButton(false, ([p]) => { state.cover = p; drawCover(); markDirty(); }));
     drawCover();
+    state.onCover = drawCover;
     dropZone(coverBox, async (files) => { const p = await newPhoto(files[0], MAX_SIDE); if (p) { state.cover = p; drawCover(); markDirty(); } });
     panel.append(h("h3", {}, ph.cover || "Foto"), coverBox);
     if (ph.layout) panel.append(h("div", { class: "head-switch cover-switch" },
@@ -1803,7 +1814,10 @@ Testo da scrivere.
       h("small", { class: "hint" }, "(in home resta comunque la foto del progetto)")));
     if (ph.layout) panel.append(layoutPicker(state));
 
-    if (ph.kind === "serie") {
+    if (ph.kind === "serie" && ph.layout) {
+      panel.append(h("h3", {}, "Sezioni della pagina", h("small", {}, " in ordine dall'alto: testo, foto, video, testo del progetto, crediti. Le sposti con ↑ ↓")),
+        sectionsEditor(state));
+    } else if (ph.kind === "serie") {
       // With a page layout the sequence is a small preview of the page: the photos sit as they will on the site
       const grid = h("ol", { class: ph.layout ? `seq lay lay-${state.layout}` : "seq" });
       const draw = () => {
@@ -1882,6 +1896,135 @@ Testo da scrivere.
       panel.append(h("h3", {}, ph.seq, h("small", {}, " trascina per riordinare, o trascina qui le foto dal Finder")), grid);
     }
     return panel;
+  }
+
+  // How a text section sits on the page (classes tx-<key>-<value> on the site, assets/style.css); "" = the standard look
+  const TEXT_OPTS = [
+    ["posizione", "Posizione", [["", "Al centro"], ["sinistra", "A sinistra"], ["destra", "A destra"]]],
+    ["allinea", "Allineamento", [["", "A sinistra"], ["centrato", "Centrato"], ["destra", "A destra"], ["giustificato", "Giustificato"]]],
+    ["larghezza", "Larghezza", [["stretta", "Stretta"], ["", "Media"], ["larga", "Larga"], ["piena", "Tutta la pagina"]]],
+    ["margini", "Distanza dai bordi", [["piccoli", "Poca"], ["", "Normale"], ["grandi", "Tanta"]]],
+    ["spazio", "Spazio sopra", [["poco", "Poco"], ["", "Normale"], ["tanto", "Tanto"]]],
+  ];
+
+  // The page as a list of sections (photo projects with a layout): text, photos, video, the project text, the credits.
+  // state.seq stays one flat list (photos are numbered in this order); a "sep" item opens each photo section.
+  function sectionsEditor(state) {
+    const box = h("div", { class: "sections" });
+    const isPhoto = (it) => !it.text;
+    // every run of photos starts with its "sep"
+    const normalize = () => {
+      for (let i = 0; i < state.seq.length; i++) {
+        if (isPhoto(state.seq[i]) && !(i > 0 && (state.seq[i - 1].sep || isPhoto(state.seq[i - 1])))) state.seq.splice(i, 0, { text: true, sep: true });
+      }
+    };
+    const cards = () => {
+      const out = [];
+      for (let i = 0; i < state.seq.length;) {
+        let j = i + 1;
+        if (state.seq[i].sep) while (j < state.seq.length && isPhoto(state.seq[j])) j++;
+        out.push([i, j]); i = j;
+      }
+      return out;
+    };
+    const moveCard = (c, d) => {
+      const cs = cards(), k = c + d;
+      if (k < 0 || k >= cs.length) return;
+      const [a, b] = d < 0 ? [cs[k], cs[c]] : [cs[c], cs[k]];
+      const first = state.seq.slice(a[0], a[1]), second = state.seq.slice(b[0], b[1]);
+      state.seq.splice(a[0], b[1] - a[0], ...second, ...first);
+      draw(); markDirty();
+    };
+    const movePhoto = (a, b) => {
+      if (b < 0 || b >= state.seq.length) return;
+      const [it] = state.seq.splice(a, 1); state.seq.splice(b, 0, it); draw(); markDirty();
+    };
+    const addAt = async (at, files) => {
+      const list = [];
+      for (const f of files) { const p = isImage(f) && await newPhoto(f, MAX_SIDE); if (p) list.push(p); }
+      state.seq.splice(at, 0, ...list); draw(); markDirty();
+    };
+    const optionsRow = (it) => h("div", { class: "sec-opts" }, ...TEXT_OPTS.map(([key, label, choices]) => {
+      const sel = h("select", { "aria-label": label }, ...choices.map(([v, t]) => h("option", { value: v }, t)));
+      sel.value = it[key] || "";
+      sel.addEventListener("change", () => { it[key] = sel.value; markDirty(); });
+      return h("label", {}, h("span", {}, label), sel);
+    }));
+    const NAMES = { testo: "Testo del progetto", crediti: "Crediti" };
+    const draw = () => {
+      normalize();
+      const schema = schemaOf(state);
+      const cs = cards();
+      let photoNo = 0;
+      const total = state.seq.filter(isPhoto).length;
+      box.replaceChildren(...cs.map(([a, b], c) => {
+        const it = state.seq[a];
+        const tools = (removable) => h("span", { class: "sec-tools" },
+          h("button", { type: "button", title: "Sposta su", disabled: c === 0 ? true : null, onclick: () => moveCard(c, -1) }, "↑"),
+          h("button", { type: "button", title: "Sposta giù", disabled: c === cs.length - 1 ? true : null, onclick: () => moveCard(c, 1) }, "↓"),
+          removable ? h("button", { type: "button", title: "Togli la sezione", onclick: () => {
+            if (b - a > 1 && !confirm(`Togliere questa sezione con le sue ${b - a - 1} foto?`)) return;
+            state.seq.splice(a, b - a); draw(); markDirty(); } }, "×") : null);
+        if (it.sep) {
+          const n = b - a - 1;
+          const places = schema ? placeAll(schema, n) : [];
+          const grid = h("ol", { class: schema ? "seq lay lay-custom" : `seq lay lay-${state.layout}` },
+            ...state.seq.slice(a + 1, b).map((p, k) => {
+              const i = a + 1 + k, pl = places[k];
+              const cls = [k % 2 ? "alt" : "", k % 3 === 0 ? "wide" : ""].filter(Boolean).join(" ");
+              const li = h("li", { draggable: "true", class: cls || null, style: pl ? `grid-column: ${pl[0]} / span ${pl[1]}; grid-row: ${pl[2]}` : null },
+                h("img", { src: p.url, alt: "" }),
+                h("span", { class: "num" }, String(++photoNo).padStart(2, "0")),
+                h("span", { class: "tools" },
+                  h("button", { type: "button", title: "Prima", onclick: () => movePhoto(i, i - 1) }, "←"),
+                  h("button", { type: "button", title: "Dopo", onclick: () => movePhoto(i, i + 1) }, "→"),
+                  h("button", { type: "button", title: "Usa come copertina", onclick: () => { state.cover = { ...p }; if (state.onCover) state.onCover(); markDirty(); } }, "★"),
+                  h("button", { type: "button", title: "Togli", onclick: () => { state.seq.splice(i, 1); draw(); markDirty(); } }, "×")));
+              li.addEventListener("dragstart", (e) => { e.dataTransfer.setData("text/x-seq", String(i)); li.classList.add("dragging"); });
+              li.addEventListener("dragend", () => li.classList.remove("dragging"));
+              li.addEventListener("dragover", (e) => { if (e.dataTransfer.types.includes("text/x-seq")) e.preventDefault(); });
+              li.addEventListener("drop", (e) => { const from = e.dataTransfer.getData("text/x-seq"); if (from === "") return; e.preventDefault(); e.stopPropagation(); movePhoto(+from, i); });
+              return li;
+            }));
+          const card = h("div", { class: "sec sec-foto" },
+            h("div", { class: "sec-head" }, h("strong", {}, "Foto"), h("small", { class: "muted" }, n ? ` · ${n} di ${total}` : " · ancora vuota: non compare"), tools(true)),
+            n ? grid : null,
+            h("div", { class: "photo-btns" },
+              h("label", { class: "btn small" }, "+ Aggiungi foto qui",
+                h("input", { type: "file", accept: "image/*", multiple: true, hidden: true, onchange: (e) => addAt(b, [...e.target.files]) })),
+              libButton(true, (list) => { state.seq.splice(b, 0, ...list); draw(); markDirty(); })));
+          // photos dropped from the Finder, or dragged from another section, land at the end of this one
+          dropZone(card, (files) => addAt(b, files));
+          card.addEventListener("dragover", (e) => { if (e.dataTransfer.types.includes("text/x-seq")) e.preventDefault(); });
+          card.addEventListener("drop", (e) => { const from = e.dataTransfer.getData("text/x-seq"); if (from === "") return; e.preventDefault(); const f = +from; movePhoto(f, f < b ? b - 1 : b); });
+          return card;
+        }
+        if ("video" in it) {
+          return h("div", { class: "sec sec-video" }, h("div", { class: "sec-head" }, h("strong", {}, "Video"), tools(true)),
+            videoField(() => it.video, (v) => { it.video = v; markDirty(); }));
+        }
+        if (it.blocco) {
+          return h("div", { class: "sec sec-blocco" },
+            h("div", { class: "sec-head" }, h("strong", {}, NAMES[it.blocco]), tools(false)),
+            h("p", { class: "hint" }, it.blocco === "testo"
+              ? "Il testo lungo che scrivi nel pannello Testi (campo “Testo in fondo”). Qui scegli dove sta e come si dispone."
+              : "Supporto, fotocamera, pellicola e la riga dei crediti, presi dalla scheda del progetto."),
+            it.blocco === "testo" ? optionsRow(it) : null);
+        }
+        const ta = h("textarea", { rows: 4, placeholder: "Scrivi il testo… (**grassetto**, _corsivo_, un rigo vuoto separa i paragrafi)", "aria-label": "Testo" });
+        ta.value = it.testo || "";
+        ta.addEventListener("input", () => { it.testo = ta.value; markDirty(); });
+        return h("div", { class: "sec sec-testo" }, h("div", { class: "sec-head" }, h("strong", {}, "Testo"), tools(true)), ta, optionsRow(it));
+      }),
+      h("div", { class: "sec-add" }, h("span", {}, "Aggiungi una sezione in fondo:"),
+        h("button", { type: "button", class: "btn small", onclick: () => { state.seq.push({ text: true, testo: "" }); draw(); markDirty();
+          const tas = box.querySelectorAll(".sec-testo textarea"); if (tas.length) tas[tas.length - 1].focus(); } }, "+ Testo"),
+        h("button", { type: "button", class: "btn small", onclick: () => { state.seq.push({ text: true, sep: true }); draw(); markDirty(); } }, "+ Foto"),
+        h("button", { type: "button", class: "btn small", onclick: () => { state.seq.push({ text: true, video: "" }); draw(); markDirty(); } }, "+ Video")));
+    };
+    state.onLayout = draw;
+    draw();
+    return box;
   }
 
   // Standard layouts of a photo page sequence: the same ids are classes on the site (.photo-seq.layout-<id>).
@@ -2211,10 +2354,14 @@ Testo da scrivere.
             let before = 0;
             const testi = [];
             const slugOf = n.photos.dir.replace(/^img\//, "");
-            for (const it of state.seq) {
+            const withOpts = (o, it) => { TEXT_OPTS.forEach(([k]) => { if (it[k]) o[k] = it[k]; }); return o; };
+            for (const [k, it] of state.seq.entries()) {
               if (!it.text) before++;
+              // a new photo section only matters right after photos (two photo sections in a row)
+              else if (it.sep) { const prev = state.seq[k - 1], next = state.seq[k + 1]; if (prev && !prev.text && next && !next.text) testi.push({ dopo: before, separa: true }); }
+              else if (it.blocco) testi.push(withOpts({ dopo: before, blocco: it.blocco }, it));
               else if ("video" in it) { const v = await putVideo(it.video, slugOf, out); if (v) testi.push({ dopo: before, video: v }); }
-              else if ((it.testo || "").trim()) testi.push({ dopo: before, testo: it.testo.trim() });
+              else if ((it.testo || "").trim()) testi.push(withOpts({ dopo: before, testo: it.testo.trim() }, it));
             }
             dropUnusedMedia(slugOf, new Set(testi.map((t) => t.video).filter(Boolean)), out);
             if (testi.length) page.testi = testi;
