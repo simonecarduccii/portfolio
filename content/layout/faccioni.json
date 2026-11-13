@@ -1,4 +1,5 @@
 {
   "copertina": false,
-  "layout": "griglia"
+  "layout": "griglia",
+  "testo_sopra": true
 }
