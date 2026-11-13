@@ -47,9 +47,15 @@ Il triangolino ▸ / ▾ accanto a un ramo lo apre o lo chiude (il browser se lo
   `content/layout/_layouts.json`: ogni riga è un elenco di `[colonna di partenza, larghezza]` su 12 colonne, e le righe si ripetono lungo la pagina.
   La *Sequenza della pagina* sotto è un'anteprima in piccolo della pagina: le foto sono già disposte come nel layout scelto, e cambiano subito se cambi layout.
   Le scelte sono in `content/layout/<pagina>.json`; i layout sono le classi `.photo-seq.layout-<nome>` in `assets/style.css`.
-- **Testo tra le foto** (progetti fotografici): sotto la *Sequenza della pagina*, *+ Aggiungi testo* aggiunge un riquadro di testo;
-  spostalo con ↑ ↓ o trascinandolo tra le foto, × lo toglie. Sul sito il testo compare tra le foto, in colonna come i testi della pagina,
-  e il layout riparte dopo ogni testo. È `testi` (`{dopo: foto prima del testo, testo}`) in `content/layout/<pagina>.json`.
+- **Sezioni della pagina** (progetti fotografici): la pagina è una lista di sezioni, dall'alto in basso: *Testo*, *Foto*, *Video*,
+  *Testo del progetto* (il testo lungo del pannello Testi) e *Crediti* (supporto, fotocamera e riga dei crediti). Ogni sezione si sposta
+  con ↑ ↓; *Aggiungi una sezione in fondo* aggiunge un Testo, un gruppo di Foto o un Video; × toglie la sezione (Testo del progetto e
+  Crediti restano: se il testo è vuoto non compare). Ogni gruppo di Foto ha il suo “+ Aggiungi foto qui” e riparte col layout scelto;
+  le foto si possono trascinare da un gruppo all'altro. Per ogni testo si sceglie posizione, allineamento, larghezza, distanza dai bordi
+  e spazio sopra. Le sezioni prima della prima foto stanno sopra la copertina grande.
+  Sul file: `testi` in `content/layout/<pagina>.json`, voci `{dopo: foto prima, testo | video | blocco: "testo"/"crediti" | separa: true}`,
+  con `posizione`, `allinea`, `larghezza`, `margini`, `spazio` per i testi (classi `tx-*` in `assets/style.css`). Le pagine senza voci
+  `blocco` mettono testo e crediti in fondo, o sopra le foto con `testo_sopra: true`.
 - **Scheda tecnica** (progetti fotografici): un campo vuoto o con “-” non compare sul sito. Se il supporto è *Digitale*, *Pellicola*
   sparisce (anche dal pannello); *Lente* è facoltativa.
 - **Scheda dati in alto** (Bohème, modì, progetti con l'AI): le voci sotto il titolo (Year, Creative direction, Where…).

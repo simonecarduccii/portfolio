@@ -1019,28 +1019,44 @@ def build_photo(i, p):
     schema = schema_of(lay)
     seq_class = "custom" if schema else (lay.get("layout") if lay.get("layout") in LAYOUTS else "colonna")
     have = [n for n in range(1, total + 1) if exists(f"img/{s}/{n:02d}.jpg")]
-    # texts between the photos (/admin): {"dopo": photos before it, "testo"}; each run of photos starts the layout again
-    # (and videos: {"dopo", "video": YouTube/Vimeo link or media/<page>/file.mp4})
+    note = draft_note(inline(notes[0])) if notes else (draft_note() if "DA VERIFICARE" in str(secs) else "")
+    credits_html = (f'<div class="credits label">{"".join(f"<span>{t}</span>" for t in tech)}</div>'
+                    f'{f"<p class=\"copy label\">{inline(credits)}</p>" if credits else ""}')
+    # The page in sections (/admin), content/layout/<slug>.json "testi": [{"dopo": photos before it, ...}]:
+    # {"testo"} a text, {"video"} a video, {"blocco": "testo"} the project text, {"blocco": "crediti"} the credits,
+    # {"separa": true} a new photo section. Texts can say how they sit: "posizione", "allinea", "larghezza", "margini", "spazio".
+    # Each run of photos starts the layout again. Pages without "blocco" entries: the project text and the credits
+    # together, after the photos or before them ("testo_sopra").
     between = {}
-    for t in lay.get("testi") or []:
-        if not isinstance(t, dict):
-            continue
-        if isinstance(t.get("video"), str):
+    entries = [t for t in lay.get("testi") or [] if isinstance(t, dict)]
+    placed = any(t.get("blocco") in ("testo", "crediti") for t in entries)
+    for t in entries:
+        if t.get("separa"):
+            part = None
+        elif t.get("blocco") == "testo":
+            body_txt = render_blocks(long_text).strip()
+            part = f'  <section class="photo-text{text_classes(t)}">\n    {note}\n    {body_txt}\n  </section>' if body_txt or note else ""
+        elif t.get("blocco") == "crediti":
+            part = f'  <section class="photo-text photo-credits">\n    {credits_html}\n  </section>' if tech or credits else ""
+        elif isinstance(t.get("video"), str):
             part = video_html(t["video"], f'{p["title"]}, video')
             part = f'  <div class="seq-video">{part}</div>' if part else ""
         elif isinstance(t.get("testo"), str) and t["testo"].strip():
-            part = f'  <div class="seq-text">{paras(t["testo"].strip())}</div>'
+            part = f'  <div class="seq-text{text_classes(t)}">{paras(t["testo"].strip())}</div>'
         else:
             continue
-        if not part:
+        if part == "":
             continue
         try:
             at = max(0, min(len(have), int(t.get("dopo", 0))))
         except (TypeError, ValueError):
             continue
-        between.setdefault(at, []).append(part)
-    parts, start = [], 0
-    for cut in sorted(set(between) | {len(have)}):
+        between.setdefault(at, [])
+        if part:
+            between[at].append(part)
+    # sections before the first photo sit above the big cover (made further down, after the related tiles, as always)
+    parts, start = between.get(0, []) + ["\0first\0"], 0
+    for cut in sorted((set(between) - {0}) | {len(have)}):
         run = list(enumerate(have, 1))[start:cut]
         if run:
             spots = grid_places(schema, len(run)) if schema else []
@@ -1048,8 +1064,16 @@ def build_photo(i, p):
                 f'<li data-src="img/{s}/{n:02d}.jpg"{grid_spot(spots, j)}>{img(f"img/{s}/{n:02d}.jpg", f"{p["title"]}, fotografia {k}")}<span class="count label">{k:02d}/{len(have):02d}</span></li>'
                 for j, (k, n) in enumerate(run, 1))
             parts.append(f'  <ol class="photo-seq layout-{seq_class}" aria-label="Fotografie del progetto">{lis}</ol>')
-        parts += between.get(cut, [])
+        parts += between.get(cut, []) if cut else []
         start = cut
+    if not placed:
+        top = bool(lay.get("testo_sopra"))
+        text = f"""  <section class="photo-text{' text-top' if top else ''}">
+    {note}
+    {render_blocks(long_text)}
+    {credits_html}
+  </section>"""
+        parts = [text] + parts if top else parts + [text]
     seq = "\n".join(parts) + "\n" if parts else ""
     shown = {r["pagina"] for r in RESEARCH if r.get("visibile", True) and r.get("pagina")}
     others = [q for q in PHOTO if q["slug"] != s and q["slug"] in shown]
@@ -1058,27 +1082,27 @@ def build_photo(i, p):
         f'<span class="fig-cap"><span>{html.escape(q["title"])}</span><span>{q["year"]}</span></span></a>'
         for q in others)
     first = f'  <div class="photo-first">{img(f"img/{s}/cover.jpg", p["title"], eager=True)}</div>\n' if lay.get("copertina", True) is not False else ""
-    note = draft_note(inline(notes[0])) if notes else (draft_note() if "DA VERIFICARE" in str(secs) else "")
-    text = f"""  <section class="photo-text{' text-top' if lay.get('testo_sopra') else ''}">
-    {note}
-    {render_blocks(long_text)}
-    <div class="credits label">{"".join(f"<span>{t}</span>" for t in tech)}</div>
-    {f'<p class="copy label">{inline(credits)}</p>' if credits else ""}
-  </section>
-"""
-    # content/layout/<slug>.json "testo_sopra": true puts the text and credits before the photos (pages with many photos)
-    top = bool(lay.get("testo_sopra"))
+    seq = seq.replace("\0first\0\n", first)
     body = f"""  <div class="p-title-row page-head">{back("index.html#ricerca-visiva")}<h1 class="p-title">{html.escape(p["title"])}<sup class="yr">{html.escape(year)}</sup></h1></div>
   <div class="photo-intro">
     <p>{inline(intro)}</p>
     <p class="meta">{" · ".join(html.escape(x) for x in meta_lines)}</p>
   </div>
-{text if top else ""}{first}{seq}{"" if top else text}  <section class="related" aria-label="Altri progetti">
+{seq}  <section class="related" aria-label="Altri progetti">
     <div class="related-head"><h2 class="small-title">Altri progetti</h2><span class="related-nav" hidden><button type="button" data-rel-step="-1" aria-label="Progetti precedenti">&larr;</button><button type="button" data-rel-step="1" aria-label="Progetti successivi">&rarr;</button></span></div>
     <div class="related-row">{related}</div>
   </section>
 {band_archive()}"""
     page(file=f"{s}.html", title=p["title"], description=plain(intro), body=body, main_class="flush")
+
+
+TEXT_OPTS = {"posizione": ("sinistra", "destra"), "allinea": ("centrato", "destra", "giustificato"),
+             "larghezza": ("stretta", "larga", "piena"), "margini": ("piccoli", "grandi"), "spazio": ("poco", "tanto")}
+
+
+def text_classes(t):
+    """How a text section sits (/admin): " tx-larghezza-larga tx-allinea-centrato" ..., only known values."""
+    return "".join(f" tx-{k}-{t[k]}" for k, ok in TEXT_OPTS.items() if t.get(k) in ok)
 
 
 def ai_rows():
