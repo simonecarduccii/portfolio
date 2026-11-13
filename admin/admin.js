@@ -2049,7 +2049,7 @@ Testo da scrivere.
             ? [mirror('[data-field^="Testo"]', "Testo del progetto", 6), optionsRow(it)]
             : [h("div", { class: "sec-facts" }, ...["Supporto", "Fotocamera", "Pellicola", "Lente"].filter((m) => document.querySelector(`.panel [data-field="${m}"]`))
                 .map((m) => h("label", {}, h("span", {}, m), mirror(`[data-field="${m}"]`, m)))),
-              h("label", { class: "sec-line" }, h("span", {}, "Riga dei crediti (vuota = quella standard, “-” = nessuna)"), mirror('[data-field="Crediti"]', "Crediti", 2))];
+              h("label", { class: "sec-line" }, h("span", {}, "Riga dei crediti (vuota = quella standard, “-” = nessuna)"), mirror('[data-field^="Crediti"]', "Crediti", 2))];
           return h("div", { class: "sec sec-blocco" },
             h("div", { class: "sec-head" }, foldBtn(key), h("strong", {}, NAMES[it.blocco]), tools(false)),
             ...(shut ? [] : body),
