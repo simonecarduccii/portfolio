@@ -1184,7 +1184,9 @@ def build_home():
     <div class="media bw has-photo"><img src="img/{hero[0][0]}/cover.jpg" alt=""{focus(f"img/{hero[0][0]}/cover.jpg")}></div>
     <h1 class="sr-only">Simone Carducci, creative development</h1>
     <ul class="hero-list">{hero_items}</ul>
-  </section>""")
+    <a class="hero-scroll" href="#dopo-hero" aria-label="Scorri in basso"><svg viewBox="0 0 16 56" aria-hidden="true"><path d="M8 0v54M1 47l7 7 7-7"/></svg></a>
+  </section>
+  <div id="dopo-hero"></div>""")
     else:
         parts.append('  <h1 class="sr-only">Simone Carducci, creative development</h1>')
     sec = {}
