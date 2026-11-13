@@ -409,4 +409,4 @@ body.no-preview .preview { display: none; }
 .seq.seq-mini .tools button { width: 18px; height: 18px; font-size: 10px; border-radius: 3px; }
 .sec-facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
 .sec-facts label, .sec-line { display: grid; gap: 2px; font-size: 11px; color: var(--ink-2); }
-.sec-facts input, .sec-line textarea { font: inherit; font-size: 13px; color: var(--ink); border: 1px solid var(--rule); border-radius: 6px; padding: 5px 8px; }
+.sec-facts input, .sec-line textarea { width: 100%; min-width: 0; box-sizing: border-box; font: inherit; font-size: 13px; color: var(--ink); border: 1px solid var(--rule); border-radius: 6px; padding: 5px 8px; }
