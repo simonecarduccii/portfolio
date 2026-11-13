@@ -1728,6 +1728,7 @@ Testo da scrivere.
           : h("input", { id, type: "text" });
         input.value = value;
         if (f.meta) input.dataset.meta = f.meta;
+        input.dataset.field = f.meta || f.label; // the page sections (photo projects) edit these same fields
         if (spec.live) input.dataset.live = spec.live;
         input.addEventListener("input", () => { draft.texts[file + "\u0000" + (f.meta || f.section) + "\u0000" + (f.in || "")] = { f, value: input.value }; markDirty(); if (spec.live) livePreview(spec.live, input.value); });
         panel.append(h("label", { class: "field", for: id, "data-hide-meta": f.hideIf ? f.hideIf[0] : null, "data-hide-re": f.hideIf ? f.hideIf[1].source : null }, h("span", {}, f.label), input,
@@ -1951,6 +1952,32 @@ Testo da scrivere.
       return h("label", {}, h("span", {}, label), sel);
     }));
     const NAMES = { testo: "Testo del progetto", crediti: "Crediti" };
+    // a field of the Testi panel, edited here too: both stay the same and the Testi panel saves it
+    const mirror = (selector, label, rows) => {
+      const el = rows ? h("textarea", { rows, "aria-label": label }) : h("input", { type: "text", "aria-label": label });
+      const src = () => document.querySelector(`.panel [data-field]${selector}`);
+      const pull = () => { const s0 = src(); if (s0 && document.activeElement !== el) el.value = s0.value; };
+      el.addEventListener("input", () => { const s0 = src(); if (s0) { s0.value = el.value; s0.dispatchEvent(new Event("input")); } });
+      el.addEventListener("focus", pull);
+      // the Testi panel may be drawn after this one
+      setTimeout(pull, 0); setTimeout(pull, 600); setTimeout(pull, 2000);
+      mirrors.push({ src, pull });
+      return el;
+    };
+    let mirrors = [];
+    document.addEventListener("input", (e) => { mirrors.forEach((m) => { if (e.target === m.src()) m.pull(); }); });
+    // cards can be folded to just their title (remembered in this browser)
+    const FOLD_KEY = "sec-fold";
+    let folded = {};
+    try { folded = JSON.parse(localStorage.getItem(FOLD_KEY) || "{}") || {}; } catch (e) { folded = {}; }
+    const pageKey = location.hash;
+    const isFolded = (k) => !!folded[pageKey + "|" + k];
+    const flipFold = (k) => { folded[pageKey + "|" + k] = !isFolded(k); try { localStorage.setItem(FOLD_KEY, JSON.stringify(folded)); } catch (e) { /* private mode */ } draw(); };
+    const foldBtn = (k) => h("button", { type: "button", class: "pc-fold", "aria-expanded": isFolded(k) ? "false" : "true", title: isFolded(k) ? "Apri" : "Chiudi", onclick: () => flipFold(k) }, isFolded(k) ? "▸" : "▾");
+    // photo sections: small thumbnails (all of them, compact) or the preview of the layout
+    const VIEW_KEY = "sec-view";
+    let bigView = false;
+    try { bigView = localStorage.getItem(VIEW_KEY) === "layout"; } catch (e) { bigView = false; }
     const FEW = 8, allPhotos = new WeakSet();
     const draw = () => {
       normalize();
@@ -1958,8 +1985,13 @@ Testo da scrivere.
       const cs = cards();
 
       const total = state.seq.filter(isPhoto).length;
+      const seen = {};
+      mirrors = [];
       box.replaceChildren(...cs.map(([a, b], c) => {
         const it = state.seq[a];
+        const kind = it.sep ? "foto" : it.blocco ? it.blocco : "video" in it ? "video" : "testo";
+        const key = kind + (seen[kind] = (seen[kind] || 0) + 1);
+        const shut = isFolded(key);
         const tools = (removable) => h("span", { class: "sec-tools" },
           h("button", { type: "button", title: "Sposta su", disabled: c === 0 ? true : null, onclick: () => moveCard(c, -1) }, "↑"),
           h("button", { type: "button", title: "Sposta giù", disabled: c === cs.length - 1 ? true : null, onclick: () => moveCard(c, 1) }, "↓"),
@@ -1969,9 +2001,9 @@ Testo da scrivere.
         if (it.sep) {
           const n = b - a - 1;
           // long photo sections show two rows until you ask for all of them
-          const short = n > FEW && !allPhotos.has(it);
-          const places = schema ? placeAll(schema, n) : [];
-          const grid = h("ol", { class: schema ? "seq lay lay-custom" : `seq lay lay-${state.layout}` },
+          const short = bigView && n > FEW && !allPhotos.has(it);
+          const places = schema && bigView ? placeAll(schema, n) : [];
+          const grid = h("ol", { class: !bigView ? "seq seq-mini" : schema ? "seq lay lay-custom" : `seq lay lay-${state.layout}` },
             ...state.seq.slice(a + 1, short ? a + 1 + FEW : b).map((p, k) => {
               const i = a + 1 + k, pl = places[k];
               const cls = [k % 2 ? "alt" : "", k % 3 === 0 ? "wide" : ""].filter(Boolean).join(" ");
@@ -1990,10 +2022,14 @@ Testo da scrivere.
               return li;
             }));
           const card = h("div", { class: "sec sec-foto" },
-            h("div", { class: "sec-head" }, h("strong", {}, "Foto"), h("small", { class: "muted" }, n ? ` · ${n} di ${total}` : " · ancora vuota: non compare"), tools(true)),
-            n ? grid : null,
-            h("div", { class: "photo-btns" },
-              n > FEW ? h("button", { type: "button", class: "btn small", onclick: () => { if (allPhotos.has(it)) allPhotos.delete(it); else allPhotos.add(it); draw(); } },
+            h("div", { class: "sec-head" }, foldBtn(key), h("strong", {}, "Foto"), h("small", { class: "muted" }, n ? ` · ${n} di ${total}` : " · ancora vuota: non compare"),
+              n && !shut ? h("span", { class: "sec-view" },
+                h("button", { type: "button", "aria-pressed": bigView ? "false" : "true", onclick: () => { bigView = false; try { localStorage.setItem(VIEW_KEY, "mini"); } catch (e) { /* */ } draw(); } }, "Miniature"),
+                h("button", { type: "button", "aria-pressed": bigView ? "true" : "false", onclick: () => { bigView = true; try { localStorage.setItem(VIEW_KEY, "layout"); } catch (e) { /* */ } draw(); } }, "Come sul sito")) : null,
+              tools(true)),
+            shut ? null : n ? grid : null,
+            shut ? null : h("div", { class: "photo-btns" },
+              bigView && n > FEW ? h("button", { type: "button", class: "btn small", onclick: () => { if (allPhotos.has(it)) allPhotos.delete(it); else allPhotos.add(it); draw(); } },
                 short ? `Mostra tutte (${n})` : "Mostra meno") : null,
               h("label", { class: "btn small" }, "+ Aggiungi foto qui",
                 h("input", { type: "file", accept: "image/*", multiple: true, hidden: true, onchange: (e) => addAt(b, [...e.target.files]) })),
@@ -2005,21 +2041,27 @@ Testo da scrivere.
           return card;
         }
         if ("video" in it) {
-          return h("div", { class: "sec sec-video" }, h("div", { class: "sec-head" }, h("strong", {}, "Video"), tools(true)),
-            videoField(() => it.video, (v) => { it.video = v; markDirty(); }));
+          return h("div", { class: "sec sec-video" }, h("div", { class: "sec-head" }, foldBtn(key), h("strong", {}, "Video"), shut && it.video ? h("small", { class: "muted sec-peek" }, ` · ${it.video}`) : null, tools(true)),
+            shut ? null : videoField(() => it.video, (v) => { it.video = v; markDirty(); }));
         }
         if (it.blocco) {
+          const body = it.blocco === "testo"
+            ? [mirror('[data-field^="Testo"]', "Testo del progetto", 6), optionsRow(it)]
+            : [h("div", { class: "sec-facts" }, ...["Supporto", "Fotocamera", "Pellicola", "Lente"].filter((m) => document.querySelector(`.panel [data-field="${m}"]`))
+                .map((m) => h("label", {}, h("span", {}, m), mirror(`[data-field="${m}"]`, m)))),
+              h("label", { class: "sec-line" }, h("span", {}, "Riga dei crediti (vuota = quella standard, “-” = nessuna)"), mirror('[data-field^="Crediti"]', "Crediti", 2))];
           return h("div", { class: "sec sec-blocco" },
-            h("div", { class: "sec-head" }, h("strong", {}, NAMES[it.blocco]), tools(false)),
-            h("p", { class: "hint" }, it.blocco === "testo"
-              ? "Il testo lungo che scrivi nel pannello Testi (campo “Testo in fondo”). Qui scegli dove sta e come si dispone."
-              : "Supporto, fotocamera, pellicola e la riga dei crediti, presi dalla scheda del progetto."),
-            it.blocco === "testo" ? optionsRow(it) : null);
+            h("div", { class: "sec-head" }, foldBtn(key), h("strong", {}, NAMES[it.blocco]), tools(false)),
+            ...(shut ? [] : body),
+            shut ? null : h("p", { class: "hint" }, "È lo stesso testo del pannello Testi: lo puoi scrivere qui o lì."));
         }
         const ta = h("textarea", { rows: 4, placeholder: "Scrivi il testo… (**grassetto**, _corsivo_, un rigo vuoto separa i paragrafi)", "aria-label": "Testo" });
         ta.value = it.testo || "";
         ta.addEventListener("input", () => { it.testo = ta.value; markDirty(); });
-        return h("div", { class: "sec sec-testo" }, h("div", { class: "sec-head" }, h("strong", {}, "Testo"), tools(true)), ta, optionsRow(it));
+        const peek = (it.testo || "").trim().replace(/\s+/g, " ");
+        return h("div", { class: "sec sec-testo" }, h("div", { class: "sec-head" }, foldBtn(key), h("strong", {}, "Testo"),
+          shut && peek ? h("small", { class: "muted sec-peek" }, ` · ${peek.slice(0, 70)}${peek.length > 70 ? "…" : ""}`) : null, tools(true)),
+          ...(shut ? [] : [ta, optionsRow(it)]));
       }),
       h("div", { class: "sec-add" }, h("span", {}, "Aggiungi una sezione in fondo:"),
         h("button", { type: "button", class: "btn small", onclick: () => { state.seq.push({ text: true, testo: "" }); draw(); markDirty();
@@ -2029,6 +2071,8 @@ Testo da scrivere.
     };
     state.onLayout = draw;
     draw();
+    // the Testi panel is drawn a moment later: draw again once its fields exist
+    setTimeout(() => { if (box.isConnected) draw(); }, 900);
     return box;
   }
 
